@@ -1,0 +1,25 @@
+{
+  "name": "tablezap",
+  "version": "1.0.0",
+  "description": "Food ordering app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcryptjs": "*",
+    "bluebird": "*",
+    "body-parser": "*",
+    "cors": "*",
+    "config": "^3.1.0",
+    "express": "*",
+    "express-validator": "^5.3.1",
+    "jsonwebtoken": "*",
+    "mongoose": "^5.7.7",
+    "passport": "*",
+    "passport-jwt": "*",
+    "request": "^2.88.0"
+  },
+  "author": "Vinayak",
+  "license": "ISC"
+}

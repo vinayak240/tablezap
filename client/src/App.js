@@ -7,7 +7,7 @@ import { createMuiTheme } from "@material-ui/core/styles";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 // import Stepper from './component/layout/HorizontalStepper';
-import Register from "./component/auth/register/Register";
+// import Register from "./component/auth/register/Register";
 import Dashboard from "./component/dashboard/Dashboard";
 const theme = createMuiTheme({
   typography: {
@@ -53,8 +53,8 @@ const App = () => {
           {/* <Register /> */}
 
           {/* <Login /> */}
-          {/* {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />} */}
-          <Register />
+          {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />}
+          {/* <Register /> */}
         </div>
       </ThemeProvider>
     </Provider>

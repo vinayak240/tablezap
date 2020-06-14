@@ -100,7 +100,7 @@ const useStyles = makeStyles(() => ({
     margin: "auto",
     marginTop: "17px",
     padding: "20px",
-    width: "80%",
+    width: "90%",
     // overflowY: "auto",
     // overflowX: "auto",
     // height: "400px",
@@ -273,6 +273,7 @@ const Item = props => {
                 "This the short version of Description"
                   .slice(0, 30)
                   .concat("... ")}
+
               {!state.desc_show && (
                 <span
                   style={{
@@ -422,6 +423,42 @@ const Item = props => {
   );
 };
 
+const Category = props => {
+  const classes = useStyles();
+  const [state, setState] = React.useState({
+    cat_show: false
+  });
+
+  const toggleCollapse = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+    }));
+  };
+
+  return (
+    <div className={classes.card} style={{ width: "93%" }}>
+      <Typography
+        className={classes.cardTitle}
+        style={{ fontWeight: "bolder" }}
+        onClick={() => toggleCollapse("cat_show")}
+      >
+        <i
+          style={{ margin: "4px", fontSize: "25px" }}
+          className="fas fa-clipboard-list"
+        ></i>
+        Category name
+        <i
+          style={{ margin: "8px", fontSize: "22px", float: "right" }}
+          className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
+        ></i>
+      </Typography>
+
+      <Collapse in={state.cat_show}>Items</Collapse>
+    </div>
+  );
+};
+
 const Menu = props => {
   const classes = useStyles();
   const minimalSelectClasses = useMinimalSelectStyles();
@@ -474,9 +511,44 @@ const Menu = props => {
   const handleTab = (evt, newValue) => {
     setState({
       ...state,
-      tab: newValue,
-      select_cat: 0
+      tab: newValue
+      //select_cat: 0 // here we are changing the categoris to initial value verytime
     });
+  };
+
+  const getList = cat => {
+    const val =
+      state.tab === 2
+        ? "pack"
+        : cat === 1
+        ? "categ"
+        : cat === 2
+        ? "item"
+        : "no items";
+
+    switch (val) {
+      case "pack":
+        if (cat === 0)
+          return (
+            <div style={{ textAlign: "center", fontWeight: "bold" }}>
+              No items selected to display
+            </div>
+          );
+        else if (cat === 1) return <div>All Packages</div>;
+        else return <div>Selected Package</div>;
+
+      case "categ":
+        return <div>Categories</div>;
+      case "item":
+        return <div>Items</div>;
+
+      default:
+        return (
+          <div style={{ textAlign: "center", fontWeight: "bold" }}>
+            No items selected to display
+          </div>
+        );
+    }
   };
 
   return (
@@ -555,13 +627,16 @@ const Menu = props => {
             {/* Restaurant value at first is NULL because the app has not yet fetch the value of restaurant from server
           so to solve the problem use the restaurant value in if..else construct like below...
           */}
-            {props.restaurant ? (
+
+            {/* {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]].map(cat => (
                 <Item item={cat.items[0]} />
               ))
             ) : (
               <>No Items Available...</>
-            )}
+            )} */}
+            {/* <Category /> */}
+            {getList(state.select_cat)}
           </div>
         </div>
       </Card>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 // import { connect } from "react-redux";
 import Typography from "@material-ui/core/Typography";
-import { Card, Grid, Collapse, Badge } from "@material-ui/core";
+import { Card, Grid, Collapse, Badge, Divider } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import { useMinimalSelectStyles } from "@mui-treasury/styles/select/minimal";
@@ -13,6 +13,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { deepPurple } from "@material-ui/core/colors";
 import item_img from "../../img/food.png";
 import MaterialMenu from "@material-ui/core/Menu";
+
 const useStyles = makeStyles(() => ({
   section: {
     border: "1px solid lightgray",
@@ -58,23 +59,26 @@ const useStyles = makeStyles(() => ({
     padding: "22px",
     borderRadius: 16,
     transition: "0.4s",
-    minWidth: "200px",
+    minWidth: "200px"
 
-    "&:hover": {
-      borderColor: deepPurple[300]
-    }
+    // "&:hover": {
+    //   borderColor: deepPurple[300]
+    // }
   },
   cardTitle: {
     fontSize: "1.17rem",
     color: "#122740",
-    textAlign: "left"
+    textAlign: "left",
+    marginBottom: "5px",
+    fontWeight: "bolder"
   },
   cardSub: {
     fontSize: "0.975rem",
     color: "#75b583",
     // color: "#756e6e",
     borderRadius: "5px",
-    fontWeight: "bold"
+    fontWeight: "bold",
+    marginBottom: "5px"
   },
   itemImage: {
     border: "1px solid lightgray",
@@ -93,8 +97,9 @@ const useStyles = makeStyles(() => ({
     // backgroundColor: "#b8f2ab",
     color: "#756e6e",
     // borderRadius: "5px",
-    fontWeight: "bold"
-    // border: "1px solid lightgray"
+    fontWeight: "bold",
+    // border: "1px solid lightgray",
+    marginBottom: "5px"
   },
   itemList: {
     margin: "auto",
@@ -150,10 +155,10 @@ const Item = props => {
   const classes = useStyles();
   const {
     item_name,
-    item_price,
+    // item_price,
     currency,
     item_desc,
-    food_type,
+    // food_type,
     custumization_arr
   } = props.item;
   const show_arr = Array.from(
@@ -258,23 +263,24 @@ const Item = props => {
                 <b>{item_name}</b>
               </Typography>
             </Grid>
-            <Grid item xs={6} sm={6} md={12}>
-              <Typography className={classes.cardSub}>
-                Rs. {item_price}
-              </Typography>
-            </Grid>
+            {props.item.item_price && (
+              <Grid item xs={6} sm={6} md={12}>
+                <Typography className={classes.cardSub}>
+                  Rs. {props.item.item_price}
+                </Typography>
+              </Grid>
+            )}
             <Grid item xs={12}></Grid>
             <Typography
               className={classes.cardDesc}
               onClick={() => toggleCollapse("desc_show")}
               style={{ marginTop: "5px" }}
             >
-              {!state.desc_show &&
-                "This the short version of Description"
-                  .slice(0, 30)
-                  .concat("... ")}
+              {item_desc.length > 40 &&
+                !state.desc_show &&
+                item_desc.slice(0, 30).concat("... ")}
 
-              {!state.desc_show && (
+              {item_desc.length > 40 && !state.desc_show && (
                 <span
                   style={{
                     fontWeight: "bold",
@@ -285,43 +291,248 @@ const Item = props => {
                   more
                 </span>
               )}
-              {/* <i
-              style={{ margin: "8px", fontSize: "22px", float: "right" }}
-              className={`fas fa-sort-${state.desc_show ? "up" : "down"}`}
-            ></i> */}
-              <Collapse in={state.desc_show}>
-                {/* This is the FULL ver sion of the description without any cutouts
-                this the Full version of desc This is the FULL ver sion of the
-                description without any cutouts this the Full version of desc
-                This is the FULL ver sion of the description without any cutouts
-                this the Full version of desc version of desc This is the FULL
-                ver sion of the description without any cutouts this the Full
-                version of desc version of desc This is the FULL ver sion of the
-                description without any cutouts this the Full version of desc
-                version of desc This is the FULL ver sion of the description
-                without any cutouts this the Full version of desc FULL ver sion
-                of the description without any cutouts this the Full version of
-                desc version of desc This is the FULL ver sion of the
-                description without any cutouts this the Full version of desc
-                version of desc This is the FULL ver sion of the description
-                without any cutouts this the Full version of desc version of
-                desc This is the FULL ver sion of the description without any
-                cutouts this the Full version of desc {".  "} */}
-                {item_desc}
-                <span
-                  style={{
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    color: deepPurple[100]
-                  }}
-                >
-                  {".  "}less
-                </span>
-              </Collapse>
+              {item_desc.length <= 40 && <span>{item_desc}</span>}
+
+              {item_desc.length > 40 && (
+                <Collapse in={state.desc_show}>
+                  {item_desc}
+                  {".  "}
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      textDecoration: "underline",
+                      color: deepPurple[100]
+                    }}
+                  >
+                    less
+                  </span>
+                </Collapse>
+              )}
             </Typography>
           </Grid>
         </Grid>
       </Grid>
+      {custumization_arr.length !== 0 && (
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          alignItems="start"
+          justify="flex-start"
+        >
+          <Grid
+            style={{ margin: "10px 2px 10px 2px" }}
+            className={classes.section}
+            item
+            xs={12}
+          >
+            <Typography
+              className={classes.cardDesc}
+              style={{
+                margin: `5px 8px  ${state.custum_show ? "16px" : "0px"} 8px`
+              }}
+              onClick={() => toggleCollapse("custum_show")}
+            >
+              <Badge
+                badgeContent={
+                  custumization_arr.length === 0
+                    ? "0"
+                    : custumization_arr.length
+                }
+                color="primary"
+              >
+                <span>
+                  <i
+                    style={{ margin: "8px", fontSize: "23px" }}
+                    className="fas fa-list"
+                  ></i>
+                  Custumizations
+                </span>
+              </Badge>
+              <i
+                style={{ margin: "8px", fontSize: "22px", float: "right" }}
+                className={`fas fa-sort-${state.custum_show ? "up" : "down"}`}
+              ></i>
+            </Typography>
+
+            <Collapse in={state.custum_show}>
+              {custumization_arr.map((cust, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    width: "96%",
+                    padding: "11px 12px",
+                    margin: "auto",
+                    marginTop: "10px"
+                  }}
+                  className={classes.section}
+                >
+                  <Typography
+                    className={classes.cardDesc}
+                    style={{
+                      margin: `0px 8px  ${
+                        state.custum_show_arr[idx] ? "16px" : "0px"
+                      } 8px`
+                    }}
+                    onClick={() => toggleCustShow("custum_show_arr", idx)}
+                  >
+                    <i
+                      style={{ margin: "8px", fontSize: "25px" }}
+                      className="fas fa-poll"
+                    ></i>
+                    {cust.custumization_name}
+                    <i
+                      style={{
+                        margin: "8px",
+                        fontSize: "22px",
+                        float: "right"
+                      }}
+                      className={`fas fa-sort-${
+                        state.cust_show ? "up" : "down"
+                      }`}
+                    ></i>
+                  </Typography>
+
+                  <Collapse in={state.custum_show_arr[idx]}>
+                    {cust.options.map((opt, id) => (
+                      <span key={id} className={classes.tag}>
+                        {`${opt.option}`}
+                        <span
+                          style={{
+                            padding: "6px",
+                            fontWeight: "bold",
+                            border: "1px solid lightgray",
+                            borderRadius: "3px",
+                            marginLeft: "20px"
+                          }}
+                        >{`${currency}. ${opt.option_price}`}</span>
+                      </span>
+                    ))}
+                  </Collapse>
+                </div>
+              ))}
+            </Collapse>
+          </Grid>
+        </Grid>
+      )}
+    </div>
+  );
+};
+
+const Category = props => {
+  const classes = useStyles();
+  const [state, setState] = React.useState({
+    cat_show: false
+  });
+
+  const toggleCollapse = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+    }));
+  };
+
+  return (
+    <div className={classes.card} style={{ width: "93%" }}>
+      <Typography
+        className={classes.cardTitle}
+        style={{
+          fontWeight: "bolder",
+          marginBottom: `${!state.cat_show ? "2px" : "20px"}`
+        }}
+        onClick={() => toggleCollapse("cat_show")}
+      >
+        <i
+          style={{ margin: "4px", fontSize: "25px" }}
+          className="fas fa-clipboard-list"
+        ></i>
+
+        {props.category && props.category.category_name}
+        <span
+          style={{
+            borderRadius: "5px",
+            color: "#7C7575",
+            fontSize: "12px",
+            backgroundColor: "#EBEDE8",
+            padding: "5px",
+            margin: "4px 8px"
+            // border: "1px solid lightgray"
+          }}
+        >
+          {`${props.category.items.length} items`}
+        </span>
+
+        <i
+          style={{ margin: "8px", fontSize: "22px", float: "right" }}
+          className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
+        ></i>
+      </Typography>
+      {/* <Divider /> */}
+      <Collapse in={state.cat_show}>
+        {props.category &&
+          props.category.items.map((item, idx) => (
+            <Item key={idx} item={item} />
+          ))}
+      </Collapse>
+    </div>
+  );
+};
+
+const Package = props => {
+  const classes = useStyles();
+  const {
+    package_name,
+    package_price,
+    package_desc,
+    items,
+    custumization_arr
+  } = props.package;
+  const show_arr = Array.from(
+    { length: custumization_arr.length },
+    ele => false
+  );
+
+  const [state, setState] = React.useState({
+    desc_show: false,
+    custum_show: false,
+    custum_show_arr: [...show_arr],
+    anchorEl: null,
+    items_show: false
+  });
+
+  const toggleCollapse = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+    }));
+  };
+
+  const toggleCustShow = (content, idx) => {
+    // console.log(idx);
+    let new_arr = state.custum_show_arr;
+    new_arr[idx] = !new_arr[idx];
+    setState(prevState => ({
+      ...prevState,
+      [content]: [...new_arr]
+    }));
+  };
+
+  const handleClick = event => {
+    setState({
+      ...state,
+      anchorEl: event.currentTarget
+    });
+  };
+
+  const handleClose = () => {
+    setState({
+      ...state,
+      anchorEl: null
+    });
+  };
+
+  return (
+    <div style={{ width: "100%", padding: "30px" }} className={classes.card}>
       <Grid
         container
         spacing={2}
@@ -329,6 +540,171 @@ const Item = props => {
         alignItems="start"
         justify="flex-start"
       >
+        {/* <Grid style={{ padding: "0px 8px 0px 8px" }} item xs={12}>
+          <i
+            aria-controls="simple-menu"
+            aria-haspopup="true"
+            style={{ float: "right", fontSize: "17px" }}
+            className="fas fa-ellipsis-v"
+            onClick={handleClick}
+          ></i>
+
+          <MaterialMenu
+            id="simple-menu"
+            className={classes.cardDesc}
+            anchorEl={state.anchorEl}
+            getContentAnchorEl={null}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            keepMounted
+            open={Boolean(state.anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={handleClose}>offline</MenuItem>
+            <MenuItem onClick={handleClose}>Edit</MenuItem>
+            <MenuItem onClick={handleClose}>Delete</MenuItem>
+          </MaterialMenu>
+        </Grid> */}
+        {/* <Grid item xs={12} sm={12} md={3}>
+          <img
+            src={item_img}
+            alt="Item"
+            className={classes.itemImage}
+            style={{
+              width: "120px",
+              height: "120px"
+            }}
+          />
+        </Grid> */}
+        <Grid item xs={12}>
+          <Grid
+            container
+            // spacing={1}
+            direction="row"
+            alignItems="start"
+            justify="flex-start"
+          >
+            <Grid item xs={6} sm={6} md={12}>
+              {" "}
+              <Typography className={classes.cardTitle}>
+                <b>{package_name}</b>
+                <i
+                  aria-controls="simple-menu"
+                  aria-haspopup="true"
+                  style={{ float: "right", fontSize: "17px" }}
+                  className="fas fa-ellipsis-v"
+                  onClick={handleClick}
+                ></i>
+
+                <MaterialMenu
+                  id="simple-menu"
+                  className={classes.cardDesc}
+                  anchorEl={state.anchorEl}
+                  getContentAnchorEl={null}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  keepMounted
+                  open={Boolean(state.anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={handleClose}>offline</MenuItem>
+                  <MenuItem onClick={handleClose}>Edit</MenuItem>
+                  <MenuItem onClick={handleClose}>Delete</MenuItem>
+                </MaterialMenu>
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography className={classes.cardSub}>
+                Rs. {package_price}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}></Grid>
+            <Typography
+              className={classes.cardDesc}
+              onClick={() => toggleCollapse("desc_show")}
+              style={{ marginTop: "5px" }}
+            >
+              {package_desc.length > 40 &&
+                !state.desc_show &&
+                package_desc.slice(0, 30).concat("... ")}
+
+              {package_desc.length > 40 && !state.desc_show && (
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    textDecoration: "underline",
+                    color: deepPurple[100]
+                  }}
+                >
+                  more
+                </span>
+              )}
+              {package_desc.length <= 40 && <span>{package_desc}</span>}
+
+              {package_desc.length > 40 && (
+                <Collapse in={state.desc_show}>
+                  {package_desc}
+                  {".  "}
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      textDecoration: "underline",
+                      color: deepPurple[100]
+                    }}
+                  >
+                    less
+                  </span>
+                </Collapse>
+              )}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <Grid
+        container
+        spacing={2}
+        direction="row"
+        alignItems="start"
+        justify="flex-start"
+      >
+        <Grid
+          style={{ margin: "10px 2px 10px 2px" }}
+          className={classes.section}
+          item
+          xs={12}
+        >
+          <Typography
+            className={classes.cardDesc}
+            style={{
+              margin: `5px 8px  ${state.items_show ? "16px" : "0px"} 8px`
+            }}
+            onClick={() => toggleCollapse("items_show")}
+          >
+            <Badge
+              badgeContent={items.length === 0 ? "0" : items.length}
+              color="primary"
+            >
+              <span>
+                <i
+                  style={{ margin: "8px", fontSize: "23px" }}
+                  className="fas fa-list-alt"
+                ></i>
+                Items
+              </span>
+            </Badge>
+            <i
+              style={{ margin: "8px", fontSize: "22px", float: "right" }}
+              className={`fas fa-sort-${state.items_show ? "up" : "down"}`}
+            ></i>
+          </Typography>
+          <Collapse in={state.items_show}>
+            {items.map((item, idx) => (
+              <Item key={idx} item={item} />
+            ))}
+          </Collapse>
+        </Grid>
+
         <Grid
           style={{ margin: "10px 2px 10px 2px" }}
           className={classes.section}
@@ -351,7 +727,7 @@ const Item = props => {
               <span>
                 <i
                   style={{ margin: "8px", fontSize: "23px" }}
-                  className="fas fa-list"
+                  className="fas fa-list-alt"
                 ></i>
                 Custumizations
               </span>
@@ -410,7 +786,7 @@ const Item = props => {
                           borderRadius: "3px",
                           marginLeft: "20px"
                         }}
-                      >{`${currency}. ${opt.option_price}`}</span>
+                      >{`${"Rs."}. ${opt.option_price}`}</span>
                     </span>
                   ))}
                 </Collapse>
@@ -423,48 +799,12 @@ const Item = props => {
   );
 };
 
-const Category = props => {
-  const classes = useStyles();
-  const [state, setState] = React.useState({
-    cat_show: false
-  });
-
-  const toggleCollapse = content => {
-    setState(prevState => ({
-      ...prevState,
-      [content]: !prevState[content]
-    }));
-  };
-
-  return (
-    <div className={classes.card} style={{ width: "93%" }}>
-      <Typography
-        className={classes.cardTitle}
-        style={{ fontWeight: "bolder" }}
-        onClick={() => toggleCollapse("cat_show")}
-      >
-        <i
-          style={{ margin: "4px", fontSize: "25px" }}
-          className="fas fa-clipboard-list"
-        ></i>
-        Category name
-        <i
-          style={{ margin: "8px", fontSize: "22px", float: "right" }}
-          className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
-        ></i>
-      </Typography>
-
-      <Collapse in={state.cat_show}>Items</Collapse>
-    </div>
-  );
-};
-
 const Menu = props => {
   const classes = useStyles();
   const minimalSelectClasses = useMinimalSelectStyles();
   // minimalSelectClasses.select.color = deepPurple[50];
   const [state, setState] = useState({
-    select_cat: 0,
+    select_cat: [0, 0, 0],
     tab: 0
   });
 
@@ -498,49 +838,107 @@ const Menu = props => {
     getContentAnchorEl: null
   };
 
-  const handleChange = evt => {
+  const handleSelect = evt => {
     const id = evt.target.name;
     const val = evt.target.value;
     // console.log(evt.target);
-
+    let arr = state.select_cat;
+    arr[state.tab] = val;
     setState(prevState => ({
       ...prevState,
-      [id]: val
+      select_cat: [...arr]
     }));
   };
   const handleTab = (evt, newValue) => {
     setState({
       ...state,
       tab: newValue
-      //select_cat: 0 // here we are changing the categoris to initial value verytime
+      // select_cat: 0 // here we are changing the categoris to initial value verytime
     });
   };
 
   const getList = cat => {
+    const tab = state.tab;
     const val =
       state.tab === 2
         ? "pack"
-        : cat === 1
+        : cat[tab] === 1
         ? "categ"
-        : cat === 2
+        : cat[tab] === 2
         ? "item"
         : "no items";
 
     switch (val) {
       case "pack":
-        if (cat === 0)
+        if (cat[tab] === 0)
           return (
             <div style={{ textAlign: "center", fontWeight: "bold" }}>
               No items selected to display
             </div>
           );
-        else if (cat === 1) return <div>All Packages</div>;
-        else return <div>Selected Package</div>;
+        else if (cat[tab] === 1)
+          return (
+            <div>
+              {props.restaurant ? (
+                props.restaurant.menu[tabMap[state.tab]].map((pack, idx) => (
+                  <Package key={idx} package={pack} />
+                ))
+              ) : (
+                <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                  No Items Available
+                </div>
+              )}
+            </div>
+          );
+        else
+          return (
+            <div>
+              {props.restaurant ? (
+                <Package
+                  key={0}
+                  package={
+                    props.restaurant.menu[tabMap[state.tab]][
+                      cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
+                    ]
+                  }
+                />
+              ) : (
+                <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                  No Items Available
+                </div>
+              )}
+            </div>
+          );
 
       case "categ":
-        return <div>Categories</div>;
+        return (
+          <div>
+            {props.restaurant ? (
+              props.restaurant.menu[tabMap[state.tab]].map((category, idx) => (
+                <Category key={idx} category={category} />
+              ))
+            ) : (
+              <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                No Items Available
+              </div>
+            )}
+          </div>
+        );
       case "item":
-        return <div>Items</div>;
+        const catIdx = cat[tab] >= 2 ? cat[tab] - 2 : cat[tab];
+        return (
+          <div>
+            {props.restaurant ? (
+              props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
+                item => <Item item={item} />
+              )
+            ) : (
+              <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                No Items Available
+              </div>
+            )}
+          </div>
+        );
 
       default:
         return (
@@ -607,8 +1005,8 @@ const Menu = props => {
               }}
               MenuProps={menuProps}
               IconComponent={iconComponent}
-              value={state.select_cat}
-              onChange={handleChange}
+              value={state.select_cat[state.tab]}
+              onChange={handleSelect}
             >
               <MenuItem value={0}>Select a Category or package</MenuItem>
               <MenuItem value={1}>All</MenuItem>

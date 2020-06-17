@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 // import { connect } from "react-redux";
 import Typography from "@material-ui/core/Typography";
-import { Card, Grid, Collapse, Badge, Divider } from "@material-ui/core";
+import {
+  Card,
+  Grid,
+  Collapse,
+  Badge,
+  Switch,
+  FormControlLabel,
+  withStyles
+} from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import { useMinimalSelectStyles } from "@mui-treasury/styles/select/minimal";
@@ -148,8 +156,28 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     justifyContent: "space-between",
     maxWidth: "80%"
+  },
+  menuItem: {
+    width: "150px",
+    padding: "6px 16px",
+    fontWeight: "bold",
+    textAlign: "left"
+    // borderBottom: "1px solid lightgray"
   }
 }));
+const PurpleSwitch = withStyles({
+  switchBase: {
+    color: deepPurple[300],
+    "&$checked": {
+      color: deepPurple[500]
+    },
+    "&$checked + $track": {
+      backgroundColor: deepPurple[500]
+    }
+  },
+  checked: {},
+  track: {}
+})(Switch);
 
 const Item = props => {
   const classes = useStyles();
@@ -170,7 +198,8 @@ const Item = props => {
     desc_show: false,
     custum_show: false,
     custum_show_arr: [...show_arr],
-    anchorEl: null
+    anchorEl: null,
+    status: true
   });
 
   const toggleCollapse = content => {
@@ -194,6 +223,13 @@ const Item = props => {
     setState({
       ...state,
       anchorEl: event.currentTarget
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.name]: evt.target.checked
     });
   };
 
@@ -224,18 +260,40 @@ const Item = props => {
 
           <MaterialMenu
             id="simple-menu"
-            className={classes.cardDesc}
+            // className={classes.materialMenu}
+            // style={{ backgroundColor: "white" }}
             anchorEl={state.anchorEl}
             getContentAnchorEl={null}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
             transformOrigin={{ vertical: "top", horizontal: "right" }}
             keepMounted
             open={Boolean(state.anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={handleClose}>offline</MenuItem>
-            <MenuItem onClick={handleClose}>Edit</MenuItem>
-            <MenuItem onClick={handleClose}>Delete</MenuItem>
+            <MenuItem
+              className={classes.menuItem}
+              // onClick={handleClose}
+            >
+              <FormControlLabel
+                style={{ fontWeight: "bold" }}
+                control={
+                  <PurpleSwitch
+                    checked={state.status}
+                    onChange={handleChange}
+                    name="status"
+                  />
+                }
+                label={`${state.status ? "Online" : "Offline"}`}
+              />
+            </MenuItem>
+            <MenuItem className={classes.menuItem} onClick={handleClose}>
+              <i style={{ margin: "8px" }} className="fas fa-pen"></i>
+              Edit
+            </MenuItem>
+            <MenuItem className={classes.menuItem} onClick={handleClose}>
+              <i style={{ margin: "8px" }} className="fas fa-trash-alt"></i>
+              Delete
+            </MenuItem>
           </MaterialMenu>
         </Grid>
         <Grid item xs={12} sm={12} md={3}>
@@ -443,7 +501,7 @@ const Category = props => {
         onClick={() => toggleCollapse("cat_show")}
       >
         <i
-          style={{ margin: "4px", fontSize: "25px" }}
+          style={{ margin: "7px", fontSize: "25px" }}
           className="fas fa-clipboard-list"
         ></i>
 
@@ -497,7 +555,8 @@ const Package = props => {
     custum_show: false,
     custum_show_arr: [...show_arr],
     anchorEl: null,
-    items_show: false
+    items_show: false,
+    status: true
   });
 
   const toggleCollapse = content => {
@@ -521,6 +580,13 @@ const Package = props => {
     setState({
       ...state,
       anchorEl: event.currentTarget
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.name]: evt.target.checked
     });
   };
 
@@ -595,21 +661,45 @@ const Package = props => {
                   className="fas fa-ellipsis-v"
                   onClick={handleClick}
                 ></i>
-
                 <MaterialMenu
                   id="simple-menu"
-                  className={classes.cardDesc}
+                  // className={classes.materialMenu}
+                  // style={{ backgroundColor: "white" }}
                   anchorEl={state.anchorEl}
                   getContentAnchorEl={null}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
                   transformOrigin={{ vertical: "top", horizontal: "right" }}
                   keepMounted
                   open={Boolean(state.anchorEl)}
                   onClose={handleClose}
                 >
-                  <MenuItem onClick={handleClose}>offline</MenuItem>
-                  <MenuItem onClick={handleClose}>Edit</MenuItem>
-                  <MenuItem onClick={handleClose}>Delete</MenuItem>
+                  <MenuItem
+                    className={classes.menuItem}
+                    // onClick={handleClose}
+                  >
+                    <FormControlLabel
+                      style={{ fontWeight: "bold" }}
+                      control={
+                        <PurpleSwitch
+                          checked={state.status}
+                          onChange={handleChange}
+                          name="status"
+                        />
+                      }
+                      label={`${state.status ? "Online" : "Offline"}`}
+                    />
+                  </MenuItem>
+                  <MenuItem className={classes.menuItem} onClick={handleClose}>
+                    <i style={{ margin: "8px" }} className="fas fa-pen"></i>
+                    Edit
+                  </MenuItem>
+                  <MenuItem className={classes.menuItem} onClick={handleClose}>
+                    <i
+                      style={{ margin: "8px" }}
+                      className="fas fa-trash-alt"
+                    ></i>
+                    Delete
+                  </MenuItem>
                 </MaterialMenu>
               </Typography>
             </Grid>
@@ -864,7 +954,7 @@ const Menu = props => {
         ? "pack"
         : cat[tab] === 1
         ? "categ"
-        : cat[tab] === 2
+        : cat[tab] >= 2 // this is here vaused the err where when selected cat[>=2] were not displayed
         ? "item"
         : "no items";
 
@@ -952,8 +1042,39 @@ const Menu = props => {
   return (
     <div>
       <div>
-        <Typography paragraph>Dashboard > Menu</Typography>
-        <Typography style={{ fontWeight: "bold" }} variant="h5">
+        <Typography paragraph>
+          <span
+            style={{
+              padding: "5px 10px ",
+              // backgroundColor: "#fce76f",
+              color: "#282C34",
+              borderRadius: "5px",
+              fontWeight: "bold"
+              // border: "1px solid lightgray"
+            }}
+          >
+            Dashboard
+          </span>
+          {/* <i
+            style={{ margin: "8px" }}
+            className="fas fa-arrow-alt-circle-right"
+          ></i> */}
+          <b>/</b>
+          <span
+            style={{
+              padding: "5px 10px ",
+              // backgroundColor: "#fce76f",
+              color: "#282C34",
+              borderRadius: "5px",
+              fontWeight: "bold",
+              textDecoration: "underline"
+              // border: "1px solid lightgray"
+            }}
+          >
+            Menu
+          </span>
+        </Typography>
+        {/* <Typography style={{ fontWeight: "bold" }} variant="h5">
           <span
             style={{
               padding: "5px 20px ",
@@ -965,7 +1086,7 @@ const Menu = props => {
           >
             Restuarant Menu
           </span>
-        </Typography>
+        </Typography> */}
       </div>
       <Card
         className={classes.section}
@@ -973,7 +1094,8 @@ const Menu = props => {
           // height: "650px",
           // maxHeight: "560px",
           minWidth: "350px",
-          paddingBottom: "25px"
+          paddingBottom: "25px",
+          borderRadius: "16px"
         }}
       >
         <div>

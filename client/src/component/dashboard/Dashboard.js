@@ -20,6 +20,7 @@ import Logo from "../logos/Logo";
 import Menu from "./Menu";
 // import Axios from "axios";
 import { loadRest } from "../../redux/actions/restaurant/auth";
+import Orientation from "./Orientation";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
 // import { Chip } from "@material-ui/core";
@@ -77,6 +78,9 @@ function Dashboard(props) {
   const theme = useTheme();
   // const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [state, setState] = React.useState({
+    ...props.restaurant
+  });
   // const [state, setState] = React.useState({
   //   page: "home",
   //   restuarant: {}
@@ -96,40 +100,125 @@ function Dashboard(props) {
   const pages = {
     home: {
       title: "Home",
-      icon: <i style={{ fontSize: "21px" }} className="fas fa-home"></i>,
+      // icon: <i style={{ fontSize: "21px" }} className="fas fa-home"></i>,
+      icon: (
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="home-icon"
+          src="https://img.icons8.com/officexs/80/000000/restaurant-building.png"
+        />
+      ),
       component: <></>
     },
     orders: {
       title: "Orders",
+      // icon: (
+      //   <i style={{ fontSize: "21px" }} className="fas fa-clipboard-list"></i>
+      // ),
       icon: (
-        <i style={{ fontSize: "21px" }} className="fas fa-clipboard-list"></i>
+        <img
+          style={{
+            width: "1.7rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="order-icon"
+          src="https://img.icons8.com/fluent/96/000000/purchase-order.png"
+        />
       ),
       component: <></>
     },
     menu: {
       title: "Menu",
-      icon: <i style={{ fontSize: "21px" }} className="fas fa-utensils"></i>,
+      // icon: <i style={{ fontSize: "21px" }} className="fas fa-utensils"></i>,
+      icon: (
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="menu-icon"
+          src="https://img.icons8.com/dusk/64/000000/restaurant-menu.png"
+        />
+      ),
       component: <></>
     },
     orientation: {
       title: "Orientation",
-      icon: <i style={{ fontSize: "21px" }} className="fas fa-compass"></i>,
+      // icon: <i style={{ fontSize: "21px" }} className="fas fa-compass"></i>,
+
+      icon: (
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="plan-icon"
+          src="https://img.icons8.com/dusk/64/000000/floor-plan.png"
+        />
+      ),
       component: <></>
     },
     feedback: {
       title: "Feedback",
-      icon: <i style={{ fontSize: "21px" }} className="fas fa-comments"></i>,
+      // icon: <i style={{ fontSize: "21px" }} className="fas fa-comments"></i>,
+      icon: (
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="feedback-icon"
+          src="https://img.icons8.com/fluent/96/000000/web-analystics.png"
+        />
+      ),
       component: <></>
     },
     account: {
       title: "Account",
-      icon: <i style={{ fontSize: "21px" }} className="fas fa-hotel"></i>,
+      // icon: <i style={{ fontSize: "21px" }} className="fas fa-hotel"></i>,
+      icon: (
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt={"acc-icon"}
+          src="https://img.icons8.com/color/96/000000/client-company.png"
+        />
+      ),
       component: <></>
     },
     logout: {
       title: "Logout",
+      // icon: (
+      //   <i style={{ fontSize: "21px" }} className="fas fa-sign-out-alt"></i>
+      // ),
       icon: (
-        <i style={{ fontSize: "21px" }} className="fas fa-sign-out-alt"></i>
+        <img
+          style={{
+            width: "1.5rem",
+            verticalAlign: "middle",
+            // margin: "10px",
+            float: "left"
+          }}
+          alt="logout-icon"
+          src="https://img.icons8.com/fluent/96/000000/exit.png"
+        />
       ),
       component: <></>
     }
@@ -156,7 +245,10 @@ function Dashboard(props) {
             (text, index) => (
               <ListItem button key={text}>
                 <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
-                <ListItemText primary={pages[text]["title"]} />
+                <ListItemText
+                  style={{ fontWeight: "bold" }}
+                  primary={pages[text]["title"]}
+                />
               </ListItem>
             )
           )}
@@ -166,7 +258,10 @@ function Dashboard(props) {
           {["account", "logout"].map((text, index) => (
             <ListItem button key={text}>
               <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
-              <ListItemText primary={pages[text]["title"]} />
+              <ListItemText
+                style={{ fontWeight: "bold" }}
+                primary={pages[text]["title"]}
+              />
             </ListItem>
           ))}
         </List>
@@ -231,7 +326,8 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        <Menu restaurant={props.restaurant} />
+        {/* <Menu restaurant={props.restaurant} /> */}
+        <Orientation restaurant={props.restaurant} />
       </main>
     </div>
   );

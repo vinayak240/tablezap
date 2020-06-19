@@ -67,11 +67,11 @@ const useStyles = makeStyles(() => ({
     padding: "22px",
     borderRadius: 16,
     transition: "0.4s",
-    minWidth: "200px"
+    minWidth: "200px",
 
-    // "&:hover": {
-    //   borderColor: deepPurple[300]
-    // }
+    "&:hover": {
+      borderColor: "#7CB2F1"
+    }
   },
   cardTitle: {
     fontSize: "1.17rem",

@@ -12,6 +12,7 @@
     "@material-ui/pickers": "^3.2.10",
     "@mui-treasury/styles": "^1.6.1",
     "axios": "^0.19.2",
+    "qrcode.react": "^1.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-redux": "^7.1.3",

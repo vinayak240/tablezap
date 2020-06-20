@@ -9,7 +9,8 @@ import {
   Badge,
   Switch,
   FormControlLabel,
-  withStyles
+  withStyles,
+  Button
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -163,6 +164,13 @@ const useStyles = makeStyles(() => ({
     fontWeight: "bold",
     textAlign: "left"
     // borderBottom: "1px solid lightgray"
+  },
+  breadCrumb: {
+    backgroundColor: "#e8eff4",
+    border: "1px solid #90caf9",
+    fontWeight: "bold",
+    padding: "12px",
+    borderRadius: 12
   }
 }));
 const PurpleSwitch = withStyles({
@@ -1042,7 +1050,7 @@ const Menu = props => {
   return (
     <div>
       <div>
-        <Typography paragraph>
+        <Typography className={classes.breadCrumb} paragraph>
           <span
             style={{
               padding: "5px 10px ",

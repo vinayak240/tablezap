@@ -189,6 +189,13 @@ const useStyles = makeStyles(() => ({
     marginBottom: "5px",
     fontWeight: "bolder"
     // textDecoration: "underline"
+  },
+  breadCrumb: {
+    backgroundColor: "#e8eff4",
+    border: "1px solid #90caf9",
+    fontWeight: "bold",
+    padding: "12px",
+    borderRadius: 12
   }
 }));
 
@@ -314,7 +321,7 @@ const Orientation = props => {
   return (
     <div>
       <div>
-        <Typography paragraph>
+        <Typography className={classes.breadCrumb} paragraph>
           <span
             style={{
               padding: "5px 10px ",

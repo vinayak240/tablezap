@@ -42,6 +42,7 @@ const useStyles = makeStyles(theme => ({
       width: "100%",
       marginLeft: 0
     },
+    // backgroundColor: "#455a64",
     backgroundColor: "#282C34",
     zIndex: 3
   },
@@ -326,8 +327,8 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        {/* <Menu restaurant={props.restaurant} /> */}
-        <Orientation restaurant={props.restaurant} />
+        <Menu restaurant={props.restaurant} />
+        {/* <Orientation restaurant={props.restaurant} /> */}
       </main>
     </div>
   );

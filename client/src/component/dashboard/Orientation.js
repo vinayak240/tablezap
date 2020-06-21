@@ -1,6 +1,15 @@
 import React from "react";
 import Typography from "@material-ui/core/Typography";
-import { makeStyles, Card, Tabs, Tab, Grid, Button } from "@material-ui/core";
+import {
+  makeStyles,
+  Card,
+  // Tabs,
+  // Tab,
+  Grid,
+  Button
+  // Fade,
+  // Grow
+} from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import Logo from "../logos/Logo";
 import QRCode from "qrcode.react";
@@ -297,9 +306,15 @@ const TableList = props => {
       justify="flex-start"
     >
       {props.tables.map((table, idx) => (
+        // <Fade
+        //   in={true}
+        //   style={{ transformOrigin: "0 0 0" }}
+        //   {...(true ? { timeout: idx + 1000 } : {})}
+        // >
         <Grid key={idx} item xs={12} sm={12} md={6}>
           <Table rest_id={props.rest_id} table={table} />
         </Grid>
+        // </Fade>
       ))}
     </Grid>
   );

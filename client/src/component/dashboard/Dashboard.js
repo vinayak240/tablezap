@@ -31,14 +31,14 @@ const useStyles = makeStyles(theme => ({
     display: "flex"
   },
   drawer: {
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up("md")]: {
       width: drawerWidth,
       flexShrink: 0
     },
     zIndex: 2
   },
   appBar: {
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up("md")]: {
       width: "100%",
       marginLeft: 0
     },
@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
   },
   menuButton: {
     marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
+    [theme.breakpoints.up("md")]: {
       display: "none"
     }
   },
@@ -295,7 +295,8 @@ function Dashboard(props) {
       </AppBar>
       <nav className={classes.drawer} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Hidden smUp implementation="css">
+        <Hidden mdUp implementation="css">
+          {/* <Hidden smUp implementation="css"> */}
           <Drawer
             container={container}
             variant="temporary"
@@ -312,7 +313,9 @@ function Dashboard(props) {
             {drawer}
           </Drawer>
         </Hidden>
-        <Hidden xsDown implementation="css">
+        <Hidden smDown implementation="css">
+          {/* <Hidden xsDown implementation="css"> */}
+
           <Drawer
             classes={{
               paper: classes.drawerPaper

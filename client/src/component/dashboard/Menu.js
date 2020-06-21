@@ -10,7 +10,8 @@ import {
   Switch,
   FormControlLabel,
   withStyles,
-  Button
+  useMediaQuery
+  // Button
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -22,7 +23,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { deepPurple } from "@material-ui/core/colors";
 import item_img from "../../img/food.png";
 import MaterialMenu from "@material-ui/core/Menu";
-
+import { useTheme } from "@material-ui/styles";
 const useStyles = makeStyles(() => ({
   section: {
     border: "1px solid lightgray",
@@ -45,13 +46,8 @@ const useStyles = makeStyles(() => ({
     paddingTop: 14,
     paddingBottom: 15,
     textAlign: "center",
-    // boxShadow: "5px 5px 5px lightgray",
-    // boxShadow: "0px 4px 12px 0px rgba(0,0,0,0.54)",
-    // boxShadow: "0px 2px 12px 0px rgba(0,0,0,0.35)",
-    // boxShadow: "0px 2px 12px -3px rgba(0,0,0,0.35)",
     boxShadow: "0px 2px 11px -5px rgba(0,0,0,0.45)",
     // wordBreak: "break-all",
-    // zIndex: 1,
     wordWrap: "break-word",
     "&:focus": {
       borderRadius: 12,
@@ -173,6 +169,40 @@ const useStyles = makeStyles(() => ({
     borderRadius: 12
   }
 }));
+
+const AntTabs = withStyles({
+  root: {
+    // borderBottom: "1px solid #e8e8e8",
+    // backgroundColor: "lightgray"
+  },
+  indicator: {
+    backgroundColor: "#1890ff"
+  }
+})(Tabs);
+
+const AntTab = withStyles(theme => ({
+  root: {
+    textTransform: "none",
+    minWidth: 72,
+    // fontWeight: theme.typography.fontWeightRegular,
+    fontSize: "0.85rem",
+    fontWeight: "bold",
+    marginRight: theme.spacing(4),
+    "&:hover": {
+      color: "#40a9ff",
+      opacity: 1
+    },
+    "&$selected": {
+      color: "#1890ff",
+      fontWeight: "bold"
+    },
+    "&:focus": {
+      color: "#40a9ff"
+    }
+  },
+  selected: {}
+}))(props => <Tab disableRipple {...props} />);
+
 const PurpleSwitch = withStyles({
   switchBase: {
     color: deepPurple[300],
@@ -899,6 +929,8 @@ const Package = props => {
 
 const Menu = props => {
   const classes = useStyles();
+  // const theme = useTheme();
+  const matches = useMediaQuery("(min-width:400px)");
   const minimalSelectClasses = useMinimalSelectStyles();
   // minimalSelectClasses.select.color = deepPurple[50];
   const [state, setState] = useState({
@@ -937,7 +969,7 @@ const Menu = props => {
   };
 
   const handleSelect = evt => {
-    const id = evt.target.name;
+    // const id = evt.target.name;
     const val = evt.target.value;
     // console.log(evt.target);
     let arr = state.select_cat;
@@ -1063,10 +1095,7 @@ const Menu = props => {
           >
             Dashboard
           </span>
-          {/* <i
-            style={{ margin: "8px" }}
-            className="fas fa-arrow-alt-circle-right"
-          ></i> */}
+
           <b>/</b>
           <span
             style={{
@@ -1082,19 +1111,6 @@ const Menu = props => {
             Menu
           </span>
         </Typography>
-        {/* <Typography style={{ fontWeight: "bold" }} variant="h5">
-          <span
-            style={{
-              padding: "5px 20px ",
-              backgroundColor: "#fce76f",
-              color: "#282C34",
-              borderRadius: "5px"
-              // border: "1px solid lightgray"
-            }}
-          >
-            Restuarant Menu
-          </span>
-        </Typography> */}
       </div>
       <Card
         className={classes.section}
@@ -1107,20 +1123,22 @@ const Menu = props => {
         }}
       >
         <div>
-          <Tabs
+          <AntTabs
             value={state.tab}
             indicatorColor="primary"
             textColor="primary"
             onChange={handleTab}
+            // variant={!matches && "scrollable"}
+            // scrollButtons={!matches && "auto"}
             aria-label="tabs"
-            centered
+            centered={matches}
           >
-            <Tab label={`Food Menu`} />
+            <AntTab label={`Food Menu`} />
 
-            <Tab label={`Bar menu`} />
+            <AntTab label={`Bar menu`} />
 
-            <Tab label={`Buffet menu`} />
-          </Tabs>
+            <AntTab label={`Buffet menu`} />
+          </AntTabs>
         </div>
         <div>
           <FormControl style={{ width: "80%", margin: "22px 10% 8px 10%" }}>
@@ -1151,6 +1169,7 @@ const Menu = props => {
               )}
             </Select>
           </FormControl>
+
           <div className={classes.itemList}>
             {/* Restaurant value at first is NULL because the app has not yet fetch the value of restaurant from server
           so to solve the problem use the restaurant value in if..else construct like below...
@@ -1163,7 +1182,6 @@ const Menu = props => {
             ) : (
               <>No Items Available...</>
             )} */}
-            {/* <Category /> */}
             {getList(state.select_cat)}
           </div>
         </div>

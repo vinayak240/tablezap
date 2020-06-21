@@ -151,7 +151,7 @@ router.post(
 );
 
 // @route    GET api/rest_auth
-// @desc     Test route
+// @desc     To get the restaurant
 // @access   Private
 router.get("/rest", rest_auth, async (req, res) => {
   try {

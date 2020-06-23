@@ -21,6 +21,7 @@ import Menu from "./Menu";
 // import Axios from "axios";
 import { loadRest } from "../../redux/actions/restaurant/auth";
 import Orientation from "./Orientation";
+import { Grid } from "@material-ui/core";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
 // import { Chip } from "@material-ui/core";
@@ -227,18 +228,58 @@ function Dashboard(props) {
   const drawer = (
     <div>
       {/* <div className={classes.toolbar} /> */}
-      <div
+      <Grid
         className={classes.section}
-        style={{ border: "none", textAlign: "center", marginTop: "80px" }}
+        style={{ marginTop: "80px", padding: "15px 10px" }}
+        container
+        // spacing={1}
+        direction="row"
+        alignItems="center"
+        justify="flex-start"
       >
-        <RestLogo height="70px" width="70px" />
-        <Typography
-          style={{ marginTop: "10px", fontWeight: "bolder" }}
-          align={"center"}
-        >
-          {props.restaurant ? props.restaurant.rest_name : "SherLock's Pub"}
-        </Typography>
-      </div>
+        <Grid style={{ paddingRight: "8px" }} item xs={3}>
+          <RestLogo height="35px" width="35px" />
+        </Grid>
+
+        <Grid style={{ paddingRight: "8px" }} item xs={9}>
+          <Typography
+            style={{
+              fontWeight: "bolder",
+              fontSize: "15px"
+              // textDecoration: "underline"
+            }}
+            // align={"center"}
+          >
+            {props.restaurant ? props.restaurant.rest_name : "Restaurant"}
+          </Typography>
+          <Typography>
+            <span
+              style={{
+                borderRadius: "6px",
+                padding: "3px",
+                backgroundColor: "#cdefc9",
+                textDecoration: "underline",
+                color: "green",
+                marginTop: "10x",
+                fontSize: "13px",
+                fontWeight: "bold"
+              }}
+            >
+              <img
+                style={{
+                  width: "13px",
+                  verticalAlign: "middle",
+                  margin: "3px"
+                  // float: "left"
+                }}
+                src="https://img.icons8.com/fluent/48/000000/verified-account.png"
+                alt="ID"
+              />
+              {props.restaurant ? props.restaurant.rest_id : "123"}
+            </span>
+          </Typography>
+        </Grid>
+      </Grid>
       {/* <Divider /> */}
       <div className={classes.section}>
         <List>
@@ -248,7 +289,11 @@ function Dashboard(props) {
                 <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
                 <ListItemText
                   style={{ fontWeight: "bold" }}
-                  primary={pages[text]["title"]}
+                  primary={
+                    <span style={{ fontWeight: "bold" }}>
+                      {pages[text]["title"]}
+                    </span>
+                  }
                 />
               </ListItem>
             )
@@ -261,7 +306,11 @@ function Dashboard(props) {
               <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
               <ListItemText
                 style={{ fontWeight: "bold" }}
-                primary={pages[text]["title"]}
+                primary={
+                  <span style={{ fontWeight: "bold" }}>
+                    {pages[text]["title"]}
+                  </span>
+                }
               />
             </ListItem>
           ))}
@@ -330,8 +379,8 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        <Menu restaurant={props.restaurant} />
-        {/* <Orientation restaurant={props.restaurant} /> */}
+        {/* <Menu restaurant={props.restaurant} /> */}
+        <Orientation restaurant={props.restaurant} />
       </main>
     </div>
   );

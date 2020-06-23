@@ -336,7 +336,10 @@ const Orientation = props => {
   return (
     <div>
       <div>
-        <Typography className={classes.breadCrumb} paragraph>
+        <Typography
+          // className={classes.breadCrumb}
+          paragraph
+        >
           <span
             style={{
               padding: "5px 10px ",

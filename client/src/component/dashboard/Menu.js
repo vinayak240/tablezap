@@ -166,7 +166,7 @@ const useStyles = makeStyles(() => ({
     border: "1px solid #90caf9",
     fontWeight: "bold",
     padding: "12px",
-    borderRadius: 12
+    borderRadius: "8px"
   }
 }));
 
@@ -334,7 +334,7 @@ const Item = props => {
             </MenuItem>
           </MaterialMenu>
         </Grid>
-        <Grid item xs={12} sm={12} md={3}>
+        <Grid style={{ paddingLeft: "25px" }} item xs={12} sm={12} md={3}>
           <img
             src={item_img}
             alt="Item"
@@ -1082,7 +1082,10 @@ const Menu = props => {
   return (
     <div>
       <div>
-        <Typography className={classes.breadCrumb} paragraph>
+        <Typography
+          // className={classes.breadCrumb}
+          paragraph
+        >
           <span
             style={{
               padding: "5px 10px ",
@@ -1119,7 +1122,7 @@ const Menu = props => {
           // maxHeight: "560px",
           minWidth: "350px",
           paddingBottom: "25px",
-          borderRadius: "16px"
+          borderRadius: "8px"
         }}
       >
         <div>

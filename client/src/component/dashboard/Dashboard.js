@@ -379,8 +379,8 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        {/* <Menu restaurant={props.restaurant} /> */}
-        <Orientation restaurant={props.restaurant} />
+        <Menu restaurant={props.restaurant} />
+        {/* <Orientation restaurant={props.restaurant} /> */}
       </main>
     </div>
   );

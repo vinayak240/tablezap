@@ -10,8 +10,10 @@ import {
   Switch,
   FormControlLabel,
   withStyles,
-  useMediaQuery
-  // Button
+  useMediaQuery,
+  Button,
+  RadioGroup,
+  Radio
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -24,6 +26,15 @@ import { deepPurple } from "@material-ui/core/colors";
 import item_img from "../../img/food.png";
 import MaterialMenu from "@material-ui/core/Menu";
 import { useTheme } from "@material-ui/styles";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Paper from "@material-ui/core/Paper";
+import Draggable from "react-draggable";
+// import { useNeumorphShadowStyles } from '@mui-treasury/styles/shadow/neumorph';
+
 const useStyles = makeStyles(() => ({
   section: {
     border: "1px solid lightgray",
@@ -47,6 +58,7 @@ const useStyles = makeStyles(() => ({
     paddingBottom: 15,
     textAlign: "center",
     boxShadow: "0px 2px 11px -5px rgba(0,0,0,0.45)",
+    // boxShadow: "0 10px 10px -5px rgba(0,0,0,0.45)",
     // wordBreak: "break-all",
     wordWrap: "break-word",
     "&:focus": {
@@ -167,6 +179,15 @@ const useStyles = makeStyles(() => ({
     fontWeight: "bold",
     padding: "12px",
     borderRadius: "8px"
+  },
+  textField: {
+    fontFamily: "'Nunito', sans-serif",
+    backgroundColor: "#ffffff",
+    borderRadius: "5px",
+    border: "1px solid lightgray",
+    width: "80%",
+    margin: "auto",
+    padding: "10px"
   }
 }));
 
@@ -217,6 +238,142 @@ const PurpleSwitch = withStyles({
   track: {}
 })(Switch);
 
+function PaperComponent(props) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
+
+const ItemForm = props => {
+  const classes = useStyles();
+  const [state, setState] = React.useState({
+    item_name: props.item.item_name || "",
+    item_price: props.item.item_price || "",
+    currency: props.item.currency || "",
+    item_desc: props.item.item_desc || "",
+    food_type: props.item.food_type || "",
+    custumization: "",
+    custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
+    custumization_arr: [...props.item.custumization_arr],
+    item_show: false
+  });
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  return (
+    <div>
+      <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
+        Edit Item
+      </DialogTitle>
+      <DialogContent>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          justify="center"
+        >
+          <Grid item md={12}>
+            <input
+              id="item_name"
+              value={state.item_name}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="Item name"
+            />
+          </Grid>
+
+          <Grid item md={12}>
+            <Grid container justify="flex-start" spacing={3}>
+              <Grid item xs={2}>
+                <select
+                  id="currency"
+                  value={state.currency}
+                  onChange={handleChange}
+                  className={classes.textField}
+                  placeholder="Currency"
+                >
+                  <option>- -</option>
+                  <option value="RS">RS</option>
+                  <option value="$">$</option>
+                </select>
+              </Grid>
+
+              <Grid item xs={4}>
+                <input
+                  id="item_price"
+                  value={state.item_price}
+                  onChange={handleChange}
+                  type="number"
+                  className={classes.textField}
+                  placeholder="Item price"
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item md={12}>
+            <RadioGroup
+              aria-label="position"
+              value={state.food_type}
+              onChange={handleChange}
+              row
+            >
+              <FormControlLabel
+                value={"veg"}
+                control={<Radio id="food_type" color="primary" />}
+                label="Veg"
+                labelPlacement="end"
+              />
+
+              <FormControlLabel
+                value={"non_veg"}
+                control={<Radio id="food_type" color="primary" />}
+                label="Non-Veg"
+                labelPlacement="end"
+              />
+
+              <FormControlLabel
+                value={"egg_only"}
+                control={<Radio id="food_type" color="primary" />}
+                label="Contains Egg"
+                labelPlacement="end"
+              />
+            </RadioGroup>
+          </Grid>
+
+          <Grid item md={12}>
+            <textarea
+              id="item_desc"
+              value={state.item_desc}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="Description"
+            ></textarea>
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={props.handleDialogClose} color="primary">
+          Save Changes
+        </Button>
+      </DialogActions>
+    </div>
+  );
+};
+
 const Item = props => {
   const classes = useStyles();
   const {
@@ -237,7 +394,8 @@ const Item = props => {
     custum_show: false,
     custum_show_arr: [...show_arr],
     anchorEl: null,
-    status: true
+    status: true,
+    dialog_open: false
   });
 
   const toggleCollapse = content => {
@@ -278,8 +436,41 @@ const Item = props => {
     });
   };
 
+  const handleDialogOpen = () => {
+    setState({
+      ...state,
+      dialog_open: true,
+      anchorEl: null
+    });
+  };
+
+  const handleDialogClose = () => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      dialog_open: false
+    });
+  };
+
   return (
     <div className={classes.card}>
+      <div className="all_dialogs">
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          // style={{ width: "850px", minWidth: "350px" }}
+          onClose={handleDialogClose}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <ItemForm
+            item={props.item ? props.item : {}}
+            handleDialogClose={handleDialogClose}
+          />
+        </Dialog>
+      </div>
       <Grid
         container
         spacing={2}
@@ -295,6 +486,29 @@ const Item = props => {
             className="fas fa-ellipsis-v"
             onClick={handleClick}
           ></i>
+
+          {/* <Dialog
+            // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+            open={state.dialog_open}
+            onClose={handleDialogClose}
+            PaperComponent={PaperComponent}
+            aria-labelledby="draggable-dialog-title"
+          >
+            <DialogTitle
+              style={{ cursor: "move" }}
+              id="draggable-dialog-title"
+            >
+              Edit Item
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>Edit Form</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogClose} color="primary">
+                Save Changes
+              </Button>
+            </DialogActions>
+          </Dialog> */}
 
           <MaterialMenu
             id="simple-menu"
@@ -321,10 +535,14 @@ const Item = props => {
                     name="status"
                   />
                 }
-                label={`${state.status ? "Online" : "Offline"}`}
+                label={
+                  <span style={{ fontWeight: "bold" }}>{`${
+                    state.status ? "Online" : "Offline"
+                  }`}</span>
+                }
               />
             </MenuItem>
-            <MenuItem className={classes.menuItem} onClick={handleClose}>
+            <MenuItem className={classes.menuItem} onClick={handleDialogOpen}>
               <i style={{ margin: "8px" }} className="fas fa-pen"></i>
               Edit
             </MenuItem>
@@ -930,7 +1148,7 @@ const Package = props => {
 const Menu = props => {
   const classes = useStyles();
   // const theme = useTheme();
-  const matches = useMediaQuery("(min-width:400px)");
+  const matches = useMediaQuery("(min-width:440px)");
   const minimalSelectClasses = useMinimalSelectStyles();
   // minimalSelectClasses.select.color = deepPurple[50];
   const [state, setState] = useState({

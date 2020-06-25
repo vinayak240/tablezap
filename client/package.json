@@ -13,6 +13,7 @@
     "@mui-treasury/styles": "^1.6.1",
     "axios": "^0.19.2",
     "qrcode.react": "^1.0.0",
+    "ramda": "^0.27.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-draggable": "^4.4.3",

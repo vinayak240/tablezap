@@ -26,14 +26,13 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { deepPurple } from "@material-ui/core/colors";
 import item_img from "../../img/food.png";
 import MaterialMenu from "@material-ui/core/Menu";
-import { useTheme } from "@material-ui/styles";
+// import { useTheme } from "@material-ui/styles";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Paper from "@material-ui/core/Paper";
-import Draggable from "react-draggable";
+// import Draggable from "react-draggable";
 // import { useNeumorphShadowStyles } from '@mui-treasury/styles/shadow/neumorph';
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 
@@ -224,6 +223,9 @@ const useStyles = makeStyles(() => ({
     margin: "auto",
     padding: "10px",
     fontWeight: "bold"
+  },
+  paper: {
+    width: "750px"
   }
 }));
 
@@ -275,18 +277,14 @@ const PurpleSwitch = withStyles({
 })(Switch);
 
 function PaperComponent(props) {
-  const classes = useStyles();
+  // const classes = useStyles();
   return (
-    <Draggable
-      handle="#draggable-dialog-title"
-      cancel={'[class*="MuiDialogContent-root"]'}
-    >
-      <Paper
-        style={{ borderRadius: "12px", padding: "12px" }}
-        // className={classes.card}
-        {...props}
-      />
-    </Draggable>
+    // <Draggable
+    //   handle="#draggable-dialog-title"
+    //   cancel={'[class*="MuiDialogContent-root"]'}
+    // >
+    <Paper style={{ borderRadius: "12px", padding: "12px" }} {...props} />
+    // </Draggable>
   );
 }
 
@@ -298,7 +296,6 @@ const ItemForm = props => {
     { length: props.item.custumization_arr.length },
     ele => false
   );
-  let { custumization_arr } = props.item;
   // const cust_arr = custumization_arr.map(cust => {
   //   let opt_arr = cust.options.map(opt => ({
   //     option: opt.option,
@@ -311,7 +308,9 @@ const ItemForm = props => {
   //     options: [...opt_arr]
   //   };
   // });
+  let { custumization_arr } = props.item;
   const cust_arr = clone(custumization_arr);
+
   const [state, setState] = React.useState({
     item_name: props.item.item_name || "",
     item_price: props.item.item_price || "",
@@ -320,7 +319,7 @@ const ItemForm = props => {
     food_type: props.item.food_type || "",
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
-    custumization_arr: [...cust_arr],
+    custumization_arr: clone(cust_arr),
     // item_show: false,
     custum_show: false,
     custum_show_arr: [...show_arr],
@@ -369,7 +368,7 @@ const ItemForm = props => {
       ...prevState,
       custum_edit: false,
       // custum_show: true,
-      custumization_arr: [...arr]
+      custumization_arr: clone(arr)
     }));
   };
 
@@ -379,7 +378,7 @@ const ItemForm = props => {
 
     setState(prevState => ({
       ...prevState,
-      custumization_arr: [...arr]
+      custumization_arr: clone(arr)
     }));
   };
 
@@ -389,13 +388,59 @@ const ItemForm = props => {
 
     setState(prevState => ({
       ...prevState,
-      custumization_arr: [...arr]
+      custumization_arr: clone(arr)
+    }));
+  };
+
+  const handleCustumDelete = (index, cust_name) => {
+    const custIdx = Boolean(Number(index))
+      ? index
+      : state.custumization_arr.findIndex(
+          ele => ele.custumization_name === cust_name
+        );
+    const arr = state.custumization_arr;
+    const newArr = arr.filter((ele, idx) => idx !== custIdx);
+    // console.log("Clicked");
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(newArr)
+    }));
+  };
+
+  const handleOptionDelete = (cust_index, cust_name, opt_index, opt_name) => {
+    const custIdx = Boolean(Number(cust_index))
+      ? cust_index
+      : state.custumization_arr.findIndex(
+          ele => ele.custumization_name === cust_name
+        );
+
+    const optIdx = Boolean(Number(opt_index))
+      ? opt_index
+      : state.custumization_arr[custIdx].options.findIndex(
+          ele => ele.option === opt_name
+        );
+
+    const arr = state.custumization_arr;
+    arr[custIdx].options = arr[custIdx].options.filter(
+      (ele, idx) => idx !== optIdx
+    );
+    // arr[custIdx].options = [...newOptArr];
+    const newArr = [...arr];
+    // console.log("Clicked");
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(newArr)
     }));
   };
 
   return (
     <div>
-      <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
+      <DialogTitle
+        // style={{ cursor: "move" }}
+        id="draggable-dialog-title"
+      >
         <span className={classes.cardTitle}>
           <i style={{ margin: "8px" }} className="fas fa-edit"></i>
           Edit Item
@@ -490,7 +535,7 @@ const ItemForm = props => {
             ></textarea>
           </Grid>
         </Grid>
-        {state.custumization_arr.length !== 0 && (
+        {
           <Grid
             container
             spacing={2}
@@ -556,6 +601,12 @@ const ItemForm = props => {
               </Typography>
 
               <Collapse in={state.custum_show}>
+                {state.custumization_arr.length === 0 && (
+                  <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                    No Custumizations Available (Press Undo to undo changes
+                    made..)
+                  </div>
+                )}
                 {state.custumization_arr.map((cust, idx) => (
                   <div>
                     {state.custum_edit ? (
@@ -565,6 +616,20 @@ const ItemForm = props => {
                           className={classes.cardDesc}
                         >
                           Edit Custumization
+                          <Button
+                            style={{
+                              // margin: "8px",
+                              float: "right"
+                            }}
+                            onClick={() =>
+                              handleCustumDelete(idx, cust.custumization_name)
+                            }
+                          >
+                            <i
+                              style={{ margin: "8px", fontSize: "22px" }}
+                              className={`fas fa-trash-alt`}
+                            ></i>
+                          </Button>
                         </Typography>
                         <input
                           id="custumization"
@@ -636,6 +701,17 @@ const ItemForm = props => {
                             ></i>
                           </Typography>
                           <Collapse in={state.custum_show_arr[idx]}>
+                            {cust.options.length === 0 && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  fontWeight: "bold"
+                                }}
+                              >
+                                No Options Available (Press Undo to undo changes
+                                made..)
+                              </div>
+                            )}
                             {cust.options.map((opt, id) => (
                               <div className={classes.card}>
                                 <Typography
@@ -643,6 +719,28 @@ const ItemForm = props => {
                                   className={classes.cardDesc}
                                 >
                                   Edit Option
+                                  <Button
+                                    style={{
+                                      // margin: "8px",
+                                      float: "right"
+                                    }}
+                                    onClick={() =>
+                                      handleOptionDelete(
+                                        idx,
+                                        cust.custumization_name,
+                                        id,
+                                        opt.option
+                                      )
+                                    }
+                                  >
+                                    <i
+                                      style={{
+                                        margin: "8px",
+                                        fontSize: "22px"
+                                      }}
+                                      className={`fas fa-trash-alt`}
+                                    ></i>
+                                  </Button>
                                 </Typography>
                                 <input
                                   style={{
@@ -800,7 +898,7 @@ const ItemForm = props => {
               </Collapse>
             </Grid>
           </Grid>
-        )}
+        }
       </DialogContent>
       <DialogActions className={gutterStyles.parent}>
         <Button
@@ -835,6 +933,10 @@ const Item = props => {
     // food_type,
     custumization_arr
   } = props.item;
+
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
+
   const show_arr = Array.from(
     { length: custumization_arr.length },
     ele => false
@@ -846,7 +948,8 @@ const Item = props => {
     custum_show_arr: [...show_arr],
     anchorEl: null,
     status: true,
-    dialog_open: false
+    dialog_open: false,
+    dialog2_open: false
   });
 
   const toggleCollapse = content => {
@@ -887,19 +990,19 @@ const Item = props => {
     });
   };
 
-  const handleDialogOpen = () => {
+  const handleDialogOpen = content => {
     setState({
       ...state,
-      dialog_open: true,
+      [content]: true,
       anchorEl: null
     });
   };
 
-  const handleDialogClose = () => {
+  const handleDialogClose = content => {
     // console.log("Closed - ", state.dialog_open);
     setState({
       ...state,
-      dialog_open: false
+      [content]: false
     });
   };
 
@@ -909,18 +1012,65 @@ const Item = props => {
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
           open={state.dialog_open}
-          // className={classes.card}
           fullWidth={true}
-          maxWidth={"lg"}
+          maxWidth={"md"}
           scroll="body"
-          onClose={handleDialogClose}
+          onClose={() => handleDialogClose("dialog_open")}
           PaperComponent={PaperComponent}
           aria-labelledby="draggable-dialog-title"
         >
           <ItemForm
             item={props.item ? props.item : {}}
-            handleDialogClose={handleDialogClose}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
           />
+        </Dialog>
+
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog2_open}
+          fullWidth={true}
+          maxWidth={"xs"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog2_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle id="draggable-dialog-title">
+            <span className={classes.cardTitle}>
+              <i
+                style={{ margin: "8px" }}
+                className="fas fa-exclamation-triangle"
+              ></i>
+              Confirmation
+            </span>
+          </DialogTitle>
+
+          <DialogContent>
+            <Typography className={classes.cardDesc}>
+              Do yo really want to delete this item ?
+            </Typography>
+          </DialogContent>
+
+          <DialogActions className={gutterStyles.parent}>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              Yes
+            </Button>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              No
+            </Button>
+          </DialogActions>
         </Dialog>
       </div>
       <Grid
@@ -971,11 +1121,17 @@ const Item = props => {
                 }
               />
             </MenuItem>
-            <MenuItem className={classes.menuItem} onClick={handleDialogOpen}>
+            <MenuItem
+              className={classes.menuItem}
+              onClick={() => handleDialogOpen("dialog_open")}
+            >
               <i style={{ margin: "8px" }} className="fas fa-pen"></i>
               Edit
             </MenuItem>
-            <MenuItem className={classes.menuItem} onClick={handleClose}>
+            <MenuItem
+              className={classes.menuItem}
+              onClick={() => handleDialogOpen("dialog2_open")}
+            >
               <i style={{ margin: "8px" }} className="fas fa-trash-alt"></i>
               Delete
             </MenuItem>

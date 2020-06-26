@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
@@ -80,9 +80,9 @@ function Dashboard(props) {
   const theme = useTheme();
   // const dispatch = useDispatch();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [state, setState] = React.useState({
-    ...props.restaurant
-  });
+  // const [state, setState] = React.useState({
+  //   ...props.restaurant
+  // });
   // const [state, setState] = React.useState({
   //   page: "home",
   //   restuarant: {}

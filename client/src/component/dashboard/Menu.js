@@ -454,7 +454,7 @@ const ItemForm = props => {
           alignItems="center"
           justify="center"
         >
-          <Grid item md={12}>
+          <Grid item xs={12}>
             <input
               id="item_name"
               value={state.item_name}
@@ -465,36 +465,38 @@ const ItemForm = props => {
             />
           </Grid>
 
-          <Grid item md={12}>
-            <Grid container justify="flex-start" spacing={3}>
-              <Grid item xs={4}>
-                <select
-                  id="currency"
-                  value={state.currency}
-                  onChange={handleChange}
-                  className={classes.textField}
-                  placeholder="Currency"
-                >
-                  <option>- -</option>
-                  <option value="RS">RS</option>
-                  <option value="$">$</option>
-                </select>
-              </Grid>
+          {!props.isPackage && (
+            <Grid item xs={12}>
+              <Grid container justify="flex-start" spacing={3}>
+                <Grid item xs={4}>
+                  <select
+                    id="currency"
+                    value={state.currency}
+                    onChange={handleChange}
+                    className={classes.textField}
+                    placeholder="Currency"
+                  >
+                    <option>- -</option>
+                    <option value="RS">RS</option>
+                    <option value="$">$</option>
+                  </select>
+                </Grid>
 
-              <Grid item xs={4}>
-                <input
-                  id="item_price"
-                  value={state.item_price}
-                  onChange={handleChange}
-                  type="number"
-                  className={classes.textField}
-                  placeholder="Item price"
-                />
+                <Grid item xs={4}>
+                  <input
+                    id="item_price"
+                    value={state.item_price}
+                    onChange={handleChange}
+                    type="number"
+                    className={classes.textField}
+                    placeholder="Item price"
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          )}
 
-          <Grid item md={12}>
+          <Grid item xs={12}>
             <RadioGroup
               aria-label="position"
               value={state.food_type}
@@ -524,7 +526,7 @@ const ItemForm = props => {
             </RadioGroup>
           </Grid>
 
-          <Grid item md={12}>
+          <Grid item xs={12}>
             <textarea
               id="item_desc"
               value={state.item_desc}
@@ -535,7 +537,7 @@ const ItemForm = props => {
             ></textarea>
           </Grid>
         </Grid>
-        {
+        {!props.isPackage && (
           <Grid
             container
             spacing={2}
@@ -898,7 +900,7 @@ const ItemForm = props => {
               </Collapse>
             </Grid>
           </Grid>
-        }
+        )}
       </DialogContent>
       <DialogActions className={gutterStyles.parent}>
         <Button
@@ -1021,6 +1023,7 @@ const Item = props => {
         >
           <ItemForm
             item={props.item ? props.item : {}}
+            isPackage={Boolean(props.isPackage)}
             handleDialogClose={() => handleDialogClose("dialog_open")}
           />
         </Dialog>
@@ -1320,8 +1323,14 @@ const Item = props => {
 
 const Category = props => {
   const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
   const [state, setState] = React.useState({
-    cat_show: false
+    cat_show: false,
+    show_options: false,
+    cat_edit: false,
+    category_name: props.category.category_name || "",
+    items: clone(props.category.items)
   });
 
   const toggleCollapse = content => {
@@ -1331,8 +1340,82 @@ const Category = props => {
     }));
   };
 
-  return (
-    <div className={classes.card} style={{ width: "93%" }}>
+  const handleMouseIn = () => {
+    setState({
+      ...state,
+      show_options: true
+    });
+  };
+
+  const handleMouseOut = () => {
+    setState({
+      ...state,
+      show_options: state.cat_show ? true : false
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const handleCatEdit = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      cat_edit: true
+    });
+  };
+
+  const handleCatEditClose = () => {
+    setState({
+      ...state,
+      cat_edit: false
+    });
+  };
+
+  return state.cat_edit ? (
+    <div className={classes.card}>
+      <Typography className={classes.cardDesc} style={{ margin: "12px" }}>
+        Edit category name
+      </Typography>
+      <div>
+        <input
+          id="category_name"
+          value={state.category_name}
+          onChange={handleChange}
+          type="text"
+          style={{ marginBottom: "10px" }}
+          className={classes.textField}
+          placeholder="Category name"
+        />
+      </div>
+
+      <div className={gutterStyles.parent}>
+        <Button variant="default" color="primary" onClick={handleCatEditClose}>
+          <span style={{ fontWeight: "bold" }}>Cancel</span>
+        </Button>
+        <Button
+          style={{ margin: "10px", fontWeight: "bold" }}
+          classes={styles}
+          variant={"contained"}
+          color={"primary"}
+          onClick={handleCatEditClose}
+        >
+          <i style={{ margin: "6px" }} className="fas fa-save"></i>
+          Save Changes
+        </Button>
+      </div>
+    </div>
+  ) : (
+    <div
+      className={classes.card}
+      style={{ width: "93%" }}
+      onMouseEnter={handleMouseIn}
+      onMouseLeave={handleMouseOut}
+    >
       <Typography
         className={classes.cardTitle}
         style={{
@@ -1365,20 +1448,684 @@ const Category = props => {
           style={{ margin: "8px", fontSize: "22px", float: "right" }}
           className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
         ></i>
+        {state.show_options && (
+          <span style={{ margin: "8px", float: "right" }}>
+            <button
+              style={{
+                margin: "0px 8px",
+                width: "40px",
+                border: "none",
+                textAlign: "center",
+                borderRadius: "4px",
+                backgroundColor: "#efc2c2",
+                padding: "4px"
+              }}
+            >
+              <i
+                style={{ margin: "4px", fontSize: "16px" }}
+                className="fas fa-trash-alt"
+              ></i>
+            </button>
+            <button
+              style={{
+                margin: "0px 8px",
+                width: "40px",
+                border: "none",
+                textAlign: "center",
+                borderRadius: "4px",
+                backgroundColor: "#c4dff2",
+                padding: "4px"
+              }}
+              onClick={handleCatEdit}
+            >
+              <i
+                style={{ margin: "4px", fontSize: "16px" }}
+                className="fas fa-edit"
+              ></i>
+            </button>
+          </span>
+        )}
       </Typography>
       {/* <Divider /> */}
       <Collapse in={state.cat_show}>
         {props.category &&
           props.category.items.map((item, idx) => (
-            <Item key={idx} item={item} />
+            <Item key={idx} isPackage={false} item={item} />
           ))}
       </Collapse>
     </div>
   );
 };
 
+const PackageForm = props => {
+  const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
+  const show_arr = Array.from(
+    { length: props.package.custumization_arr.length },
+    ele => false
+  );
+
+  let { custumization_arr } = props.package;
+  const cust_arr = clone(custumization_arr);
+
+  const [state, setState] = React.useState({
+    package_name: props.package.package_name || "",
+    package_price: props.package.package_price || "",
+    // currency: props.package.currency || "",
+    package_desc: props.package.package_desc || "",
+    // food_type: props.package.food_type || "",
+    // custumization: "",
+    // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
+    custumization_arr: clone(cust_arr),
+    // item_show: false,
+    custum_show: false,
+    custum_show_arr: [...show_arr],
+    custum_edit: false
+  });
+
+  // const { custumization_arr } = state;
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const toggleCollapse = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+    }));
+  };
+
+  const toggleCustShow = (content, idx) => {
+    // console.log(idx);
+    let new_arr = state.custum_show_arr;
+    new_arr[idx] = !new_arr[idx];
+    setState(prevState => ({
+      ...prevState,
+      [content]: [...new_arr]
+    }));
+  };
+
+  const handleCustumEdit = evt => {
+    evt.stopPropagation();
+    setState(prevState => ({
+      ...prevState,
+      custum_edit: true,
+      custum_show: true
+    }));
+  };
+
+  const handleCustumUndo = evt => {
+    evt.stopPropagation();
+    const arr = [...cust_arr];
+    setState(prevState => ({
+      ...prevState,
+      custum_edit: false,
+      // custum_show: true,
+      custumization_arr: clone(arr)
+    }));
+  };
+
+  const handleCustomChange = (value, custum_key, idx) => {
+    let arr = [...state.custumization_arr];
+    arr[idx][custum_key] = value;
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(arr)
+    }));
+  };
+
+  const handleOptionChange = (value, custIdx, option_key, opt_idx) => {
+    let arr = [...state.custumization_arr];
+    arr[custIdx].options[opt_idx][option_key] = value;
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(arr)
+    }));
+  };
+
+  const handleCustumDelete = (index, cust_name) => {
+    const custIdx = Boolean(Number(index))
+      ? index
+      : state.custumization_arr.findIndex(
+          ele => ele.custumization_name === cust_name
+        );
+    const arr = state.custumization_arr;
+    const newArr = arr.filter((ele, idx) => idx !== custIdx);
+    // console.log("Clicked");
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(newArr)
+    }));
+  };
+
+  const handleOptionDelete = (cust_index, cust_name, opt_index, opt_name) => {
+    const custIdx = Boolean(Number(cust_index))
+      ? cust_index
+      : state.custumization_arr.findIndex(
+          ele => ele.custumization_name === cust_name
+        );
+
+    const optIdx = Boolean(Number(opt_index))
+      ? opt_index
+      : state.custumization_arr[custIdx].options.findIndex(
+          ele => ele.option === opt_name
+        );
+
+    const arr = state.custumization_arr;
+    arr[custIdx].options = arr[custIdx].options.filter(
+      (ele, idx) => idx !== optIdx
+    );
+    // arr[custIdx].options = [...newOptArr];
+    const newArr = [...arr];
+    // console.log("Clicked");
+
+    setState(prevState => ({
+      ...prevState,
+      custumization_arr: clone(newArr)
+    }));
+  };
+
+  return (
+    <div>
+      <DialogTitle
+        // style={{ cursor: "move" }}
+        id="draggable-dialog-title"
+      >
+        <span className={classes.cardTitle}>
+          <i style={{ margin: "8px" }} className="fas fa-edit"></i>
+          Edit Package
+        </span>
+      </DialogTitle>
+      <DialogContent>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          justify="center"
+        >
+          <Grid item xs={12}>
+            <input
+              id="package_name"
+              value={state.package_name}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="Package name"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <Grid container justify="flex-start" spacing={3}>
+              {/* <Grid item xs={4}>
+                <select
+                  id="currency"
+                  value={state.currency}
+                  onChange={handleChange}
+                  className={classes.textField}
+                  placeholder="Currency"
+                >
+                  <option>- -</option>
+                  <option value="RS">RS</option>
+                  <option value="$">$</option>
+                </select>
+              </Grid> */}
+
+              <Grid item xs={6}>
+                <input
+                  id="package_price"
+                  value={state.package_price}
+                  onChange={handleChange}
+                  type="number"
+                  className={classes.textField}
+                  placeholder="Package price"
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          {/* <Grid item md={12}>
+            <RadioGroup
+              aria-label="position"
+              value={state.food_type}
+              onChange={handleChange}
+              row
+            >
+              <FormControlLabel
+                value={"veg"}
+                control={<Radio id="food_type" color="primary" />}
+                label={<span style={{ fontWeight: "bold" }}>Veg</span>}
+                labelPlacement="end"
+              />
+
+              <FormControlLabel
+                value={"non_veg"}
+                control={<Radio id="food_type" color="primary" />}
+                label={<span style={{ fontWeight: "bold" }}>Non-Veg</span>}
+                labelPlacement="end"
+              />
+
+              <FormControlLabel
+                value={"egg_only"}
+                control={<Radio id="food_type" color="primary" />}
+                label={<span style={{ fontWeight: "bold" }}>Contains-Egg</span>}
+                labelPlacement="end"
+              />
+            </RadioGroup>
+          </Grid> */}
+
+          <Grid item xs={12}>
+            <textarea
+              id="package_desc"
+              value={state.package_desc}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="Description"
+            ></textarea>
+          </Grid>
+        </Grid>
+        {
+          <Grid
+            container
+            spacing={2}
+            direction="row"
+            alignItems="start"
+            justify="flex-start"
+          >
+            <Grid
+              style={{ margin: "10px 2px 10px 2px" }}
+              className={classes.section}
+              item
+              xs={12}
+            >
+              <Typography
+                className={classes.cardDesc}
+                style={{
+                  margin: `5px 8px  ${state.custum_show ? "16px" : "0px"} 8px`
+                }}
+                onClick={() => toggleCollapse("custum_show")}
+              >
+                <Badge
+                  badgeContent={
+                    state.custumization_arr.length === 0
+                      ? "0"
+                      : state.custumization_arr.length
+                  }
+                  color="primary"
+                >
+                  <span>
+                    <i
+                      style={{ margin: "8px", fontSize: "23px" }}
+                      className="fas fa-list"
+                    ></i>
+                    Custumizations
+                  </span>
+                </Badge>
+
+                <i
+                  style={{ margin: "8px", fontSize: "22px", float: "right" }}
+                  className={`fas fa-sort-${state.custum_show ? "up" : "down"}`}
+                ></i>
+                <Button
+                  style={{
+                    margin: "5px 10px",
+                    fontWeight: "bold",
+                    float: "right"
+                  }}
+                  classes={styles}
+                  variant={"contained"}
+                  color={"primary"}
+                  onClick={
+                    !state.custum_edit ? handleCustumEdit : handleCustumUndo
+                  }
+                >
+                  <i
+                    style={{ margin: "5px" }}
+                    className={`fas fa-${
+                      state.custum_edit ? "undo-alt" : "pen"
+                    }`}
+                  ></i>
+                  {state.custum_edit ? "Undo" : "Edit"}
+                </Button>
+              </Typography>
+
+              <Collapse in={state.custum_show}>
+                {state.custumization_arr.length === 0 && (
+                  <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                    No Custumizations Available (Press Undo to undo changes
+                    made..)
+                  </div>
+                )}
+                {state.custumization_arr.map((cust, idx) => (
+                  <div>
+                    {state.custum_edit ? (
+                      <div className={classes.card}>
+                        <Typography
+                          style={{ margin: "12px" }}
+                          className={classes.cardDesc}
+                        >
+                          Edit Custumization
+                          <Button
+                            style={{
+                              // margin: "8px",
+                              float: "right"
+                            }}
+                            onClick={() =>
+                              handleCustumDelete(idx, cust.custumization_name)
+                            }
+                          >
+                            <i
+                              style={{ margin: "8px", fontSize: "22px" }}
+                              className={`fas fa-trash-alt`}
+                            ></i>
+                          </Button>
+                        </Typography>
+                        <input
+                          id="custumization"
+                          value={cust.custumization_name}
+                          onChange={evt =>
+                            handleCustomChange(
+                              evt.target.value,
+                              "custumization_name",
+                              idx
+                            )
+                          }
+                          type="text"
+                          style={{ marginBottom: "10px" }}
+                          className={classes.textField}
+                          placeholder="Name of custumization"
+                        />
+
+                        <input
+                          id="custum_type"
+                          value={cust.custum_type}
+                          onChange={evt =>
+                            handleCustomChange(
+                              evt.target.value,
+                              "custum_type",
+                              idx
+                            )
+                          }
+                          type="number"
+                          style={{ marginBottom: "10px" }}
+                          className={classes.textField}
+                          placeholder="No. of options that can be selected"
+                        />
+                        <div
+                          key={idx}
+                          style={{
+                            width: "96%",
+                            padding: "11px 12px",
+                            margin: "auto",
+                            marginTop: "10px"
+                          }}
+                          className={classes.section}
+                        >
+                          <Typography
+                            className={classes.cardDesc}
+                            style={{
+                              margin: `0px 8px  ${
+                                state.custum_show_arr[idx] ? "16px" : "0px"
+                              } 8px`
+                            }}
+                            onClick={() =>
+                              toggleCustShow("custum_show_arr", idx)
+                            }
+                          >
+                            <i
+                              style={{ margin: "8px", fontSize: "25px" }}
+                              className="fas fa-poll"
+                            ></i>
+                            {/* {cust.custumization_name} */}
+                            Options
+                            <i
+                              style={{
+                                margin: "8px",
+                                fontSize: "22px",
+                                float: "right"
+                              }}
+                              className={`fas fa-sort-${
+                                state.cust_show ? "up" : "down"
+                              }`}
+                            ></i>
+                          </Typography>
+                          <Collapse in={state.custum_show_arr[idx]}>
+                            {cust.options.length === 0 && (
+                              <div
+                                style={{
+                                  textAlign: "center",
+                                  fontWeight: "bold"
+                                }}
+                              >
+                                No Options Available (Press Undo to undo changes
+                                made..)
+                              </div>
+                            )}
+                            {cust.options.map((opt, id) => (
+                              <div className={classes.card}>
+                                <Typography
+                                  style={{ margin: "12px" }}
+                                  className={classes.cardDesc}
+                                >
+                                  Edit Option
+                                  <Button
+                                    style={{
+                                      // margin: "8px",
+                                      float: "right"
+                                    }}
+                                    onClick={() =>
+                                      handleOptionDelete(
+                                        idx,
+                                        cust.custumization_name,
+                                        id,
+                                        opt.option
+                                      )
+                                    }
+                                  >
+                                    <i
+                                      style={{
+                                        margin: "8px",
+                                        fontSize: "22px"
+                                      }}
+                                      className={`fas fa-trash-alt`}
+                                    ></i>
+                                  </Button>
+                                </Typography>
+                                <input
+                                  style={{
+                                    margin: "auto",
+                                    marginBottom: "10px"
+                                  }}
+                                  id="option"
+                                  value={opt.option}
+                                  onChange={evt =>
+                                    handleOptionChange(
+                                      evt.target.value,
+                                      idx,
+                                      "option",
+                                      id
+                                    )
+                                  }
+                                  type="text"
+                                  className={classes.textField}
+                                  placeholder="Option name"
+                                />
+
+                                <input
+                                  style={{
+                                    margin: "auto",
+                                    marginBottom: "10px"
+                                  }}
+                                  id="option_price"
+                                  value={opt.option_price}
+                                  onChange={evt =>
+                                    handleOptionChange(
+                                      evt.target.value,
+                                      idx,
+                                      "option_price",
+                                      id
+                                    )
+                                  }
+                                  type="number"
+                                  className={classes.textField}
+                                  placeholder="Option cost"
+                                />
+                                <RadioGroup
+                                  aria-label="position"
+                                  value={opt.option_type}
+                                  onChange={evt =>
+                                    handleOptionChange(
+                                      evt.target.value,
+                                      idx,
+                                      "option_type",
+                                      id
+                                    )
+                                  }
+                                  row
+                                >
+                                  <FormControlLabel
+                                    value={"minus"}
+                                    control={
+                                      <Radio id="option_type" color="primary" />
+                                    }
+                                    label={
+                                      <span style={{ fontWeight: "bold" }}>
+                                        Deduct from total
+                                      </span>
+                                    }
+                                    labelPlacement="end"
+                                  />
+
+                                  <FormControlLabel
+                                    value={"add"}
+                                    control={
+                                      <Radio id="option_type" color="primary" />
+                                    }
+                                    label={
+                                      <span style={{ fontWeight: "bold" }}>
+                                        Add to total
+                                      </span>
+                                    }
+                                    labelPlacement="end"
+                                  />
+
+                                  <FormControlLabel
+                                    value={"total"}
+                                    control={
+                                      <Radio id="option_type" color="primary" />
+                                    }
+                                    label={
+                                      <span style={{ fontWeight: "bold" }}>
+                                        Option cost becomes total.
+                                      </span>
+                                    }
+                                    labelPlacement="end"
+                                  />
+                                </RadioGroup>
+                              </div>
+                            ))}
+                          </Collapse>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        key={idx}
+                        style={{
+                          width: "96%",
+                          padding: "11px 12px",
+                          margin: "auto",
+                          marginTop: "10px"
+                        }}
+                        className={classes.section}
+                      >
+                        <Typography
+                          className={classes.cardDesc}
+                          style={{
+                            margin: `0px 8px  ${
+                              state.custum_show_arr[idx] ? "16px" : "0px"
+                            } 8px`
+                          }}
+                          onClick={() => toggleCustShow("custum_show_arr", idx)}
+                        >
+                          <i
+                            style={{ margin: "8px", fontSize: "25px" }}
+                            className="fas fa-poll"
+                          ></i>
+                          {cust.custumization_name}
+                          <i
+                            style={{
+                              margin: "8px",
+                              fontSize: "22px",
+                              float: "right"
+                            }}
+                            className={`fas fa-sort-${
+                              state.cust_show ? "up" : "down"
+                            }`}
+                          ></i>
+                        </Typography>
+
+                        <Collapse in={state.custum_show_arr[idx]}>
+                          {cust.options.map((opt, id) => (
+                            <span key={id} className={classes.tag}>
+                              {`${opt.option}`}
+                              <span
+                                style={{
+                                  padding: "6px",
+                                  fontWeight: "bold",
+                                  border: "1px solid lightgray",
+                                  borderRadius: "3px",
+                                  marginLeft: "20px"
+                                }}
+                              >{`${"RS"}. ${opt.option_price}`}</span>
+                            </span>
+                          ))}
+                        </Collapse>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </Collapse>
+            </Grid>
+          </Grid>
+        }
+      </DialogContent>
+      <DialogActions className={gutterStyles.parent}>
+        <Button
+          variant="default"
+          color="primary"
+          onClick={props.handleDialogClose}
+        >
+          <span style={{ fontWeight: "bold" }}>Cancel</span>
+        </Button>
+        <Button
+          style={{ margin: "10px", fontWeight: "bold" }}
+          classes={styles}
+          variant={"contained"}
+          color={"primary"}
+          onClick={props.handleDialogClose}
+        >
+          <i style={{ margin: "6px" }} className="fas fa-save"></i>
+          Save Changes
+        </Button>
+      </DialogActions>
+    </div>
+  );
+};
+
 const Package = props => {
   const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
+
   const {
     package_name,
     package_price,
@@ -1397,7 +2144,9 @@ const Package = props => {
     custum_show_arr: [...show_arr],
     anchorEl: null,
     items_show: false,
-    status: true
+    status: true,
+    dialog_open: false,
+    dialog2_open: false
   });
 
   const toggleCollapse = content => {
@@ -1438,8 +2187,89 @@ const Package = props => {
     });
   };
 
+  const handleDialogOpen = content => {
+    setState({
+      ...state,
+      [content]: true,
+      anchorEl: null
+    });
+  };
+
+  const handleDialogClose = content => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      [content]: false
+    });
+  };
+
   return (
     <div style={{ width: "100%", padding: "30px" }} className={classes.card}>
+      <div className="all_dialogs">
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <PackageForm
+            package={props.package ? props.package : {}}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
+          />
+        </Dialog>
+
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog2_open}
+          fullWidth={true}
+          maxWidth={"xs"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog2_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle id="draggable-dialog-title">
+            <span className={classes.cardTitle}>
+              <i
+                style={{ margin: "8px" }}
+                className="fas fa-exclamation-triangle"
+              ></i>
+              Confirmation
+            </span>
+          </DialogTitle>
+
+          <DialogContent>
+            <Typography className={classes.cardDesc}>
+              Do yo really want to delete this item ?
+            </Typography>
+          </DialogContent>
+
+          <DialogActions className={gutterStyles.parent}>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              Yes
+            </Button>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              No
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
       <Grid
         container
         spacing={2}
@@ -1530,11 +2360,17 @@ const Package = props => {
                       label={`${state.status ? "Online" : "Offline"}`}
                     />
                   </MenuItem>
-                  <MenuItem className={classes.menuItem} onClick={handleClose}>
+                  <MenuItem
+                    className={classes.menuItem}
+                    onClick={() => handleDialogOpen("dialog_open")}
+                  >
                     <i style={{ margin: "8px" }} className="fas fa-pen"></i>
                     Edit
                   </MenuItem>
-                  <MenuItem className={classes.menuItem} onClick={handleClose}>
+                  <MenuItem
+                    className={classes.menuItem}
+                    onClick={() => handleDialogOpen("dialog2_open")}
+                  >
                     <i
                       style={{ margin: "8px" }}
                       className="fas fa-trash-alt"
@@ -1631,7 +2467,7 @@ const Package = props => {
           </Typography>
           <Collapse in={state.items_show}>
             {items.map((item, idx) => (
-              <Item key={idx} item={item} />
+              <Item key={idx} isPackage={true} item={item} />
             ))}
           </Collapse>
         </Grid>
@@ -1863,7 +2699,7 @@ const Menu = props => {
           <div>
             {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
-                item => <Item item={item} />
+                item => <Item isPackage={false} item={item} />
               )
             ) : (
               <div style={{ textAlign: "center", fontWeight: "bold" }}>

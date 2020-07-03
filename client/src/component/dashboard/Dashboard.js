@@ -1,6 +1,7 @@
-import React from "react";
+import React, { cloneElement, useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { clone } from "ramda";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Divider from "@material-ui/core/Divider";
@@ -25,6 +26,7 @@ import { Grid } from "@material-ui/core";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
 // import { Chip } from "@material-ui/core";
+
 const drawerWidth = 260;
 
 const useStyles = makeStyles(theme => ({
@@ -79,26 +81,55 @@ function Dashboard(props) {
   const classes = useStyles();
   const theme = useTheme();
   // const dispatch = useDispatch();
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  // const [state, setState] = React.useState({
-  //   ...props.restaurant
-  // });
-  // const [state, setState] = React.useState({
-  //   page: "home",
-  //   restuarant: {}
-  // });
-  // useEffect(() => {
-  //   // console.log(store.getState());
-  //   props.loadRest();
-  // }, [props.loadRest]);
+  // const [mobileOpen, setMobileOpen] = React.useState(false);
+  // let restaurant = {};
+  // let menu = {};
+  // let orientation = {};
+  // if (props.restaurant) {
+  //   restaurant = { ...props.restaurant };
+  //   delete restaurant.menu;
+  //   delete restaurant.orientation;
+  //   menu = clone(props.restaurant.menu);
+  //   orientation = clone(props.restaurant.orientation);
+  // }
 
-  // useEffect(() => {
-  //   console.log(props.restuarant);
-  // }, [props.restuarant]);
+  // const restaurant = clone(props.restaurant);
+  // console.log("Clone again : ", restaurant);
+
+  const [state, setState] = React.useState({
+    restaurant: clone(props.restaurant),
+    mobileOpen: false
+  });
+
+  useEffect(() => {
+    setState(prevState => ({
+      ...prevState,
+      restaurant: clone(props.restaurant)
+    }));
+  }, [props.restaurant]);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setState({
+      ...state,
+      mobileOpen: !state.mobileOpen
+    });
   };
+
+  const updateItem = (item, itemId, catId, menuType) => {
+    let restaurant = state.restaurant;
+    // restaurant.menu = clone(menu);
+    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
+      ele => ele._id === itemId
+    );
+    restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const pages = {
     home: {
       title: "Home",
@@ -350,7 +381,7 @@ function Dashboard(props) {
             container={container}
             variant="temporary"
             anchor={theme.direction === "rtl" ? "right" : "left"}
-            open={mobileOpen}
+            open={state.mobileOpen}
             onClose={handleDrawerToggle}
             classes={{
               paper: classes.drawerPaper
@@ -379,8 +410,10 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        <Menu restaurant={props.restaurant} />
-        {/* <Orientation restaurant={...props.restaurant} /> */}
+        {state.restaurant && (
+          <Menu restaurant={state.restaurant} updateItem={updateItem} />
+        )}
+        {/* <Orientation restaurant={state.restaurant} /> */}
       </main>
     </div>
   );

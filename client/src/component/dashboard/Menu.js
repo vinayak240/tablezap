@@ -1330,7 +1330,8 @@ const Category = props => {
     show_options: false,
     cat_edit: false,
     category_name: props.category.category_name || "",
-    items: clone(props.category.items)
+    items: clone(props.category.items),
+    dialog2_open: false
   });
 
   const toggleCollapse = content => {
@@ -1376,123 +1377,198 @@ const Category = props => {
     });
   };
 
-  return state.cat_edit ? (
-    <div className={classes.card}>
-      <Typography className={classes.cardDesc} style={{ margin: "12px" }}>
-        Edit category name
-      </Typography>
-      <div>
-        <input
-          id="category_name"
-          value={state.category_name}
-          onChange={handleChange}
-          type="text"
-          style={{ marginBottom: "10px" }}
-          className={classes.textField}
-          placeholder="Category name"
-        />
-      </div>
+  const handleDialogOpen = (evt, content) => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      [content]: true,
+      anchorEl: null
+    });
+  };
 
-      <div className={gutterStyles.parent}>
-        <Button variant="default" color="primary" onClick={handleCatEditClose}>
-          <span style={{ fontWeight: "bold" }}>Cancel</span>
-        </Button>
-        <Button
-          style={{ margin: "10px", fontWeight: "bold" }}
-          classes={styles}
-          variant={"contained"}
-          color={"primary"}
-          onClick={handleCatEditClose}
+  const handleDialogClose = content => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      [content]: false
+    });
+  };
+
+  return (
+    <div>
+      <div className="all_dialogs">
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog2_open}
+          fullWidth={true}
+          maxWidth={"xs"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog2_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
         >
-          <i style={{ margin: "6px" }} className="fas fa-save"></i>
-          Save Changes
-        </Button>
+          <DialogTitle id="draggable-dialog-title">
+            <span className={classes.cardTitle}>
+              <i
+                style={{ margin: "8px" }}
+                className="fas fa-exclamation-triangle"
+              ></i>
+              Confirmation
+            </span>
+          </DialogTitle>
+
+          <DialogContent>
+            <Typography className={classes.cardDesc}>
+              Do yo really want to delete this item ?
+            </Typography>
+          </DialogContent>
+
+          <DialogActions className={gutterStyles.parent}>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              Yes
+            </Button>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              No
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
-    </div>
-  ) : (
-    <div
-      className={classes.card}
-      style={{ width: "93%" }}
-      onMouseEnter={handleMouseIn}
-      onMouseLeave={handleMouseOut}
-    >
-      <Typography
-        className={classes.cardTitle}
-        style={{
-          fontWeight: "bolder",
-          marginBottom: `${!state.cat_show ? "2px" : "20px"}`
-        }}
-        onClick={() => toggleCollapse("cat_show")}
-      >
-        <i
-          style={{ margin: "7px", fontSize: "25px" }}
-          className="fas fa-clipboard-list"
-        ></i>
+      {state.cat_edit ? (
+        <div className={classes.card}>
+          <Typography className={classes.cardDesc} style={{ margin: "12px" }}>
+            Edit category name
+          </Typography>
+          <div>
+            <input
+              id="category_name"
+              value={state.category_name}
+              onChange={handleChange}
+              type="text"
+              style={{ marginBottom: "10px" }}
+              className={classes.textField}
+              placeholder="Category name"
+            />
+          </div>
 
-        {props.category && props.category.category_name}
-        <span
-          style={{
-            borderRadius: "5px",
-            color: "#7C7575",
-            fontSize: "12px",
-            backgroundColor: "#EBEDE8",
-            padding: "5px",
-            margin: "4px 8px"
-            // border: "1px solid lightgray"
-          }}
+          <div className={gutterStyles.parent}>
+            <Button
+              variant="default"
+              color="primary"
+              onClick={handleCatEditClose}
+            >
+              <span style={{ fontWeight: "bold" }}>Cancel</span>
+            </Button>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={handleCatEditClose}
+            >
+              <i style={{ margin: "6px" }} className="fas fa-save"></i>
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          className={classes.card}
+          style={{ width: "98%" }}
+          onMouseEnter={handleMouseIn}
+          onMouseLeave={handleMouseOut}
         >
-          {`${props.category.items.length} items`}
-        </span>
+          <Typography
+            className={classes.cardTitle}
+            style={{
+              fontWeight: "bolder",
+              marginBottom: `${!state.cat_show ? "2px" : "20px"}`
+            }}
+            onClick={() => toggleCollapse("cat_show")}
+          >
+            <i
+              style={{ margin: "7px", fontSize: "25px" }}
+              className="fas fa-clipboard-list"
+            ></i>
 
-        <i
-          style={{ margin: "8px", fontSize: "22px", float: "right" }}
-          className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
-        ></i>
-        {state.show_options && (
-          <span style={{ margin: "8px", float: "right" }}>
-            <button
+            {props.category && props.category.category_name}
+            <span
               style={{
-                margin: "0px 8px",
-                width: "40px",
-                border: "none",
-                textAlign: "center",
-                borderRadius: "4px",
-                backgroundColor: "#efc2c2",
-                padding: "4px"
+                borderRadius: "5px",
+                color: "#7C7575",
+                fontSize: "12px",
+                backgroundColor: "#EBEDE8",
+                padding: "5px",
+                margin: "4px 8px"
+                // border: "1px solid lightgray"
               }}
             >
-              <i
-                style={{ margin: "4px", fontSize: "16px" }}
-                className="fas fa-trash-alt"
-              ></i>
-            </button>
-            <button
-              style={{
-                margin: "0px 8px",
-                width: "40px",
-                border: "none",
-                textAlign: "center",
-                borderRadius: "4px",
-                backgroundColor: "#c4dff2",
-                padding: "4px"
-              }}
-              onClick={handleCatEdit}
-            >
-              <i
-                style={{ margin: "4px", fontSize: "16px" }}
-                className="fas fa-edit"
-              ></i>
-            </button>
-          </span>
-        )}
-      </Typography>
-      {/* <Divider /> */}
-      <Collapse in={state.cat_show}>
-        {props.category &&
-          props.category.items.map((item, idx) => (
-            <Item key={idx} isPackage={false} item={item} />
-          ))}
-      </Collapse>
+              {`${props.category.items.length} items`}
+            </span>
+
+            <i
+              style={{ margin: "8px", fontSize: "22px", float: "right" }}
+              className={`fas fa-sort-${state.cat_show ? "up" : "down"}`}
+            ></i>
+            {state.show_options && (
+              <span style={{ margin: "8px", float: "right" }}>
+                <button
+                  style={{
+                    margin: "0px 8px",
+                    width: "40px",
+                    border: "none",
+                    textAlign: "center",
+                    borderRadius: "4px",
+                    backgroundColor: "#efc2c2",
+                    padding: "4px"
+                  }}
+                  onClick={evt => handleDialogOpen(evt, "dialog2_open")}
+                >
+                  <i
+                    style={{ margin: "4px", fontSize: "16px" }}
+                    className="fas fa-trash-alt"
+                  ></i>
+                </button>
+                <button
+                  style={{
+                    margin: "0px 8px",
+                    width: "40px",
+                    border: "none",
+                    textAlign: "center",
+                    borderRadius: "4px",
+                    backgroundColor: "#c4dff2",
+                    padding: "4px"
+                  }}
+                  onClick={handleCatEdit}
+                >
+                  <i
+                    style={{ margin: "4px", fontSize: "16px" }}
+                    className="fas fa-edit"
+                  ></i>
+                </button>
+              </span>
+            )}
+          </Typography>
+          {/* <Divider /> */}
+          <Collapse in={state.cat_show}>
+            {props.category &&
+              props.category.items.map((item, idx) => (
+                <Item key={idx} isPackage={false} item={item} />
+              ))}
+          </Collapse>
+        </div>
+      )}
     </div>
   );
 };

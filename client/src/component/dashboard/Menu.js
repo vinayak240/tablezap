@@ -435,6 +435,22 @@ const ItemForm = props => {
     }));
   };
 
+  const updateItem = () => {
+    const { item_name, item_desc, food_type } = state;
+    let newItem = { item_name, item_desc, food_type };
+
+    if (!props.isPackage) {
+      let { item_price, currency } = state;
+      let custumization_arr = clone(state.custumization_arr);
+      newItem = { ...newItem, custumization_arr, item_price, currency };
+    } else {
+      let custumization_arr = [];
+      newItem = { ...newItem, custumization_arr };
+    }
+
+    props.updateItem(newItem);
+  };
+
   return (
     <div>
       <DialogTitle
@@ -915,7 +931,7 @@ const ItemForm = props => {
           classes={styles}
           variant={"contained"}
           color={"primary"}
-          onClick={props.handleDialogClose}
+          onClick={updateItem}
         >
           <i style={{ margin: "6px" }} className="fas fa-save"></i>
           Save Changes
@@ -1008,6 +1024,22 @@ const Item = props => {
     });
   };
 
+  const updateItem = item => {
+    setState({
+      ...state,
+      dialog_open: false
+    });
+    props.updateItem(item, props.item._id, props.catId);
+  };
+
+  const deleteItem = () => {
+    setState({
+      ...state,
+      dialog2_open: false
+    });
+    props.deleteItem(props.item._id, props.catId);
+  };
+
   return (
     <div className={classes.card}>
       <div className="all_dialogs">
@@ -1025,6 +1057,7 @@ const Item = props => {
             item={props.item ? props.item : {}}
             isPackage={Boolean(props.isPackage)}
             handleDialogClose={() => handleDialogClose("dialog_open")}
+            updateItem={updateItem}
           />
         </Dialog>
 
@@ -1060,7 +1093,7 @@ const Item = props => {
               classes={styles}
               variant={"contained"}
               color={"primary"}
-              onClick={() => handleDialogClose("dialog2_open")}
+              onClick={deleteItem}
             >
               Yes
             </Button>
@@ -1394,6 +1427,14 @@ const Category = props => {
     });
   };
 
+  const deleteCatOrPack = () => {
+    setState({
+      ...state,
+      dialog2_open: false
+    });
+    props.deleteCatOrPack(props.catId);
+  };
+
   return (
     <div>
       <div className="all_dialogs">
@@ -1419,7 +1460,8 @@ const Category = props => {
 
           <DialogContent>
             <Typography className={classes.cardDesc}>
-              Do yo really want to delete this item ?
+              Do yo really want to delete this Menu Category, Deleting this will
+              delete all items in it ?
             </Typography>
           </DialogContent>
 
@@ -1429,7 +1471,7 @@ const Category = props => {
               classes={styles}
               variant={"contained"}
               color={"primary"}
-              onClick={() => handleDialogClose("dialog2_open")}
+              onClick={deleteCatOrPack}
             >
               Yes
             </Button>
@@ -1564,7 +1606,14 @@ const Category = props => {
           <Collapse in={state.cat_show}>
             {props.category &&
               props.category.items.map((item, idx) => (
-                <Item key={idx} isPackage={false} item={item} />
+                <Item
+                  catId={props.catId}
+                  key={idx}
+                  isPackage={false}
+                  item={item}
+                  updateItem={props.updateItem}
+                  deleteItem={props.deleteItem}
+                />
               ))}
           </Collapse>
         </div>
@@ -2279,6 +2328,14 @@ const Package = props => {
     });
   };
 
+  const deleteCatOrPack = () => {
+    setState({
+      ...state,
+      dialog2_open: false
+    });
+    props.deleteCatOrPack(props.packId);
+  };
+
   return (
     <div style={{ width: "100%", padding: "30px" }} className={classes.card}>
       <div className="all_dialogs">
@@ -2320,7 +2377,8 @@ const Package = props => {
 
           <DialogContent>
             <Typography className={classes.cardDesc}>
-              Do yo really want to delete this item ?
+              Do yo really want to delete this Package, Deleting this will
+              delete all the items in it ?
             </Typography>
           </DialogContent>
 
@@ -2330,7 +2388,7 @@ const Package = props => {
               classes={styles}
               variant={"contained"}
               color={"primary"}
-              onClick={() => handleDialogClose("dialog2_open")}
+              onClick={deleteCatOrPack}
             >
               Yes
             </Button>
@@ -2433,7 +2491,11 @@ const Package = props => {
                           name="status"
                         />
                       }
-                      label={`${state.status ? "Online" : "Offline"}`}
+                      label={
+                        <span style={{ fontWeight: "bold" }}>{`${
+                          state.status ? "Online" : "Offline"
+                        }`}</span>
+                      }
                     />
                   </MenuItem>
                   <MenuItem
@@ -2543,7 +2605,14 @@ const Package = props => {
           </Typography>
           <Collapse in={state.items_show}>
             {items.map((item, idx) => (
-              <Item key={idx} isPackage={true} item={item} />
+              <Item
+                catId={props.packId}
+                key={idx}
+                isPackage={true}
+                item={item}
+                updateItem={props.updateItem}
+                deleteItem={props.deleteItem}
+              />
             ))}
           </Collapse>
         </Grid>
@@ -2702,6 +2771,18 @@ const Menu = props => {
     });
   };
 
+  const updateItem = (item, itemId, catId) => {
+    props.updateItem(item, itemId, catId, tabMap[state.tab]);
+  };
+
+  const deleteItem = (itemId, catId) => {
+    props.deleteItem(itemId, catId, tabMap[state.tab]);
+  };
+
+  const deleteCatOrPack = id => {
+    props.deleteCatOrPack(id, tabMap[state.tab]);
+  };
+
   const getList = cat => {
     const tab = state.tab;
     const val =
@@ -2726,7 +2807,14 @@ const Menu = props => {
             <div>
               {props.restaurant ? (
                 props.restaurant.menu[tabMap[state.tab]].map((pack, idx) => (
-                  <Package key={idx} package={pack} />
+                  <Package
+                    packId={pack._id}
+                    key={idx}
+                    package={pack}
+                    updateItem={updateItem}
+                    deleteItem={deleteItem}
+                    deleteCatOrPack={deleteCatOrPack}
+                  />
                 ))
               ) : (
                 <div style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -2741,11 +2829,19 @@ const Menu = props => {
               {props.restaurant ? (
                 <Package
                   key={0}
+                  packId={
+                    props.restaurant.menu[tabMap[state.tab]][
+                      cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
+                    ]._id
+                  }
                   package={
                     props.restaurant.menu[tabMap[state.tab]][
                       cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
                     ]
                   }
+                  updateItem={updateItem}
+                  deleteItem={deleteItem}
+                  deleteCatOrPack={deleteCatOrPack}
                 />
               ) : (
                 <div style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -2760,7 +2856,14 @@ const Menu = props => {
           <div>
             {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]].map((category, idx) => (
-                <Category key={idx} category={category} />
+                <Category
+                  catId={category._id}
+                  key={idx}
+                  category={category}
+                  updateItem={updateItem}
+                  deleteItem={deleteItem}
+                  deleteCatOrPack={deleteCatOrPack}
+                />
               ))
             ) : (
               <div style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -2771,11 +2874,20 @@ const Menu = props => {
         );
       case "item":
         const catIdx = cat[tab] >= 2 ? cat[tab] - 2 : cat[tab];
+        const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
         return (
           <div>
             {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
-                item => <Item isPackage={false} item={item} />
+                item => (
+                  <Item
+                    catId={catId}
+                    isPackage={false}
+                    item={item}
+                    updateItem={updateItem}
+                    deleteItem={deleteItem}
+                  />
+                )
               )
             ) : (
               <div style={{ textAlign: "center", fontWeight: "bold" }}>

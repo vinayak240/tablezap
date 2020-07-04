@@ -75,10 +75,8 @@ function Login({ login, isAuthenticated, setLogged }) {
   };
 
   if (isAuthenticated) {
-    console.log("User is authenticated");
+    // console.log("User is authenticated");
     setLogged();
-  } else {
-    console.log("User is NOT authenticated");
   }
   return (
     <>

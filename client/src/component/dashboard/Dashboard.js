@@ -1,4 +1,4 @@
-import React, { cloneElement, useEffect } from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { clone } from "ramda";
@@ -98,9 +98,11 @@ function Dashboard(props) {
 
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
-    mobileOpen: false
+    mobileOpen: false,
+    page: "menu"
   });
 
+  // The page becomes unresponsive due to the infinite loop created by the local reference variable..
   useEffect(() => {
     setState(prevState => ({
       ...prevState,
@@ -130,6 +132,40 @@ function Dashboard(props) {
     });
   };
 
+  const deleteItem = (itemId, catId, menuType) => {
+    let restaurant = state.restaurant;
+    // restaurant.menu = clone(menu);
+    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let arr = restaurant.menu[menuType][catIdx].items;
+    let newArr = arr.filter(ele => ele._id !== itemId);
+    // restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
+    restaurant.menu[menuType][catIdx].items = clone(newArr);
+
+    // The thing that i did befor returns the items arr to the whole Restaurant obj so the whole restaurant in state becomes the items arr
+    // that is why i was getting undefined err
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const deleteCatOrPack = (id, menuType) => {
+    let restaurant = state.restaurant;
+    // Below is the correct filter approach...
+    let arr = restaurant.menu[menuType];
+    let newArr = arr.filter(ele => ele._id !== id);
+    restaurant.menu[menuType] = clone(newArr);
+
+    // The thing that i did below returns the category arr to the whole Restaurant obj so the whole restaurant becomes the category arr
+    // that is why i was getting undefined err
+    // let newRest = restaurant.menu[menuType].filter(ele => ele._id !== id);
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const pages = {
     home: {
       title: "Home",
@@ -146,7 +182,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/officexs/80/000000/restaurant-building.png"
         />
       ),
-      component: <></>
+      component: <>Home</>
     },
     orders: {
       title: "Orders",
@@ -165,7 +201,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/fluent/96/000000/purchase-order.png"
         />
       ),
-      component: <></>
+      component: <>Orders</>
     },
     menu: {
       title: "Menu",
@@ -182,7 +218,14 @@ function Dashboard(props) {
           src="https://img.icons8.com/dusk/64/000000/restaurant-menu.png"
         />
       ),
-      component: <></>
+      component: (
+        <Menu
+          restaurant={state.restaurant}
+          updateItem={updateItem}
+          deleteItem={deleteItem}
+          deleteCatOrPack={deleteCatOrPack}
+        />
+      )
     },
     orientation: {
       title: "Orientation",
@@ -200,7 +243,8 @@ function Dashboard(props) {
           src="https://img.icons8.com/dusk/64/000000/floor-plan.png"
         />
       ),
-      component: <></>
+
+      component: <Orientation restaurant={state.restaurant} />
     },
     feedback: {
       title: "Feedback",
@@ -217,7 +261,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/fluent/96/000000/web-analystics.png"
         />
       ),
-      component: <></>
+      component: <>Feedback</>
     },
     account: {
       title: "Account",
@@ -234,7 +278,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/color/96/000000/client-company.png"
         />
       ),
-      component: <></>
+      component: <>Account</>
     },
     logout: {
       title: "Logout",
@@ -253,7 +297,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/fluent/96/000000/exit.png"
         />
       ),
-      component: <></>
+      component: <>Logout</>
     }
   };
   const drawer = (
@@ -316,7 +360,18 @@ function Dashboard(props) {
         <List>
           {["home", "orders", "menu", "orientation", "feedback"].map(
             (text, index) => (
-              <ListItem button key={text}>
+              <ListItem
+                id={text}
+                button
+                key={text}
+                onClick={() =>
+                  setState(prevState => ({
+                    ...prevState,
+                    page: text,
+                    mobileOpen: false
+                  }))
+                }
+              >
                 <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
                 <ListItemText
                   style={{ fontWeight: "bold" }}
@@ -333,7 +388,18 @@ function Dashboard(props) {
         <Divider />
         <List>
           {["account", "logout"].map((text, index) => (
-            <ListItem button key={text}>
+            <ListItem
+              button
+              key={text}
+              onClick={() => {
+                // console.log(evt);
+                setState(prevState => ({
+                  ...prevState,
+                  page: text,
+                  mobileOpen: false
+                }));
+              }}
+            >
               <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
               <ListItemText
                 style={{ fontWeight: "bold" }}
@@ -410,10 +476,7 @@ function Dashboard(props) {
       <main className={classes.content}>
         <div className={classes.toolbar} />
 
-        {state.restaurant && (
-          <Menu restaurant={state.restaurant} updateItem={updateItem} />
-        )}
-        {/* <Orientation restaurant={state.restaurant} /> */}
+        {state.restaurant && pages[state.page].component}
       </main>
     </div>
   );

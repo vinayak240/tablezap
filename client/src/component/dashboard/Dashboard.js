@@ -117,8 +117,20 @@ function Dashboard(props) {
     });
   };
 
+  const addItem = (item, catId, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let newArr = [...restaurant.menu[menuType][catIdx].items, item];
+    restaurant.menu[menuType][catIdx].items = newArr;
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const updateItem = (item, itemId, catId, menuType) => {
-    let restaurant = state.restaurant;
+    let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
     let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
     let itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
@@ -133,7 +145,7 @@ function Dashboard(props) {
   };
 
   const deleteItem = (itemId, catId, menuType) => {
-    let restaurant = state.restaurant;
+    let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
     let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
     let arr = restaurant.menu[menuType][catIdx].items;
@@ -150,7 +162,7 @@ function Dashboard(props) {
   };
 
   const deleteCatOrPack = (id, menuType) => {
-    let restaurant = state.restaurant;
+    let restaurant = clone(state.restaurant);
     // Below is the correct filter approach...
     let arr = restaurant.menu[menuType];
     let newArr = arr.filter(ele => ele._id !== id);
@@ -221,6 +233,7 @@ function Dashboard(props) {
       component: (
         <Menu
           restaurant={state.restaurant}
+          addItem={addItem}
           updateItem={updateItem}
           deleteItem={deleteItem}
           deleteCatOrPack={deleteCatOrPack}

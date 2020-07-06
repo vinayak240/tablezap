@@ -14,7 +14,8 @@ import {
   useMediaQuery,
   Button,
   RadioGroup,
-  Radio
+  Radio,
+  Tooltip
 } from "@material-ui/core";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -292,10 +293,7 @@ const ItemForm = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
-  const show_arr = Array.from(
-    { length: props.item.custumization_arr.length },
-    ele => false
-  );
+
   // const cust_arr = custumization_arr.map(cust => {
   //   let opt_arr = cust.options.map(opt => ({
   //     option: opt.option,
@@ -308,15 +306,21 @@ const ItemForm = props => {
   //     options: [...opt_arr]
   //   };
   // });
-  let { custumization_arr } = props.item;
+  let custumization_arr = (props.item && props.item.custumization_arr) || [];
+
+  const show_arr = Array.from(
+    { length: custumization_arr.length },
+    ele => false
+  );
+
   const cust_arr = clone(custumization_arr);
 
   const [state, setState] = React.useState({
-    item_name: props.item.item_name || "",
-    item_price: props.item.item_price || "",
-    currency: props.item.currency || "",
-    item_desc: props.item.item_desc || "",
-    food_type: props.item.food_type || "",
+    item_name: (props.item && props.item.item_name) || "",
+    item_price: (props.item && props.item.item_price) || "",
+    currency: (props.item && props.item.currency) || "",
+    item_desc: (props.item && props.item.item_desc) || "",
+    food_type: (props.item && props.item.food_type) || "",
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
@@ -484,7 +488,7 @@ const ItemForm = props => {
           {!props.isPackage && (
             <Grid item xs={12}>
               <Grid container justify="flex-start" spacing={3}>
-                <Grid item xs={4}>
+                <Grid item xs={6} sm={5} md={4}>
                   <select
                     id="currency"
                     value={state.currency}
@@ -498,7 +502,7 @@ const ItemForm = props => {
                   </select>
                 </Grid>
 
-                <Grid item xs={4}>
+                <Grid item xs={6} sm={5} md={4}>
                   <input
                     id="item_price"
                     value={state.item_price}
@@ -1056,7 +1060,9 @@ const Item = props => {
           <ItemForm
             item={props.item ? props.item : {}}
             isPackage={Boolean(props.isPackage)}
+            isEdit={true}
             handleDialogClose={() => handleDialogClose("dialog_open")}
+            // addItem={addItem}
             updateItem={updateItem}
           />
         </Dialog>
@@ -1364,7 +1370,8 @@ const Category = props => {
     cat_edit: false,
     category_name: props.category.category_name || "",
     items: clone(props.category.items),
-    dialog2_open: false
+    dialog2_open: false,
+    dialog_open: false
   });
 
   const toggleCollapse = content => {
@@ -1427,6 +1434,14 @@ const Category = props => {
     });
   };
 
+  const addItem = item => {
+    setState({
+      ...state,
+      dialog_open: false
+    });
+    props.addItem(item, props.catId);
+  };
+
   const deleteCatOrPack = () => {
     setState({
       ...state,
@@ -1438,6 +1453,25 @@ const Category = props => {
   return (
     <div>
       <div className="all_dialogs">
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <ItemForm
+            item={props.item ? props.item : {}}
+            isPackage={false}
+            isEdit={false}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
+            updateItem={addItem}
+          />
+        </Dialog>
+
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
           open={state.dialog2_open}
@@ -1565,40 +1599,63 @@ const Category = props => {
             ></i>
             {state.show_options && (
               <span style={{ margin: "8px", float: "right" }}>
-                <button
-                  style={{
-                    margin: "0px 8px",
-                    width: "40px",
-                    border: "none",
-                    textAlign: "center",
-                    borderRadius: "4px",
-                    backgroundColor: "#efc2c2",
-                    padding: "4px"
-                  }}
-                  onClick={evt => handleDialogOpen(evt, "dialog2_open")}
-                >
-                  <i
-                    style={{ margin: "4px", fontSize: "16px" }}
-                    className="fas fa-trash-alt"
-                  ></i>
-                </button>
-                <button
-                  style={{
-                    margin: "0px 8px",
-                    width: "40px",
-                    border: "none",
-                    textAlign: "center",
-                    borderRadius: "4px",
-                    backgroundColor: "#c4dff2",
-                    padding: "4px"
-                  }}
-                  onClick={handleCatEdit}
-                >
-                  <i
-                    style={{ margin: "4px", fontSize: "16px" }}
-                    className="fas fa-edit"
-                  ></i>
-                </button>
+                <Tooltip title="Delete category" arrow>
+                  <button
+                    style={{
+                      margin: "0px 8px",
+                      width: "40px",
+                      border: "none",
+                      textAlign: "center",
+                      borderRadius: "4px",
+                      backgroundColor: "#efc2c2",
+                      padding: "4px"
+                    }}
+                    onClick={evt => handleDialogOpen(evt, "dialog2_open")}
+                  >
+                    <i
+                      style={{ margin: "4px", fontSize: "16px" }}
+                      className="fas fa-trash-alt"
+                    ></i>
+                  </button>
+                </Tooltip>
+                <Tooltip title="Edit Category" arrow>
+                  <button
+                    style={{
+                      margin: "0px 8px",
+                      width: "40px",
+                      border: "none",
+                      textAlign: "center",
+                      borderRadius: "4px",
+                      backgroundColor: "#c4dff2",
+                      padding: "4px"
+                    }}
+                    onClick={handleCatEdit}
+                  >
+                    <i
+                      style={{ margin: "4px", fontSize: "16px" }}
+                      className="fas fa-edit"
+                    ></i>
+                  </button>
+                </Tooltip>
+                <Tooltip title="Add item" arrow>
+                  <button
+                    style={{
+                      margin: "0px 8px",
+                      width: "40px",
+                      border: "none",
+                      textAlign: "center",
+                      borderRadius: "4px",
+                      // backgroundColor: "#efc2c2",
+                      padding: "4px"
+                    }}
+                    onClick={evt => handleDialogOpen(evt, "dialog_open")}
+                  >
+                    <i
+                      style={{ margin: "4px", fontSize: "16px" }}
+                      className="fas fa-plus"
+                    ></i>
+                  </button>
+                </Tooltip>
               </span>
             )}
           </Typography>
@@ -1611,6 +1668,7 @@ const Category = props => {
                   key={idx}
                   isPackage={false}
                   item={item}
+                  addItem={addItem}
                   updateItem={props.updateItem}
                   deleteItem={props.deleteItem}
                 />
@@ -1757,6 +1815,30 @@ const PackageForm = props => {
       custumization_arr: clone(newArr)
     }));
   };
+
+  // const handleAddCustum = (evt) => {
+  //   evt.stopPropagation();
+  //   let custObj = {
+  //     custumization_name: "",
+  //     custum_type: "",
+  //     options:[]
+  //   }
+  //   let optObj = {
+  //     option: "",
+  //     option_price: "",
+  //     option_type: ""
+  //   }
+  //   custObj.options = [{...optObj}]
+   
+  //   setState(prevState => ({
+  //     ...prevState,
+  //     custumization_arr: [...prevState, {...custObj}],
+  //      custum_edit: true,
+  //     custum_show: true
+  //   }))
+  // }
+  
+  // const getAddForm = () => {}
 
   return (
     <div>
@@ -2610,6 +2692,7 @@ const Package = props => {
                 key={idx}
                 isPackage={true}
                 item={item}
+                addItem={props.addItem}
                 updateItem={props.updateItem}
                 deleteItem={props.deleteItem}
               />
@@ -2771,6 +2854,10 @@ const Menu = props => {
     });
   };
 
+  const addItem = (item, catId) => {
+    props.addItem(item, catId, tabMap[state.tab]);
+  };
+
   const updateItem = (item, itemId, catId) => {
     props.updateItem(item, itemId, catId, tabMap[state.tab]);
   };
@@ -2811,6 +2898,7 @@ const Menu = props => {
                     packId={pack._id}
                     key={idx}
                     package={pack}
+                    addItem={addItem}
                     updateItem={updateItem}
                     deleteItem={deleteItem}
                     deleteCatOrPack={deleteCatOrPack}
@@ -2839,6 +2927,7 @@ const Menu = props => {
                       cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
                     ]
                   }
+                  addItem={addItem}
                   updateItem={updateItem}
                   deleteItem={deleteItem}
                   deleteCatOrPack={deleteCatOrPack}
@@ -2860,6 +2949,7 @@ const Menu = props => {
                   catId={category._id}
                   key={idx}
                   category={category}
+                  addItem={addItem}
                   updateItem={updateItem}
                   deleteItem={deleteItem}
                   deleteCatOrPack={deleteCatOrPack}
@@ -2884,6 +2974,7 @@ const Menu = props => {
                     catId={catId}
                     isPackage={false}
                     item={item}
+                    addItem={addItem}
                     updateItem={updateItem}
                     deleteItem={deleteItem}
                   />

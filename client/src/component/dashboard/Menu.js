@@ -1406,6 +1406,7 @@ const Category = props => {
     evt.stopPropagation();
     setState({
       ...state,
+      category_name: props.category.category_name || "",
       cat_edit: true
     });
   };
@@ -1430,7 +1431,8 @@ const Category = props => {
     // console.log("Closed - ", state.dialog_open);
     setState({
       ...state,
-      [content]: false
+      [content]: false,
+      category_name: props.category.category_name || ""
     });
   };
 
@@ -1441,6 +1443,14 @@ const Category = props => {
     });
     props.addItem(item, props.catId);
   };
+
+  const updateCat = () => {
+    setState({
+      ...state,
+      cat_edit: false
+    });
+    props.updateCat(state.category_name, props.catId);
+  }
 
   const deleteCatOrPack = () => {
     setState({
@@ -1551,7 +1561,7 @@ const Category = props => {
               classes={styles}
               variant={"contained"}
               color={"primary"}
-              onClick={handleCatEditClose}
+              onClick={updateCat}
             >
               <i style={{ margin: "6px" }} className="fas fa-save"></i>
               Save Changes
@@ -1814,6 +1824,15 @@ const PackageForm = props => {
       ...prevState,
       custumization_arr: clone(newArr)
     }));
+  };
+
+  const updatePack = () => {
+    const { package_name, package_desc, package_price } = state;
+    let custumization_arr = clone(state.custumization_arr);
+    let items = clone(props.package.items);
+    let newPack = { package_name, package_desc, package_price, custumization_arr, items };
+
+    props.updatePack(newPack);
   };
 
   // const handleAddCustum = (evt) => {
@@ -2318,7 +2337,7 @@ const PackageForm = props => {
           classes={styles}
           variant={"contained"}
           color={"primary"}
-          onClick={props.handleDialogClose}
+          onClick={updatePack}
         >
           <i style={{ margin: "6px" }} className="fas fa-save"></i>
           Save Changes
@@ -2410,6 +2429,14 @@ const Package = props => {
     });
   };
 
+  const updatePack = (pack) => {
+    setState({
+      ...state,
+      dialog_open: false
+    });
+    props.updatePack(pack, props.packId);
+  }
+
   const deleteCatOrPack = () => {
     setState({
       ...state,
@@ -2433,6 +2460,7 @@ const Package = props => {
         >
           <PackageForm
             package={props.package ? props.package : {}}
+            updatePack={updatePack}
             handleDialogClose={() => handleDialogClose("dialog_open")}
           />
         </Dialog>
@@ -2781,7 +2809,7 @@ const Package = props => {
                           borderRadius: "3px",
                           marginLeft: "20px"
                         }}
-                      >{`${"Rs."}. ${opt.option_price}`}</span>
+                      >{`${"Rs."} ${opt.option_price}`}</span>
                     </span>
                   ))}
                 </Collapse>
@@ -2862,6 +2890,14 @@ const Menu = props => {
     props.updateItem(item, itemId, catId, tabMap[state.tab]);
   };
 
+  const updateCat = (catName, catId) => {
+    props.updateCat(catName, catId, tabMap[state.tab]);
+  }
+
+  const updatePack = (pack, packId) => {
+    props.updatePack(pack, packId, tabMap[state.tab]);
+  }
+
   const deleteItem = (itemId, catId) => {
     props.deleteItem(itemId, catId, tabMap[state.tab]);
   };
@@ -2901,6 +2937,7 @@ const Menu = props => {
                     addItem={addItem}
                     updateItem={updateItem}
                     deleteItem={deleteItem}
+                    updatePack={updatePack}
                     deleteCatOrPack={deleteCatOrPack}
                   />
                 ))
@@ -2930,6 +2967,7 @@ const Menu = props => {
                   addItem={addItem}
                   updateItem={updateItem}
                   deleteItem={deleteItem}
+                  updatePack={updatePack}
                   deleteCatOrPack={deleteCatOrPack}
                 />
               ) : (
@@ -2952,6 +2990,7 @@ const Menu = props => {
                   addItem={addItem}
                   updateItem={updateItem}
                   deleteItem={deleteItem}
+                  updateCat={updateCat}
                   deleteCatOrPack={deleteCatOrPack}
                 />
               ))

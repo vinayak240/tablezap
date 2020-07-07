@@ -161,6 +161,28 @@ function Dashboard(props) {
     });
   };
 
+  const updateCat = (catName, id, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+    restaurant.menu[menuType][idx].category_name = catName;
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const updatePack = (pack, id, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+    restaurant.menu[menuType][idx] = clone(pack);
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const deleteCatOrPack = (id, menuType) => {
     let restaurant = clone(state.restaurant);
     // Below is the correct filter approach...
@@ -236,6 +258,8 @@ function Dashboard(props) {
           addItem={addItem}
           updateItem={updateItem}
           deleteItem={deleteItem}
+          updateCat={updateCat}
+          updatePack={updatePack}
           deleteCatOrPack={deleteCatOrPack}
         />
       )

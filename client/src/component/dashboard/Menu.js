@@ -289,6 +289,305 @@ function PaperComponent(props) {
   );
 }
 
+const CustumizationForm = props => {
+  const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  // const gutterStyles = usePushingGutterStyles();
+  const [state, setState] = React.useState({
+    custumization_name: "",
+    custum_type: "",
+    option: "",
+    options: [],
+    option_type: "",
+    option_price: "",
+    custum_show: false,
+    // custum_show_arr: [false],
+    option_add: false,
+    option_show: false
+  });
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const toggleCollapse = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+    }));
+  };
+  const handleOptionAdd = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: true,
+      option_show: true
+    });
+  };
+
+  const handleOptionCancel = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: false,
+      option_show: true,
+      option: "",
+      option_type: "",
+      option_price: ""
+    });
+  };
+
+  const addOption = () => {
+    const { option, option_type, option_price } = state;
+    const newOpt = { option, option_type, option_price };
+    let arr = clone(state.options);
+    arr = [...arr, newOpt];
+
+    setState({
+      ...state,
+      options: clone(arr),
+      option: "",
+      option_type: "",
+      option_price: ""
+    });
+  };
+
+  const deleteOption = optIdx => {
+    let arr = state.options.filter((ele, idx) => idx !== optIdx);
+    setState({
+      ...state,
+      options: clone(arr)
+    });
+  };
+
+  const addCustum = () => {
+    const { custumization_name, custum_type, options } = state;
+    let newCustum = { custumization_name, custum_type, options };
+
+    setState({
+      ...state,
+      custumization_name: "",
+      custum_type: "",
+      options: []
+    });
+    props.addCustum(newCustum);
+  };
+
+  return (
+    <div
+      style={{ paddingBottom: "20px", marginBottom: "10px" }}
+      className={classes.card}
+    >
+      <Typography
+        style={{ margin: "12px", marginBlock: "18px" }}
+        className={classes.cardDesc}
+      >
+        Add Custumization
+        <Button
+          style={{
+            // margin: "",
+            fontWeight: "bold",
+            float: "right"
+          }}
+          classes={styles}
+          variant={"contained"}
+          color={"primary"}
+          onClick={addCustum}
+        >
+          Add
+        </Button>
+      </Typography>
+      <input
+        id="custumization_name"
+        value={state.custumization_name}
+        onChange={handleChange}
+        type="text"
+        style={{ marginBottom: "10px" }}
+        className={classes.textField}
+        placeholder="Name of custumization"
+      />
+
+      <input
+        id="custum_type"
+        value={state.custum_type}
+        onChange={handleChange}
+        type="number"
+        style={{ marginBottom: "10px" }}
+        className={classes.textField}
+        placeholder="No. of options that can be selected"
+      />
+      <div
+        style={{
+          width: "96%",
+          padding: "11px 12px",
+          margin: "auto",
+          marginTop: "10px"
+        }}
+        className={classes.section}
+      >
+        <Typography
+          className={classes.cardDesc}
+          style={{
+            margin: `0px 8px  ${state.custum_show ? "16px" : "0px"} 8px`
+          }}
+          onClick={() => toggleCollapse("option_show")}
+        >
+          <i
+            style={{ margin: "8px", fontSize: "25px" }}
+            className="fas fa-poll"
+          ></i>
+          {/* {cust.custumization_name} */}
+          Options
+          <i
+            style={{
+              margin: "8px",
+              fontSize: "22px",
+              float: "right"
+            }}
+            className={`fas fa-sort-${state.cust_show ? "up" : "down"}`}
+          ></i>
+          <Button
+            style={{
+              margin: "5px 10px",
+              ontWeight: "bold",
+              float: "right"
+            }}
+            classes={styles}
+            variant={"contained"}
+            color={"primary"}
+            onClick={!state.option_add ? handleOptionAdd : handleOptionCancel}
+          >
+            <i
+              style={{ margin: "5px" }}
+              className={`fas fa-${state.option_add ? "undo-alt" : "plus"}`}
+            ></i>
+            {state.option_add ? "Cancel" : "Add"}
+          </Button>
+        </Typography>
+        <Collapse in={state.option_show}>
+          {state.options.length === 0 && !state.option_add && (
+            <div
+              style={{
+                textAlign: "center",
+                fontWeight: "bold"
+              }}
+            >
+              No Options Available (Press Add to add options)
+            </div>
+          )}
+
+          {state.option_add && (
+            <div
+              // style={{ marginBottom: "0px", padding: "20px",  }}
+              style={{ width: "100%", margin: "auto", marginBottom: "18px" }}
+              className={classes.card}
+            >
+              <Typography
+                style={{ margin: "12px", marginBottom: "18px" }}
+                className={classes.cardDesc}
+              >
+                Add Option
+                <Button
+                  style={{
+                    // margin: "5px 10px",
+                    fontWeight: "bold",
+                    float: "right"
+                  }}
+                  classes={styles}
+                  variant={"contained"}
+                  color={"primary"}
+                  onClick={addOption}
+                >
+                  Add
+                </Button>
+              </Typography>
+              <input
+                style={{
+                  margin: "auto",
+                  marginBottom: "10px"
+                }}
+                id="option"
+                value={state.option}
+                onChange={handleChange}
+                type="text"
+                className={classes.textField}
+                placeholder="Option name"
+              />
+
+              <input
+                style={{
+                  margin: "auto",
+                  marginBottom: "10px"
+                }}
+                id="option_price"
+                value={state.option_price}
+                onChange={handleChange}
+                type="number"
+                className={classes.textField}
+                placeholder="Option cost"
+              />
+              <RadioGroup
+                aria-label="position"
+                value={state.option_type}
+                onChange={handleChange}
+                row
+              >
+                <FormControlLabel
+                  value={"minus"}
+                  control={<Radio id="option_type" color="primary" />}
+                  label={
+                    <span style={{ fontWeight: "bold" }}>
+                      Deduct from total
+                    </span>
+                  }
+                  labelPlacement="end"
+                />
+
+                <FormControlLabel
+                  value={"add"}
+                  control={<Radio id="option_type" color="primary" />}
+                  label={
+                    <span style={{ fontWeight: "bold" }}>Add to total</span>
+                  }
+                  labelPlacement="end"
+                />
+
+                <FormControlLabel
+                  value={"total"}
+                  control={<Radio id="option_type" color="primary" />}
+                  label={
+                    <span style={{ fontWeight: "bold" }}>
+                      Option cost becomes total.
+                    </span>
+                  }
+                  labelPlacement="end"
+                />
+              </RadioGroup>
+            </div>
+          )}
+          {state.options.map((opt, id) => (
+            <span key={id} className={classes.tag}>
+              {`${opt.option}`}
+              <span
+                style={{
+                  padding: "6px",
+                  fontWeight: "bold",
+                  border: "1px solid lightgray",
+                  borderRadius: "3px",
+                  marginLeft: "20px"
+                }}
+              >{`${"Rs"}. ${opt.option_price}`}</span>
+            </span>
+          ))}
+        </Collapse>
+      </div>
+    </div>
+  );
+};
+
 const ItemForm = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
@@ -324,13 +623,11 @@ const ItemForm = props => {
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
-    // item_show: false,
     custum_show: false,
     custum_show_arr: [...show_arr],
-    custum_edit: false
+    custum_edit: false,
+    custum_add: false
   });
-
-  // const { custumization_arr } = state;
 
   const handleChange = evt => {
     setState({
@@ -455,6 +752,37 @@ const ItemForm = props => {
     props.updateItem(newItem);
   };
 
+  const handleCustumAdd = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      custum_show: true,
+      custum_add: true,
+      custum_edit: false
+    });
+  };
+
+  const handleCustumCancel = evt => {
+    evt.stopPropagation();
+
+    setState({
+      ...state,
+      custum_show: true,
+      custum_add: false,
+      custum_edit: false
+    });
+  };
+
+  const addCustum = newCustum => {
+    let arr = clone(state.custumization_arr);
+    arr = [...arr, newCustum];
+
+    setState({
+      ...state,
+      custumization_arr: clone(arr)
+    });
+  };
+
   return (
     <div>
       <DialogTitle
@@ -557,6 +885,8 @@ const ItemForm = props => {
             ></textarea>
           </Grid>
         </Grid>
+        {/* <CustumizationForm addCustum={addCustum} /> */}
+
         {!props.isPackage && (
           <Grid
             container
@@ -609,81 +939,328 @@ const ItemForm = props => {
                   variant={"contained"}
                   color={"primary"}
                   onClick={
-                    !state.custum_edit ? handleCustumEdit : handleCustumUndo
+                    props.isEdit
+                      ? !state.custum_edit
+                        ? handleCustumEdit
+                        : handleCustumUndo
+                      : !state.custum_add
+                      ? handleCustumAdd
+                      : handleCustumCancel
                   }
                 >
                   <i
                     style={{ margin: "5px" }}
                     className={`fas fa-${
-                      state.custum_edit ? "undo-alt" : "pen"
+                      props.isEdit
+                        ? !state.custum_edit
+                          ? "pen"
+                          : "undo-alt"
+                        : !state.custum_add
+                        ? "plus"
+                        : "undo-alt"
                     }`}
                   ></i>
-                  {state.custum_edit ? "Undo" : "Edit"}
+                  {props.isEdit
+                    ? !state.custum_edit
+                      ? "Edit"
+                      : "Undo"
+                    : !state.custum_add
+                    ? "Add"
+                    : "Cancel"}
                 </Button>
               </Typography>
 
               <Collapse in={state.custum_show}>
-                {state.custumization_arr.length === 0 && (
+                {state.custumization_arr.length === 0 && !state.custum_add && (
                   <div style={{ textAlign: "center", fontWeight: "bold" }}>
                     No Custumizations Available (Press Undo to undo changes
                     made..)
                   </div>
                 )}
+
+                <div
+                  style={{
+                    width: "96%",
+                    padding: "11px 12px",
+                    margin: "auto",
+                    marginTop: "10px"
+                  }}
+                  className={classes.section}
+                >
+                  <Typography
+                    className={classes.cardDesc}
+                    style={{
+                      margin: `0px 8px  ${
+                        state.custum_add ? "16px" : "0px"
+                      } 8px`
+                    }}
+                    onClick={() => toggleCollapse("custum_add")}
+                  >
+                    <i
+                      style={{ margin: "8px", fontSize: "25px" }}
+                      className="fas fa-poll"
+                    ></i>
+                    {/* {cust.custumization_name} */}
+                    {!state.custum_add ? "Add a Custumization" : "Form"}
+                    <i
+                      style={{
+                        margin: "8px",
+                        fontSize: "22px",
+                        float: "right"
+                      }}
+                      className={`fas fa-sort-${
+                        state.custum_add ? "up" : "down"
+                      }`}
+                    ></i>
+                  </Typography>
+                  <Collapse in={state.custum_add}>
+                    <CustumizationForm addCustum={addCustum} />
+                  </Collapse>
+                </div>
                 {state.custumization_arr.map((cust, idx) => (
                   <div>
                     {state.custum_edit ? (
-                      <div className={classes.card}>
-                        <Typography
-                          style={{ margin: "12px" }}
-                          className={classes.cardDesc}
-                        >
-                          Edit Custumization
-                          <Button
-                            style={{
-                              // margin: "8px",
-                              float: "right"
-                            }}
-                            onClick={() =>
-                              handleCustumDelete(idx, cust.custumization_name)
-                            }
+                      props.isEdit && (
+                        <div className={classes.card}>
+                          <Typography
+                            style={{ margin: "12px" }}
+                            className={classes.cardDesc}
                           >
-                            <i
-                              style={{ margin: "8px", fontSize: "22px" }}
-                              className={`fas fa-trash-alt`}
-                            ></i>
-                          </Button>
-                        </Typography>
-                        <input
-                          id="custumization"
-                          value={cust.custumization_name}
-                          onChange={evt =>
-                            handleCustomChange(
-                              evt.target.value,
-                              "custumization_name",
-                              idx
-                            )
-                          }
-                          type="text"
-                          style={{ marginBottom: "10px" }}
-                          className={classes.textField}
-                          placeholder="Name of custumization"
-                        />
+                            Edit Custumization
+                            <Button
+                              style={{
+                                // margin: "8px",
+                                float: "right"
+                              }}
+                              onClick={() =>
+                                handleCustumDelete(idx, cust.custumization_name)
+                              }
+                            >
+                              <i
+                                style={{ margin: "8px", fontSize: "22px" }}
+                                className={`fas fa-trash-alt`}
+                              ></i>
+                            </Button>
+                          </Typography>
+                          <input
+                            id="custumization"
+                            value={cust.custumization_name}
+                            onChange={evt =>
+                              handleCustomChange(
+                                evt.target.value,
+                                "custumization_name",
+                                idx
+                              )
+                            }
+                            type="text"
+                            style={{ marginBottom: "10px" }}
+                            className={classes.textField}
+                            placeholder="Name of custumization"
+                          />
 
-                        <input
-                          id="custum_type"
-                          value={cust.custum_type}
-                          onChange={evt =>
-                            handleCustomChange(
-                              evt.target.value,
-                              "custum_type",
-                              idx
-                            )
-                          }
-                          type="number"
-                          style={{ marginBottom: "10px" }}
-                          className={classes.textField}
-                          placeholder="No. of options that can be selected"
-                        />
+                          <input
+                            id="custum_type"
+                            value={cust.custum_type}
+                            onChange={evt =>
+                              handleCustomChange(
+                                evt.target.value,
+                                "custum_type",
+                                idx
+                              )
+                            }
+                            type="number"
+                            style={{ marginBottom: "10px" }}
+                            className={classes.textField}
+                            placeholder="No. of options that can be selected"
+                          />
+                          <div
+                            key={idx}
+                            style={{
+                              width: "96%",
+                              padding: "11px 12px",
+                              margin: "auto",
+                              marginTop: "10px"
+                            }}
+                            className={classes.section}
+                          >
+                            <Typography
+                              className={classes.cardDesc}
+                              style={{
+                                margin: `0px 8px  ${
+                                  state.custum_show_arr[idx] ? "16px" : "0px"
+                                } 8px`
+                              }}
+                              onClick={() =>
+                                toggleCustShow("custum_show_arr", idx)
+                              }
+                            >
+                              <i
+                                style={{ margin: "8px", fontSize: "25px" }}
+                                className="fas fa-poll"
+                              ></i>
+                              {/* {cust.custumization_name} */}
+                              Options
+                              <i
+                                style={{
+                                  margin: "8px",
+                                  fontSize: "22px",
+                                  float: "right"
+                                }}
+                                className={`fas fa-sort-${
+                                  state.cust_show ? "up" : "down"
+                                }`}
+                              ></i>
+                            </Typography>
+                            <Collapse in={state.custum_show_arr[idx]}>
+                              {cust.options.length === 0 && (
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    fontWeight: "bold"
+                                  }}
+                                >
+                                  No Options Available (Press Undo to undo
+                                  changes made..)
+                                </div>
+                              )}
+                              {cust.options.map((opt, id) => (
+                                <div className={classes.card}>
+                                  <Typography
+                                    style={{ margin: "12px" }}
+                                    className={classes.cardDesc}
+                                  >
+                                    Edit Option
+                                    <Button
+                                      style={{
+                                        // margin: "8px",
+                                        float: "right"
+                                      }}
+                                      onClick={() =>
+                                        handleOptionDelete(
+                                          idx,
+                                          cust.custumization_name,
+                                          id,
+                                          opt.option
+                                        )
+                                      }
+                                    >
+                                      <i
+                                        style={{
+                                          margin: "8px",
+                                          fontSize: "22px"
+                                        }}
+                                        className={`fas fa-trash-alt`}
+                                      ></i>
+                                    </Button>
+                                  </Typography>
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option"
+                                    value={opt.option}
+                                    onChange={evt =>
+                                      handleOptionChange(
+                                        evt.target.value,
+                                        idx,
+                                        "option",
+                                        id
+                                      )
+                                    }
+                                    type="text"
+                                    className={classes.textField}
+                                    placeholder="Option name"
+                                  />
+
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option_price"
+                                    value={opt.option_price}
+                                    onChange={evt =>
+                                      handleOptionChange(
+                                        evt.target.value,
+                                        idx,
+                                        "option_price",
+                                        id
+                                      )
+                                    }
+                                    type="number"
+                                    className={classes.textField}
+                                    placeholder="Option cost"
+                                  />
+                                  <RadioGroup
+                                    aria-label="position"
+                                    value={opt.option_type}
+                                    onChange={evt =>
+                                      handleOptionChange(
+                                        evt.target.value,
+                                        idx,
+                                        "option_type",
+                                        id
+                                      )
+                                    }
+                                    row
+                                  >
+                                    <FormControlLabel
+                                      value={"minus"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Deduct from total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"add"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Add to total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"total"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Option cost becomes total.
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+                                  </RadioGroup>
+                                </div>
+                              ))}
+                            </Collapse>
+                          </div>
+                        </div>
+                      )
+                    ) : (
+                      <div>
                         <div
                           key={idx}
                           style={{
@@ -709,8 +1286,7 @@ const ItemForm = props => {
                               style={{ margin: "8px", fontSize: "25px" }}
                               className="fas fa-poll"
                             ></i>
-                            {/* {cust.custumization_name} */}
-                            Options
+                            {cust.custumization_name}
                             <i
                               style={{
                                 margin: "8px",
@@ -722,197 +1298,24 @@ const ItemForm = props => {
                               }`}
                             ></i>
                           </Typography>
+
                           <Collapse in={state.custum_show_arr[idx]}>
-                            {cust.options.length === 0 && (
-                              <div
-                                style={{
-                                  textAlign: "center",
-                                  fontWeight: "bold"
-                                }}
-                              >
-                                No Options Available (Press Undo to undo changes
-                                made..)
-                              </div>
-                            )}
                             {cust.options.map((opt, id) => (
-                              <div className={classes.card}>
-                                <Typography
-                                  style={{ margin: "12px" }}
-                                  className={classes.cardDesc}
-                                >
-                                  Edit Option
-                                  <Button
-                                    style={{
-                                      // margin: "8px",
-                                      float: "right"
-                                    }}
-                                    onClick={() =>
-                                      handleOptionDelete(
-                                        idx,
-                                        cust.custumization_name,
-                                        id,
-                                        opt.option
-                                      )
-                                    }
-                                  >
-                                    <i
-                                      style={{
-                                        margin: "8px",
-                                        fontSize: "22px"
-                                      }}
-                                      className={`fas fa-trash-alt`}
-                                    ></i>
-                                  </Button>
-                                </Typography>
-                                <input
+                              <span key={id} className={classes.tag}>
+                                {`${opt.option}`}
+                                <span
                                   style={{
-                                    margin: "auto",
-                                    marginBottom: "10px"
+                                    padding: "6px",
+                                    fontWeight: "bold",
+                                    border: "1px solid lightgray",
+                                    borderRadius: "3px",
+                                    marginLeft: "20px"
                                   }}
-                                  id="option"
-                                  value={opt.option}
-                                  onChange={evt =>
-                                    handleOptionChange(
-                                      evt.target.value,
-                                      idx,
-                                      "option",
-                                      id
-                                    )
-                                  }
-                                  type="text"
-                                  className={classes.textField}
-                                  placeholder="Option name"
-                                />
-
-                                <input
-                                  style={{
-                                    margin: "auto",
-                                    marginBottom: "10px"
-                                  }}
-                                  id="option_price"
-                                  value={opt.option_price}
-                                  onChange={evt =>
-                                    handleOptionChange(
-                                      evt.target.value,
-                                      idx,
-                                      "option_price",
-                                      id
-                                    )
-                                  }
-                                  type="number"
-                                  className={classes.textField}
-                                  placeholder="Option cost"
-                                />
-                                <RadioGroup
-                                  aria-label="position"
-                                  value={opt.option_type}
-                                  onChange={evt =>
-                                    handleOptionChange(
-                                      evt.target.value,
-                                      idx,
-                                      "option_type",
-                                      id
-                                    )
-                                  }
-                                  row
-                                >
-                                  <FormControlLabel
-                                    value={"minus"}
-                                    control={
-                                      <Radio id="option_type" color="primary" />
-                                    }
-                                    label={
-                                      <span style={{ fontWeight: "bold" }}>
-                                        Deduct from total
-                                      </span>
-                                    }
-                                    labelPlacement="end"
-                                  />
-
-                                  <FormControlLabel
-                                    value={"add"}
-                                    control={
-                                      <Radio id="option_type" color="primary" />
-                                    }
-                                    label={
-                                      <span style={{ fontWeight: "bold" }}>
-                                        Add to total
-                                      </span>
-                                    }
-                                    labelPlacement="end"
-                                  />
-
-                                  <FormControlLabel
-                                    value={"total"}
-                                    control={
-                                      <Radio id="option_type" color="primary" />
-                                    }
-                                    label={
-                                      <span style={{ fontWeight: "bold" }}>
-                                        Option cost becomes total.
-                                      </span>
-                                    }
-                                    labelPlacement="end"
-                                  />
-                                </RadioGroup>
-                              </div>
+                                >{`${state.currency}. ${opt.option_price}`}</span>
+                              </span>
                             ))}
                           </Collapse>
                         </div>
-                      </div>
-                    ) : (
-                      <div
-                        key={idx}
-                        style={{
-                          width: "96%",
-                          padding: "11px 12px",
-                          margin: "auto",
-                          marginTop: "10px"
-                        }}
-                        className={classes.section}
-                      >
-                        <Typography
-                          className={classes.cardDesc}
-                          style={{
-                            margin: `0px 8px  ${
-                              state.custum_show_arr[idx] ? "16px" : "0px"
-                            } 8px`
-                          }}
-                          onClick={() => toggleCustShow("custum_show_arr", idx)}
-                        >
-                          <i
-                            style={{ margin: "8px", fontSize: "25px" }}
-                            className="fas fa-poll"
-                          ></i>
-                          {cust.custumization_name}
-                          <i
-                            style={{
-                              margin: "8px",
-                              fontSize: "22px",
-                              float: "right"
-                            }}
-                            className={`fas fa-sort-${
-                              state.cust_show ? "up" : "down"
-                            }`}
-                          ></i>
-                        </Typography>
-
-                        <Collapse in={state.custum_show_arr[idx]}>
-                          {cust.options.map((opt, id) => (
-                            <span key={id} className={classes.tag}>
-                              {`${opt.option}`}
-                              <span
-                                style={{
-                                  padding: "6px",
-                                  fontWeight: "bold",
-                                  border: "1px solid lightgray",
-                                  borderRadius: "3px",
-                                  marginLeft: "20px"
-                                }}
-                              >{`${state.currency}. ${opt.option_price}`}</span>
-                            </span>
-                          ))}
-                        </Collapse>
                       </div>
                     )}
                   </div>
@@ -1450,7 +1853,7 @@ const Category = props => {
       cat_edit: false
     });
     props.updateCat(state.category_name, props.catId);
-  }
+  };
 
   const deleteCatOrPack = () => {
     setState({
@@ -1830,34 +2233,16 @@ const PackageForm = props => {
     const { package_name, package_desc, package_price } = state;
     let custumization_arr = clone(state.custumization_arr);
     let items = clone(props.package.items);
-    let newPack = { package_name, package_desc, package_price, custumization_arr, items };
+    let newPack = {
+      package_name,
+      package_desc,
+      package_price,
+      custumization_arr,
+      items
+    };
 
     props.updatePack(newPack);
   };
-
-  // const handleAddCustum = (evt) => {
-  //   evt.stopPropagation();
-  //   let custObj = {
-  //     custumization_name: "",
-  //     custum_type: "",
-  //     options:[]
-  //   }
-  //   let optObj = {
-  //     option: "",
-  //     option_price: "",
-  //     option_type: ""
-  //   }
-  //   custObj.options = [{...optObj}]
-   
-  //   setState(prevState => ({
-  //     ...prevState,
-  //     custumization_arr: [...prevState, {...custObj}],
-  //      custum_edit: true,
-  //     custum_show: true
-  //   }))
-  // }
-  
-  // const getAddForm = () => {}
 
   return (
     <div>
@@ -2429,13 +2814,13 @@ const Package = props => {
     });
   };
 
-  const updatePack = (pack) => {
+  const updatePack = pack => {
     setState({
       ...state,
       dialog_open: false
     });
     props.updatePack(pack, props.packId);
-  }
+  };
 
   const deleteCatOrPack = () => {
     setState({
@@ -2892,11 +3277,11 @@ const Menu = props => {
 
   const updateCat = (catName, catId) => {
     props.updateCat(catName, catId, tabMap[state.tab]);
-  }
+  };
 
   const updatePack = (pack, packId) => {
     props.updatePack(pack, packId, tabMap[state.tab]);
-  }
+  };
 
   const deleteItem = (itemId, catId) => {
     props.deleteItem(itemId, catId, tabMap[state.tab]);

@@ -36,6 +36,7 @@ import Paper from "@material-ui/core/Paper";
 // import Draggable from "react-draggable";
 // import { useNeumorphShadowStyles } from '@mui-treasury/styles/shadow/neumorph';
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
+import CloseRounded from "@material-ui/icons/CloseRounded";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -346,13 +347,15 @@ const CustumizationForm = props => {
     let arr = clone(state.options);
     arr = [...arr, newOpt];
 
-    setState({
-      ...state,
-      options: clone(arr),
-      option: "",
-      option_type: "",
-      option_price: ""
-    });
+    if (option !== "" && option_type !== "" && option_price !== "") {
+      setState({
+        ...state,
+        options: clone(arr),
+        option: "",
+        option_type: "",
+        option_price: ""
+      });
+    }
   };
 
   const deleteOption = optIdx => {
@@ -367,13 +370,15 @@ const CustumizationForm = props => {
     const { custumization_name, custum_type, options } = state;
     let newCustum = { custumization_name, custum_type, options };
 
-    setState({
-      ...state,
-      custumization_name: "",
-      custum_type: "",
-      options: []
-    });
-    props.addCustum(newCustum);
+    if (custumization_name !== "" && custum_type !== "" && options.length > 0) {
+      setState({
+        ...state,
+        custumization_name: "",
+        custum_type: "",
+        options: []
+      });
+      props.addCustum(newCustum);
+    }
   };
 
   return (
@@ -462,27 +467,19 @@ const CustumizationForm = props => {
           >
             <i
               style={{ margin: "5px" }}
-              className={`fas fa-${state.option_add ? "undo-alt" : "plus"}`}
+              className={`fas fa-${state.option_add ? "minus-square" : "plus"}`}
             ></i>
-            {state.option_add ? "Cancel" : "Add"}
+            {state.option_add ? "Hide" : "Add"}
           </Button>
         </Typography>
-        <Collapse in={state.option_show}>
-          {state.options.length === 0 && !state.option_add && (
-            <div
-              style={{
-                textAlign: "center",
-                fontWeight: "bold"
-              }}
-            >
-              No Options Available (Press Add to add options)
-            </div>
-          )}
-
+        <Collapse
+          in={state.option_show}
+          style={{ display: state.option_add ? "flex" : "block", justifyContent:state.option_add ? "center" : "flex-start" , width: "100%" }}
+        >
           {state.option_add && (
             <div
               // style={{ marginBottom: "0px", padding: "20px",  }}
-              style={{ width: "100%", margin: "auto", marginBottom: "18px" }}
+              style={{ width: "92%", margin: "18px auto" }}
               className={classes.card}
             >
               <Typography
@@ -568,6 +565,17 @@ const CustumizationForm = props => {
               </RadioGroup>
             </div>
           )}
+
+          {state.options.length === 0 && !state.option_add && (
+            <div
+              style={{
+                textAlign: "center",
+                fontWeight: "bold"
+              }}
+            >
+              No Options Available (Press Add to add options)
+            </div>
+          )}
           {state.options.map((opt, id) => (
             <span key={id} className={classes.tag}>
               {`${opt.option}`}
@@ -580,6 +588,9 @@ const CustumizationForm = props => {
                   marginLeft: "20px"
                 }}
               >{`${"Rs"}. ${opt.option_price}`}</span>
+              <Button onClick={() => deleteOption(id)}>
+                <CloseRounded />
+              </Button>
             </span>
           ))}
         </Collapse>
@@ -626,7 +637,8 @@ const ItemForm = props => {
     custum_show: false,
     custum_show_arr: [...show_arr],
     custum_edit: false,
-    custum_add: false
+    custum_add: false,
+    add_show: false
   });
 
   const handleChange = evt => {
@@ -658,7 +670,8 @@ const ItemForm = props => {
     setState(prevState => ({
       ...prevState,
       custum_edit: true,
-      custum_show: true
+      custum_show: true,
+      custum_add: false
     }));
   };
 
@@ -668,7 +681,8 @@ const ItemForm = props => {
     setState(prevState => ({
       ...prevState,
       custum_edit: false,
-      // custum_show: true,
+      custum_add: false,
+      custum_show: true,
       custumization_arr: clone(arr)
     }));
   };
@@ -939,84 +953,97 @@ const ItemForm = props => {
                   variant={"contained"}
                   color={"primary"}
                   onClick={
-                    props.isEdit
-                      ? !state.custum_edit
-                        ? handleCustumEdit
-                        : handleCustumUndo
-                      : !state.custum_add
-                      ? handleCustumAdd
-                      : handleCustumCancel
+                    !state.custum_add ? handleCustumAdd : handleCustumCancel
                   }
                 >
                   <i
                     style={{ margin: "5px" }}
                     className={`fas fa-${
-                      props.isEdit
-                        ? !state.custum_edit
-                          ? "pen"
-                          : "undo-alt"
-                        : !state.custum_add
-                        ? "plus"
-                        : "undo-alt"
+                      !state.custum_add ? "plus" : "minus-square"
                     }`}
                   ></i>
-                  {props.isEdit
-                    ? !state.custum_edit
-                      ? "Edit"
-                      : "Undo"
-                    : !state.custum_add
-                    ? "Add"
-                    : "Cancel"}
+                  {!state.custum_add ? "Add" : "Hide"}
                 </Button>
+                {props.isEdit && (
+                  <Button
+                    style={{
+                      margin: "5px 10px",
+                      fontWeight: "bold",
+                      float: "right"
+                    }}
+                    classes={styles}
+                    variant={"contained"}
+                    color={"primary"}
+                    onClick={
+                      !state.custum_edit ? handleCustumEdit : handleCustumUndo
+                    }
+                  >
+                    <i
+                      style={{ margin: "5px" }}
+                      className={`fas fa-${
+                        !state.custum_edit ? "pen" : "undo-alt"
+                      }`}
+                    ></i>
+                    {!state.custum_edit ? "Edit" : "Undo"}
+                  </Button>
+                )}
               </Typography>
 
               <Collapse in={state.custum_show}>
+                {state.custum_add && (
+                  <div
+                    style={{
+                      width: "96%",
+                      padding: "11px 12px",
+                      margin: "auto",
+                      marginTop: "10px"
+                    }}
+                    className={classes.section}
+                  >
+                    <Typography
+                      className={classes.cardDesc}
+                      style={{
+                        margin: `0px 8px  ${
+                          state.add_show ? "16px" : "0px"
+                        } 8px`
+                      }}
+                      onClick={() => toggleCollapse("add_show")}
+                    >
+                      <i
+                        style={{ margin: "8px", fontSize: "25px" }}
+                        className="fas fa-poll"
+                      ></i>
+                      {/* {cust.custumization_name} */}
+                      {!state.custum_add ? "Add a Custumization" : "Form"}
+                      <i
+                        style={{
+                          margin: "8px",
+                          fontSize: "22px",
+                          float: "right"
+                        }}
+                        className={`fas fa-sort-${
+                          state.add_show ? "up" : "down"
+                        }`}
+                      ></i>
+                    </Typography>
+                    <Collapse in={state.add_show}>
+                      <CustumizationForm addCustum={addCustum} />
+                    </Collapse>
+                  </div>
+                )}
+
                 {state.custumization_arr.length === 0 && !state.custum_add && (
-                  <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                  <div
+                    style={{
+                      textAlign: "center",
+                      fontWeight: "bold",
+                      marginTop: "15px"
+                    }}
+                  >
                     No Custumizations Available (Press Undo to undo changes
                     made..)
                   </div>
                 )}
-
-                <div
-                  style={{
-                    width: "96%",
-                    padding: "11px 12px",
-                    margin: "auto",
-                    marginTop: "10px"
-                  }}
-                  className={classes.section}
-                >
-                  <Typography
-                    className={classes.cardDesc}
-                    style={{
-                      margin: `0px 8px  ${
-                        state.custum_add ? "16px" : "0px"
-                      } 8px`
-                    }}
-                    onClick={() => toggleCollapse("custum_add")}
-                  >
-                    <i
-                      style={{ margin: "8px", fontSize: "25px" }}
-                      className="fas fa-poll"
-                    ></i>
-                    {/* {cust.custumization_name} */}
-                    {!state.custum_add ? "Add a Custumization" : "Form"}
-                    <i
-                      style={{
-                        margin: "8px",
-                        fontSize: "22px",
-                        float: "right"
-                      }}
-                      className={`fas fa-sort-${
-                        state.custum_add ? "up" : "down"
-                      }`}
-                    ></i>
-                  </Typography>
-                  <Collapse in={state.custum_add}>
-                    <CustumizationForm addCustum={addCustum} />
-                  </Collapse>
-                </div>
                 {state.custumization_arr.map((cust, idx) => (
                   <div>
                     {state.custum_edit ? (
@@ -1112,11 +1139,12 @@ const ItemForm = props => {
                               ></i>
                             </Typography>
                             <Collapse in={state.custum_show_arr[idx]}>
-                              {cust.options.length === 0 && (
+                              {cust.options.length === 0 && !state.option_add && (
                                 <div
                                   style={{
                                     textAlign: "center",
-                                    fontWeight: "bold"
+                                    fontWeight: "bold",
+                                    marginTop: "15px"
                                   }}
                                 >
                                   No Options Available (Press Undo to undo
@@ -1432,11 +1460,13 @@ const Item = props => {
   };
 
   const updateItem = item => {
+    console.log("Item - ", props.item._id);
+    
     setState({
       ...state,
       dialog_open: false
     });
-    props.updateItem(item, props.item._id, props.catId);
+    props.updateItem(item, props.item._id, props.catId, props.item.item_name);
   };
 
   const deleteItem = () => {
@@ -1444,7 +1474,7 @@ const Item = props => {
       ...state,
       dialog2_open: false
     });
-    props.deleteItem(props.item._id, props.catId);
+    props.deleteItem(props.item._id, props.catId, props.item.item_name);
   };
 
   return (
@@ -3271,8 +3301,8 @@ const Menu = props => {
     props.addItem(item, catId, tabMap[state.tab]);
   };
 
-  const updateItem = (item, itemId, catId) => {
-    props.updateItem(item, itemId, catId, tabMap[state.tab]);
+  const updateItem = (item, itemId, catId, itemName) => {
+    props.updateItem(item, itemId, catId, tabMap[state.tab], itemName);
   };
 
   const updateCat = (catName, catId) => {
@@ -3283,8 +3313,8 @@ const Menu = props => {
     props.updatePack(pack, packId, tabMap[state.tab]);
   };
 
-  const deleteItem = (itemId, catId) => {
-    props.deleteItem(itemId, catId, tabMap[state.tab]);
+  const deleteItem = (itemId, catId, itemName) => {
+    props.deleteItem(itemId, catId, tabMap[state.tab], itemName);
   };
 
   const deleteCatOrPack = id => {

@@ -130,13 +130,25 @@ function Dashboard(props) {
     });
   };
 
-  const updateItem = (item, itemId, catId, menuType) => {
+  const updateItem = (item, itemId, catId, menuType, itemName) => {
+    // console.log("Dash Item id - ", itemId);
+    // console.log("Dash Cat id - ", catId);
+    // console.log("Dash Item obj - ", item);
+
     let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
     let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
-    let itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
-      ele => ele._id === itemId
-    );
+    let itemIdx = "";
+    if (Boolean(itemId)) {
+      itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
+        ele => ele._id === itemId
+      );
+    } else {
+      itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
+        ele => ele.item_name === itemName
+      );
+    }
+
     restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
 
     setState({
@@ -145,12 +157,17 @@ function Dashboard(props) {
     });
   };
 
-  const deleteItem = (itemId, catId, menuType) => {
+  const deleteItem = (itemId, catId, menuType, itemName) => {
     let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
     let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
     let arr = restaurant.menu[menuType][catIdx].items;
-    let newArr = arr.filter(ele => ele._id !== itemId);
+    let newArr = [];
+    if (Boolean(itemId)) {
+      newArr = arr.filter(ele => ele._id !== itemId);
+    } else {
+      newArr = arr.filter(ele => ele.item_name !== itemName);
+    }
     // restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
     restaurant.menu[menuType][catIdx].items = clone(newArr);
 

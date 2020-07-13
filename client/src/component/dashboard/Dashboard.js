@@ -130,6 +130,30 @@ function Dashboard(props) {
     });
   };
 
+  const addCat = (catName, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let newCat = {
+      category_name: catName,
+      items: []
+    };
+    let newArr = [...restaurant.menu[menuType], newCat];
+    restaurant.menu[menuType] = newArr;
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const addPack = (pack, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let newArr = [...restaurant.menu[menuType], pack];
+    restaurant.menu[menuType] = newArr;
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const updateItem = (item, itemId, catId, menuType, itemName) => {
     // console.log("Dash Item id - ", itemId);
     // console.log("Dash Cat id - ", catId);
@@ -150,6 +174,35 @@ function Dashboard(props) {
     }
 
     restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const updateCat = (catName, id, menuType, oldCatName) => {
+    let restaurant = clone(state.restaurant);
+
+    if (Boolean(id)) {
+      let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+      restaurant.menu[menuType][idx].category_name = catName;
+    } else {
+      let idx = restaurant.menu[menuType].findIndex(
+        ele => ele.category_name === oldCatName
+      );
+      restaurant.menu[menuType][idx].category_name = catName;
+    }
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const updatePack = (pack, id, menuType) => {
+    let restaurant = clone(state.restaurant);
+    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+    restaurant.menu[menuType][idx] = clone(pack);
 
     setState({
       ...state,
@@ -179,33 +232,17 @@ function Dashboard(props) {
     });
   };
 
-  const updateCat = (catName, id, menuType) => {
-    let restaurant = clone(state.restaurant);
-    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
-    restaurant.menu[menuType][idx].category_name = catName;
-
-    setState({
-      ...state,
-      restaurant: clone(restaurant)
-    });
-  };
-
-  const updatePack = (pack, id, menuType) => {
-    let restaurant = clone(state.restaurant);
-    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
-    restaurant.menu[menuType][idx] = clone(pack);
-
-    setState({
-      ...state,
-      restaurant: clone(restaurant)
-    });
-  };
-
-  const deleteCatOrPack = (id, menuType) => {
+  const deleteCatOrPack = (id, menuType, oldName) => {
     let restaurant = clone(state.restaurant);
     // Below is the correct filter approach...
+    let name = menuType === "buffet" ? "package_name" : "category_name";
     let arr = restaurant.menu[menuType];
-    let newArr = arr.filter(ele => ele._id !== id);
+    let newArr = [];
+    if (Boolean(id)) {
+      newArr = arr.filter(ele => ele._id !== id);
+    } else {
+      newArr = arr.filter(ele => ele[name] !== oldName);
+    }
     restaurant.menu[menuType] = clone(newArr);
 
     // The thing that i did below returns the category arr to the whole Restaurant obj so the whole restaurant becomes the category arr
@@ -274,6 +311,8 @@ function Dashboard(props) {
         <Menu
           restaurant={state.restaurant}
           addItem={addItem}
+          addCat={addCat}
+          addPack={addPack}
           updateItem={updateItem}
           deleteItem={deleteItem}
           updateCat={updateCat}

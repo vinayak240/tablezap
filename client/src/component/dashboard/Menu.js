@@ -474,7 +474,11 @@ const CustumizationForm = props => {
         </Typography>
         <Collapse
           in={state.option_show}
-          style={{ display: state.option_add ? "flex" : "block", justifyContent:state.option_add ? "center" : "flex-start" , width: "100%" }}
+          style={{
+            display: state.option_add ? "flex" : "block",
+            justifyContent: state.option_add ? "center" : "flex-start",
+            width: "100%"
+          }}
         >
           {state.option_add && (
             <div
@@ -1460,8 +1464,8 @@ const Item = props => {
   };
 
   const updateItem = item => {
-    console.log("Item - ", props.item._id);
-    
+    // console.log("Item - ", props.item._id);
+
     setState({
       ...state,
       dialog_open: false
@@ -1882,7 +1886,11 @@ const Category = props => {
       ...state,
       cat_edit: false
     });
-    props.updateCat(state.category_name, props.catId);
+    props.updateCat(
+      state.category_name,
+      props.catId,
+      props.category.category_name
+    );
   };
 
   const deleteCatOrPack = () => {
@@ -1890,7 +1898,7 @@ const Category = props => {
       ...state,
       dialog2_open: false
     });
-    props.deleteCatOrPack(props.catId);
+    props.deleteCatOrPack(props.catId, props.category.category_name);
   };
 
   return (
@@ -2127,20 +2135,23 @@ const PackageForm = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
+  let custumization_arr =
+    (props.package && props.package.custumization_arr) || [];
+
   const show_arr = Array.from(
-    { length: props.package.custumization_arr.length },
+    { length: custumization_arr.length },
     ele => false
   );
 
-  let { custumization_arr } = props.package;
+  // let { custumization_arr } = props.package;
   const cust_arr = clone(custumization_arr);
 
   const [state, setState] = React.useState({
-    package_name: props.package.package_name || "",
-    package_price: props.package.package_price || "",
-    // currency: props.package.currency || "",
-    package_desc: props.package.package_desc || "",
-    // food_type: props.package.food_type || "",
+    package_name: (props.package && props.package.package_name) || "",
+    package_price: (props.package && props.package.package_price) || "",
+    // currency: props.package && props.package.currency || "",
+    package_desc: (props.package && props.package.package_desc) || "",
+    // food_type: props.package && props.package.food_type || "",
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
@@ -2767,13 +2778,11 @@ const Package = props => {
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
 
-  const {
-    package_name,
-    package_price,
-    package_desc,
-    items,
-    custumization_arr
-  } = props.package;
+  const { package_name, package_price, package_desc } = props.package;
+  const items = (props.package && props.package.items) || [];
+  const custumization_arr =
+    (props.package && props.package.custumization_arr) || [];
+
   const show_arr = Array.from(
     { length: custumization_arr.length },
     ele => false
@@ -2857,7 +2866,7 @@ const Package = props => {
       ...state,
       dialog2_open: false
     });
-    props.deleteCatOrPack(props.packId);
+    props.deleteCatOrPack(props.packId, props.package.package_name);
   };
 
   return (
@@ -3112,7 +3121,9 @@ const Package = props => {
             onClick={() => toggleCollapse("items_show")}
           >
             <Badge
-              badgeContent={items.length === 0 ? "0" : items.length}
+              badgeContent={
+                items !== undefined && items.length === 0 ? "0" : items.length
+              }
               color="primary"
             >
               <span>
@@ -3240,12 +3251,18 @@ const Package = props => {
 const Menu = props => {
   const classes = useStyles();
   // const theme = useTheme();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
   const matches = useMediaQuery("(min-width:440px)");
   const minimalSelectClasses = useMinimalSelectStyles();
   // minimalSelectClasses.select.color = deepPurple[50];
   const [state, setState] = useState({
     select_cat: [0, 0, 0],
-    tab: 0
+    tab: 0,
+    category_name: "",
+    dialog_open: false,
+    dialog2_open: false,
+    dialog3_open: false
   });
 
   // const { menu } = props.restaurant;
@@ -3280,7 +3297,10 @@ const Menu = props => {
 
   const handleSelect = evt => {
     // const id = evt.target.name;
-    const val = evt.target.value;
+    const val =
+      evt.target.value === "add"
+        ? state.select_cat[state.tab]
+        : evt.target.value;
     // console.log(evt.target);
     let arr = state.select_cat;
     arr[state.tab] = val;
@@ -3305,8 +3325,8 @@ const Menu = props => {
     props.updateItem(item, itemId, catId, tabMap[state.tab], itemName);
   };
 
-  const updateCat = (catName, catId) => {
-    props.updateCat(catName, catId, tabMap[state.tab]);
+  const updateCat = (catName, catId, oldCatName) => {
+    props.updateCat(catName, catId, tabMap[state.tab], oldCatName);
   };
 
   const updatePack = (pack, packId) => {
@@ -3317,8 +3337,71 @@ const Menu = props => {
     props.deleteItem(itemId, catId, tabMap[state.tab], itemName);
   };
 
-  const deleteCatOrPack = id => {
-    props.deleteCatOrPack(id, tabMap[state.tab]);
+  const deleteCatOrPack = (id, catName) => {
+    props.deleteCatOrPack(id, tabMap[state.tab], catName);
+  };
+
+  const addItem2 = item => {
+    const cat = state.select_cat;
+    const tab = state.tab;
+    const catIdx = cat[tab] >= 2 ? cat[tab] - 2 : cat[tab];
+    const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
+
+    setState({
+      ...state,
+      dialog_open: false
+    });
+    props.addItem(item, catId, tabMap[state.tab]);
+  };
+
+  const addCat2 = () => {
+    if (state.category_name !== "") {
+      setState({
+        ...state,
+        category_name: "",
+        dialog2_open: false
+      });
+      // console.log(state.category_name);
+      props.addCat(state.category_name, tabMap[state.tab]);
+    }
+  };
+
+  const addPack2 = pack => {
+    if (
+      pack.package_name !== "" &&
+      pack.package_desc !== "" &&
+      pack.package_price !== ""
+    ) {
+      setState({
+        ...state,
+        dialog3_open: false
+      });
+      // console.log(state.category_name);
+      props.addPack(pack, tabMap[state.tab]);
+    }
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const handleDialogOpen = (evt, content) => {
+    // evt.stopPropagation();
+    setState({
+      ...state,
+      [content]: true
+    });
+  };
+
+  const handleDialogClose = content => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      [content]: false
+    });
   };
 
   const getList = cat => {
@@ -3453,6 +3536,91 @@ const Menu = props => {
 
   return (
     <div>
+      <div className="all_dialogs">
+        <Dialog
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <ItemForm
+            item={props.item ? props.item : {}}
+            isPackage={false}
+            isEdit={false}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
+            updateItem={addItem2}
+          />
+        </Dialog>
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog2_open}
+          fullWidth={true}
+          maxWidth={"sm"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog2_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle>
+            <Typography className={classes.cardDesc} style={{ margin: "12px" }}>
+              Edit category name
+            </Typography>
+          </DialogTitle>
+          <DialogContent>
+            <div>
+              <input
+                id="category_name"
+                value={state.category_name}
+                onChange={handleChange}
+                type="text"
+                style={{ marginBottom: "10px" }}
+                className={classes.textField}
+                placeholder="Category name"
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <div className={gutterStyles.parent}>
+              <Button
+                variant="default"
+                color="primary"
+                onClick={() => handleDialogClose("dialog2_open")}
+              >
+                <span style={{ fontWeight: "bold" }}>Cancel</span>
+              </Button>
+              <Button
+                style={{ margin: "10px", fontWeight: "bold" }}
+                classes={styles}
+                variant={"contained"}
+                color={"primary"}
+                onClick={addCat2}
+              >
+                <i style={{ margin: "6px" }} className="fas fa-save"></i>
+                Save Changes
+              </Button>
+            </div>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog3_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog3_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <PackageForm
+            package={props.package ? props.package : {}}
+            updatePack={addPack2}
+            handleDialogClose={() => handleDialogClose("dialog3_open")}
+          />
+        </Dialog>
+      </div>
       <div>
         <Typography
           // className={classes.breadCrumb}
@@ -3542,6 +3710,51 @@ const Menu = props => {
               ) : (
                 <></>
               )}
+
+              {state.select_cat[state.tab] !== 0 &&
+                !(state.tab === 2 && state.select_cat[state.tab] > 1) && (
+                  <MenuItem
+                    style={{
+                      // borderTop: "1px solid lightgray",
+                      display: "flex",
+                      justifyContent: "center",
+                      backgroundColor: deepPurple[50]
+                    }}
+                    disabled={state.select_cat[state.tab] === 0}
+                    value={"add"}
+                  >
+                    <div
+                      onClick={evt =>
+                        handleDialogOpen(
+                          evt,
+                          state.tab === 2
+                            ? "dialog3_open"
+                            : state.select_cat[state.tab] === 1
+                            ? "dialog2_open"
+                            : "dialog_open"
+                        )
+                      }
+                    >
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                          textDecoration: "underline"
+                        }}
+                      >
+                        Add a{" "}
+                        {state.tab === 2
+                          ? "Package to Menu"
+                          : state.select_cat[state.tab] === 1
+                          ? "Category to Menu"
+                          : "Item in Selected Category"}
+                        <i
+                          style={{ margin: "5px 8px" }}
+                          className="fa fa-plus"
+                        ></i>
+                      </span>
+                    </div>
+                  </MenuItem>
+                )}
             </Select>
           </FormControl>
 

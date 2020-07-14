@@ -199,10 +199,20 @@ function Dashboard(props) {
     });
   };
 
-  const updatePack = (pack, id, menuType) => {
+  const updatePack = (pack, id, menuType, oldPackName) => {
     let restaurant = clone(state.restaurant);
-    let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
-    restaurant.menu[menuType][idx] = clone(pack);
+    // let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+    // restaurant.menu[menuType][idx] = clone(pack);
+
+    if (Boolean(id)) {
+      let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+      restaurant.menu[menuType][idx] = pack;
+    } else {
+      let idx = restaurant.menu[menuType].findIndex(
+        ele => ele.package_name === oldPackName
+      );
+      restaurant.menu[menuType][idx] = pack;
+    }
 
     setState({
       ...state,

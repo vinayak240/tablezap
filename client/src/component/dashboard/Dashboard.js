@@ -100,7 +100,7 @@ function Dashboard(props) {
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
     mobileOpen: false,
-    page: "menu"
+    page: "orientation"
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
@@ -148,6 +148,19 @@ function Dashboard(props) {
     let restaurant = clone(state.restaurant);
     let newArr = [...restaurant.menu[menuType], pack];
     restaurant.menu[menuType] = newArr;
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const addTable = newTable => {
+    let restaurant = clone(state.restaurant);
+    restaurant.orientation.tables = [
+      ...restaurant.orientation.tables,
+      { ...newTable }
+    ];
+
     setState({
       ...state,
       restaurant: clone(restaurant)
@@ -220,6 +233,17 @@ function Dashboard(props) {
     });
   };
 
+  const updateTable = (newTable, id) => {
+    let restaurant = clone(state.restaurant);
+    let idx = restaurant.orientation.tables.findIndex(t => t.table_id === id);
+    restaurant.orientation.tables[idx] = newTable;
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
   const deleteItem = (itemId, catId, menuType, itemName) => {
     let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
@@ -258,6 +282,17 @@ function Dashboard(props) {
     // The thing that i did below returns the category arr to the whole Restaurant obj so the whole restaurant becomes the category arr
     // that is why i was getting undefined err
     // let newRest = restaurant.menu[menuType].filter(ele => ele._id !== id);
+
+    setState({
+      ...state,
+      restaurant: clone(restaurant)
+    });
+  };
+
+  const deleteTable = id => {
+    let restaurant = clone(state.restaurant);
+    let newArr = restaurant.orientation.tables.filter(t => t.table_id !== id);
+    restaurant.orientation.tables = [...newArr];
 
     setState({
       ...state,
@@ -348,7 +383,14 @@ function Dashboard(props) {
         />
       ),
 
-      component: <Orientation restaurant={state.restaurant} />
+      component: (
+        <Orientation
+          restaurant={state.restaurant}
+          updateTable={updateTable}
+          deleteTable={deleteTable}
+          addTable={addTable}
+        />
+      )
     },
     feedback: {
       title: "Feedback",
@@ -475,6 +517,7 @@ function Dashboard(props) {
                     mobileOpen: false
                   }))
                 }
+                selected={state.page === text}
               >
                 <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
                 <ListItemText
@@ -503,6 +546,7 @@ function Dashboard(props) {
                   mobileOpen: false
                 }));
               }}
+              selected={state.page === text}
             >
               <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
               <ListItemText

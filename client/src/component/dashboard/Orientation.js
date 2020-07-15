@@ -3,17 +3,23 @@ import Typography from "@material-ui/core/Typography";
 import {
   makeStyles,
   Card,
-  // Tabs,
-  // Tab,
   Grid,
-  Button
-  // Fade,
-  // Grow
+  FormControlLabel,
+  withStyles,
+  Button,
+  Switch,
+  Tooltip
 } from "@material-ui/core";
+import MaterialMenu from "@material-ui/core/Menu";
 import { deepPurple } from "@material-ui/core/colors";
 import Logo from "../logos/Logo";
 import QRCode from "qrcode.react";
-// import { useFirebaseBtnStyles } from "@mui-treasury/styles/button/firebase";
+import MenuItem from "@material-ui/core/MenuItem";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Paper from "@material-ui/core/Paper";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
@@ -48,6 +54,20 @@ const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
     fontWeight: "bold"
   }
 }));
+
+const PurpleSwitch = withStyles({
+  switchBase: {
+    color: deepPurple[300],
+    "&$checked": {
+      color: deepPurple[500]
+    },
+    "&$checked + $track": {
+      backgroundColor: deepPurple[500]
+    }
+  },
+  checked: {},
+  track: {}
+})(Switch);
 
 const useStyles = makeStyles(() => ({
   section: {
@@ -124,16 +144,8 @@ const useStyles = makeStyles(() => ({
     }
   },
   cardDesc: {
-    // backgroundColor: "#EBEDE8",
-    // border: "2px solid #E7EDF3",
-    // borderRadius: 5,
-    // padding: "12px"
-    // padding: "5px 20px ",
-    // backgroundColor: "#b8f2ab",
     color: "#756e6e",
-    // borderRadius: "5px",
     fontWeight: "bold",
-    // border: "1px solid lightgray",
     marginBottom: "5px"
   },
   itemList: {
@@ -189,7 +201,6 @@ const useStyles = makeStyles(() => ({
     padding: "6px 16px",
     fontWeight: "bold",
     textAlign: "left"
-    // borderBottom: "1px solid lightgray"
   },
   pageTitle: {
     fontSize: "1.8rem",
@@ -197,7 +208,6 @@ const useStyles = makeStyles(() => ({
     textAlign: "center",
     marginBottom: "5px",
     fontWeight: "bolder"
-    // textDecoration: "underline"
   },
   breadCrumb: {
     backgroundColor: "#e8eff4",
@@ -205,13 +215,121 @@ const useStyles = makeStyles(() => ({
     fontWeight: "bold",
     padding: "12px",
     borderRadius: 12
+  },
+  textField: {
+    fontFamily: "'Nunito', sans-serif",
+    backgroundColor: "#ffffff",
+    borderRadius: "5px",
+    border: "1px solid lightgray",
+    width: "80%",
+    margin: "auto",
+    padding: "10px",
+    fontWeight: "bold"
   }
 }));
+
+function PaperComponent(props) {
+  return <Paper style={{ borderRadius: "12px", padding: "12px" }} {...props} />;
+}
+
+const TableForm = props => {
+  const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
+
+  const [state, setState] = React.useState({
+    table_id: (props.table && props.table.table_id) || "",
+    n_seats: (props.table && props.table.n_seats) || ""
+  });
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const updateTable = () => {
+    const { table_id, n_seats } = state;
+    const newTable = { table_id, n_seats };
+
+    props.updateTable(newTable);
+  };
+
+  return (
+    <div>
+      <DialogTitle>
+        <span className={classes.cardTitle}>
+          <i style={{ margin: "8px" }} className="fas fa-edit"></i>
+          {props.isEdit ? "Edit Table" : "Add Table"}
+        </span>
+      </DialogTitle>
+      <DialogContent>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          justify="center"
+        >
+          <Grid item xs={12}>
+            <input
+              id="table_id"
+              value={state.table_id}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="Table ID"
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <input
+              id="n_seats"
+              value={state.n_seats}
+              onChange={handleChange}
+              style={{ width: "97%" }}
+              className={classes.textField}
+              placeholder="No. of seats in this Table"
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+
+      <DialogActions className={gutterStyles.parent}>
+        <Button
+          variant="default"
+          color="primary"
+          onClick={props.handleDialogClose}
+        >
+          <span style={{ fontWeight: "bold" }}>Cancel</span>
+        </Button>
+        <Button
+          style={{ margin: "10px", fontWeight: "bold" }}
+          classes={styles}
+          variant={"contained"}
+          color={"primary"}
+          onClick={updateTable}
+        >
+          <i style={{ margin: "6px" }} className="fas fa-save"></i>
+          {props.isEdit ? "Save Changes" : "Add Table"}
+        </Button>
+      </DialogActions>
+    </div>
+  );
+};
 
 const Table = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
+
+  const [state, setState] = React.useState({
+    dialog_open: false,
+    anchorEl: null,
+    dialog2_open: false,
+    status: true
+  });
 
   const downloadQR = table_id => {
     const canvas = document.getElementById(table_id);
@@ -226,6 +344,59 @@ const Table = props => {
     document.body.removeChild(downloadLink);
   };
 
+  const handleDialogOpen = content => {
+    setState({
+      ...state,
+      [content]: true,
+      anchorEl: null
+    });
+  };
+
+  const handleDialogClose = content => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      [content]: false
+    });
+  };
+
+  const handleClick = event => {
+    setState({
+      ...state,
+      anchorEl: event.currentTarget
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.name]: evt.target.checked
+    });
+  };
+
+  const handleClose = () => {
+    setState({
+      ...state,
+      anchorEl: null
+    });
+  };
+
+  const updateTable = newTable => {
+    setState({
+      ...state,
+      dialog_open: false
+    });
+    props.updateTable(newTable, props.table.table_id);
+  };
+
+  const deleteTable = () => {
+    setState({
+      ...state,
+      dialog2_open: false
+    });
+    props.deleteTable(props.table.table_id);
+  };
+
   return (
     <div
       style={{
@@ -236,6 +407,127 @@ const Table = props => {
       }}
       className={classes.card}
     >
+      <div>
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"sm"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog_open")}
+          PaperComponent={PaperComponent}
+        >
+          <TableForm
+            table={props.table ? props.table : {}}
+            isEdit={true}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
+            updateTable={updateTable}
+          />
+        </Dialog>
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog2_open}
+          fullWidth={true}
+          maxWidth={"xs"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog2_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <DialogTitle id="draggable-dialog-title">
+            <span className={classes.cardTitle}>
+              <i
+                style={{ margin: "8px" }}
+                className="fas fa-exclamation-triangle"
+              ></i>
+              Confirmation
+            </span>
+          </DialogTitle>
+
+          <DialogContent>
+            <Typography className={classes.cardDesc}>
+              Do yo really want to delete the table "{props.table.table_id}" ?
+            </Typography>
+          </DialogContent>
+
+          <DialogActions className={gutterStyles.parent}>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={deleteTable}
+            >
+              Yes
+            </Button>
+            <Button
+              style={{ margin: "10px", fontWeight: "bold" }}
+              classes={styles}
+              variant={"contained"}
+              color={"primary"}
+              onClick={() => handleDialogClose("dialog2_open")}
+            >
+              No
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+      <div>
+        <i
+          aria-controls="simple-menu"
+          aria-haspopup="true"
+          style={{ float: "right", fontSize: "17px" }}
+          className="fas fa-ellipsis-v"
+          onClick={handleClick}
+        ></i>
+        <MaterialMenu
+          id="simple-menu"
+          // className={classes.materialMenu}
+          // style={{ backgroundColor: "white" }}
+          anchorEl={state.anchorEl}
+          getContentAnchorEl={null}
+          anchorOrigin={{ vertical: "top", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+          keepMounted
+          open={Boolean(state.anchorEl)}
+          onClose={handleClose}
+        >
+          <MenuItem
+            className={classes.menuItem}
+            // onClick={handleClose}
+          >
+            <FormControlLabel
+              style={{ fontWeight: "bold" }}
+              control={
+                <PurpleSwitch
+                  checked={state.status}
+                  onChange={handleChange}
+                  name="status"
+                />
+              }
+              label={
+                <span style={{ fontWeight: "bold" }}>{`${
+                  state.status ? "Online" : "Offline"
+                }`}</span>
+              }
+            />
+          </MenuItem>
+          <MenuItem
+            className={classes.menuItem}
+            onClick={() => handleDialogOpen("dialog_open")}
+          >
+            <i style={{ margin: "8px" }} className="fas fa-pen"></i>
+            Edit
+          </MenuItem>
+          <MenuItem
+            className={classes.menuItem}
+            onClick={() => handleDialogOpen("dialog2_open")}
+          >
+            <i style={{ margin: "8px" }} className="fas fa-trash-alt"></i>
+            Delete
+          </MenuItem>
+        </MaterialMenu>
+      </div>
       <div>
         <Logo width="100px" height="50px" />
       </div>
@@ -268,15 +560,16 @@ const Table = props => {
       </Typography>
 
       <div style={{ marginTop: "15px" }} className={gutterStyles.parent}>
-        <Button
+        {/* <Button
           style={{ marginLeft: "10px", fontWeight: "bold" }}
           classes={styles}
           variant={"contained"}
           color={"primary"}
+          onClick={() => handleDialogOpen("dialog_open")}
         >
           <i style={{ margin: "8px" }} className="fas fa-edit"></i>
           Edit
-        </Button>
+        </Button> */}
 
         <Button
           style={{ marginLeft: "10px", fontWeight: "bold" }}
@@ -312,7 +605,12 @@ const TableList = props => {
         //   {...(true ? { timeout: idx + 1000 } : {})}
         // >
         <Grid key={idx} item xs={12} sm={12} md={6}>
-          <Table rest_id={props.rest_id} table={table} />
+          <Table
+            rest_id={props.rest_id}
+            table={table}
+            updateTable={props.updateTable}
+            deleteTable={props.deleteTable}
+          />
         </Grid>
         // </Fade>
       ))}
@@ -322,9 +620,10 @@ const TableList = props => {
 
 const Orientation = props => {
   const classes = useStyles();
-  // const [state, setState] = React.useState({
-  //   tab: 0
-  // });
+  const [state, setState] = React.useState({
+    dialog_open: false,
+    show_options: false
+  });
 
   //   const handleTab = (evt, newValue) => {
   //     setState({
@@ -333,8 +632,65 @@ const Orientation = props => {
   //     });
   //   };
 
+  const handleDialogOpen = content => {
+    setState({
+      ...state,
+      [content]: true,
+      anchorEl: null
+    });
+  };
+
+  const handleDialogClose = content => {
+    // console.log("Closed - ", state.dialog_open);
+    setState({
+      ...state,
+      [content]: false
+    });
+  };
+
+  const handleMouseIn = () => {
+    setState({
+      ...state,
+      show_options: true
+    });
+  };
+
+  const handleMouseOut = () => {
+    setState({
+      ...state,
+      show_options: false
+    });
+  };
+
+  const addTable = newTable => {
+    setState({
+      ...state,
+      dialog_open: false
+    });
+
+    props.addTable(newTable);
+  };
+
   return (
     <div>
+      <div className="all_dialogs">
+        <Dialog
+          // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
+          open={state.dialog_open}
+          fullWidth={true}
+          maxWidth={"sm"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog_open")}
+          PaperComponent={PaperComponent}
+        >
+          <TableForm
+            table={props.table ? props.table : {}}
+            isEdit={false}
+            handleDialogClose={() => handleDialogClose("dialog_open")}
+            updateTable={addTable}
+          />
+        </Dialog>
+      </div>
       <div>
         <Typography
           // className={classes.breadCrumb}
@@ -372,12 +728,12 @@ const Orientation = props => {
       <Card
         className={classes.section}
         style={{
-          // height: "650px",
-          // maxHeight: "560px",
           minWidth: "350px",
           paddingBottom: "25px",
           borderRadius: "16px"
         }}
+        onMouseEnter={handleMouseIn}
+        onMouseLeave={handleMouseOut}
       >
         <div>
           <Typography className={classes.pageTitle}>
@@ -385,6 +741,7 @@ const Orientation = props => {
               style={{ width: "4rem", verticalAlign: "middle" }}
               alt="Table Icon"
               src="https://img.icons8.com/clouds/100/000000/qr-code.png"
+              // src="https://img.icons8.com/plasticine/100/000000/qr-code.png"
             />
             <span> Tables </span>
             {/* <img
@@ -392,6 +749,31 @@ const Orientation = props => {
               src="https://img.icons8.com/clouds/100/000000/grid.png"
               alt="Table Icon"
             /> */}
+            <span style={{ float: "right", marginRight: "20px" }}>
+              <Tooltip title="Add Table" arrow>
+                <button
+                  style={{
+                    margin: "0px 8px",
+                    width: "50px",
+                    border: "none",
+                    textAlign: "center",
+                    borderRadius: "4px",
+                    backgroundColor: "#039be5",
+                    color: "white",
+                    padding: "4px"
+                  }}
+                  onClick={() => handleDialogOpen("dialog_open")}
+                >
+                  <i
+                    style={{
+                      margin: "4px",
+                      fontSize: "16px"
+                    }}
+                    className="fas fa-plus"
+                  ></i>
+                </button>
+              </Tooltip>
+            </span>
           </Typography>
           {/* <Tabs
             value={state.tab}
@@ -415,6 +797,8 @@ const Orientation = props => {
               <TableList
                 rest_id={props.restaurant._id}
                 tables={props.restaurant.orientation.tables}
+                updateTable={props.updateTable}
+                deleteTable={props.deleteTable}
               />
             )}
         </div>

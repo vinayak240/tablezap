@@ -23,6 +23,8 @@ import Menu from "./Menu";
 import { loadRest } from "../../redux/actions/restaurant/auth";
 import Orientation from "./Orientation";
 import { Grid } from "@material-ui/core";
+import { deepPurple } from "@material-ui/core/colors";
+import Account from "./Account";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
 // import { Chip } from "@material-ui/core";
@@ -74,6 +76,9 @@ const useStyles = makeStyles(theme => ({
     marginBottom: "20px",
     width: "88%",
     backgroundColor: "white"
+  },
+  listItemSelect: {
+    color: deepPurple[500]
   }
 }));
 
@@ -100,7 +105,7 @@ function Dashboard(props) {
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
     mobileOpen: false,
-    page: "orientation"
+    page: "account"
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
@@ -424,7 +429,7 @@ function Dashboard(props) {
           src="https://img.icons8.com/color/96/000000/client-company.png"
         />
       ),
-      component: <>Account</>
+      component: <Account restaurant={state.restaurant} />
     },
     logout: {
       title: "Logout",
@@ -510,6 +515,7 @@ function Dashboard(props) {
                 id={text}
                 button
                 key={text}
+                classes={{ selected: classes.listItemSelect }}
                 onClick={() =>
                   setState(prevState => ({
                     ...prevState,
@@ -538,6 +544,7 @@ function Dashboard(props) {
             <ListItem
               button
               key={text}
+              classes={{ selected: classes.listItemSelect }}
               onClick={() => {
                 // console.log(evt);
                 setState(prevState => ({

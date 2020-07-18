@@ -208,25 +208,28 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const Credentials = props => {
+const OwnerDetails = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
 
   const [state, setState] = React.useState({
-    show_form: false,
-    is_edit: false
+    show_form: true,
+    is_edit: false,
+    owner_name: props.data.owner_name || "",
+    owner_email: props.data.owner_email || "",
+    owner_no: props.data.owner_no || ""
   });
 
   const toggleShow = content => {
     setState(prevState => ({
       ...prevState,
-      [content]: !prevState[content],
-      is_edit:
-        content === "show_form"
-          ? state.is_edit
-            ? false
-            : state.is_edit
-          : state.is_edit
+      [content]: !prevState[content]
+      // is_edit:
+      //   content === "show_form"
+      //     ? state.is_edit
+      //       ? false
+      //       : state.is_edit
+      //     : state.is_edit
     }));
   };
 
@@ -242,11 +245,432 @@ const Credentials = props => {
   const handleCancel = () => {
     setState({
       ...state,
-      is_edit: false
+      is_edit: false,
+      owner_name: props.data.owner_name || "",
+      owner_email: props.data.owner_email || "",
+      owner_no: props.data.owner_no || ""
     });
   };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
   return (
-    <div className={classes.card} style={{ background: "white", width: "95%" }}>
+    <div
+      className={classes.card}
+      style={{ background: "white", width: "100%" }}
+    >
+      <Typography
+        className={classes.cardTitle}
+        onClick={() => toggleShow("show_form")}
+      >
+        <span>
+          Owner Details
+          {state.is_edit && (
+            <i
+              style={{ margin: "8px", fontSize: "19px" }}
+              className="fas fa-edit"
+            ></i>
+          )}
+        </span>
+        <i
+          style={{
+            margin: "8px",
+            fontSize: "22px",
+            float: "right"
+          }}
+          className={`fas fa-sort-${state.show_form ? "up" : "down"}`}
+        ></i>
+        {!state.is_edit && (
+          <button
+            style={{
+              margin: "0px 16px 0px 8px",
+              width: "40px",
+              border: "none",
+              textAlign: "center",
+              borderRadius: "4px",
+              backgroundColor: "#c4dff2",
+              padding: "4px",
+              float: "right"
+            }}
+            onClick={handleEdit}
+          >
+            <i
+              style={{ margin: "4px", fontSize: "16px" }}
+              className="fas fa-edit"
+            ></i>
+          </button>
+        )}
+      </Typography>
+      <Collapse in={state.show_form}>
+        <Grid
+          container
+          spacing={2}
+          style={{ marginTop: "15px" }}
+          direction="row"
+          justify="space-evenly"
+          alignItems="center"
+        >
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="owner_name" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Owner Name: </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="owner_name"
+              value={state.owner_name}
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the onwer name"
+            />
+          </Grid>
+
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="owner_email" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Owner Email: </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="owner_email"
+              value={state.owner_email}
+              type="email"
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the owner email"
+            />
+          </Grid>
+
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="owner_no" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Phone No. : </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="owner_no"
+              value={state.owner_no}
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the owner contact number"
+            />
+          </Grid>
+          {state.is_edit && (
+            <Grid item xs={12}>
+              <span style={{ float: "right" }}>
+                <Button
+                  //   style={{ float: "right" }}
+                  variant="default"
+                  color="primary"
+                  onClick={handleCancel}
+                >
+                  <span style={{ fontWeight: "bold" }}>Cancel</span>
+                </Button>
+                <Button
+                  //   style={{ float: "right" }}
+                  style={{ margin: "10px", fontWeight: "bold" }}
+                  classes={styles}
+                  variant={"contained"}
+                  color={"primary"}
+                  //   onClick={updatePack}
+                >
+                  <i style={{ margin: "6px" }} className="fas fa-save"></i>
+                  Save Changes
+                </Button>
+              </span>
+            </Grid>
+          )}
+        </Grid>
+      </Collapse>
+    </div>
+  );
+};
+
+const RestaurantDetails = props => {
+  const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+
+  const [state, setState] = React.useState({
+    show_form: true,
+    is_edit: false,
+    rest_name: props.data.rest_name || "",
+    rest_email: props.data.rest_email || "",
+    rest_addr: props.data.rest_addr || "",
+    rest_no: props.data.rest_no || ""
+  });
+
+  const toggleShow = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+      // is_edit:
+      //   content === "show_form"
+      //     ? state.is_edit
+      //       ? false
+      //       : state.is_edit
+      //     : state.is_edit
+    }));
+  };
+
+  const handleEdit = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      is_edit: true,
+      show_form: true
+    });
+  };
+
+  const handleCancel = () => {
+    setState({
+      ...state,
+      is_edit: false,
+      rest_name: props.data.rest_name || "",
+      rest_email: props.data.rest_email || "",
+      rest_addr: props.data.rest_addr || "",
+      rest_no: props.data.rest_no || ""
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  return (
+    <div
+      className={classes.card}
+      style={{ background: "white", width: "100%" }}
+    >
+      <Typography
+        className={classes.cardTitle}
+        onClick={() => toggleShow("show_form")}
+      >
+        <span>
+          Restaurant Details
+          {state.is_edit && (
+            <i
+              style={{ margin: "8px", fontSize: "19px" }}
+              className="fas fa-edit"
+            ></i>
+          )}
+        </span>
+        <i
+          style={{
+            margin: "8px",
+            fontSize: "22px",
+            float: "right"
+          }}
+          className={`fas fa-sort-${state.show_form ? "up" : "down"}`}
+        ></i>
+        {!state.is_edit && (
+          <button
+            style={{
+              margin: "0px 16px 0px 8px",
+              width: "40px",
+              border: "none",
+              textAlign: "center",
+              borderRadius: "4px",
+              backgroundColor: "#c4dff2",
+              padding: "4px",
+              float: "right"
+            }}
+            onClick={handleEdit}
+          >
+            <i
+              style={{ margin: "4px", fontSize: "16px" }}
+              className="fas fa-edit"
+            ></i>
+          </button>
+        )}
+      </Typography>
+      <Collapse in={state.show_form}>
+        <Grid
+          container
+          spacing={2}
+          style={{ marginTop: "15px" }}
+          direction="row"
+          justify="space-evenly"
+          alignItems="center"
+        >
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="rest_name" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Restaurant Name: </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="rest_name"
+              value={state.rest_name}
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the restaurant name"
+            />
+          </Grid>
+
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="rest_email" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Restaurant Email: </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="rest_email"
+              value={state.rest_email}
+              type="email"
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the restaurant email"
+            />
+          </Grid>
+
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="rest_no" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Phone No. : </span>
+            </label>
+          </Grid>
+
+          <Grid item xs={12} sm={9}>
+            <input
+              id="rest_no"
+              value={state.rest_no}
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              placeholder="Enter the restaurant contact number"
+            />
+          </Grid>
+          <Grid container item xs={12} sm={3} justify="flex-start">
+            <label htmlFor="rest_addr" className={classes.paper}>
+              <span style={{ fontWeight: "bold" }}>Reataurant Address: </span>
+            </label>
+          </Grid>
+          <Grid item xs={12} sm={9}>
+            <textarea
+              id="rest_addr"
+              value={state.rest_addr}
+              onChange={handleChange}
+              className={classes.textField}
+              disabled={state.is_edit ? false : true}
+              rows={3}
+              placeholder="Enter the restaurant address"
+            ></textarea>
+          </Grid>
+          {state.is_edit && (
+            <Grid item xs={12}>
+              <span style={{ float: "right" }}>
+                <Button
+                  //   style={{ float: "right" }}
+                  variant="default"
+                  color="primary"
+                  onClick={handleCancel}
+                >
+                  <span style={{ fontWeight: "bold" }}>Cancel</span>
+                </Button>
+                <Button
+                  //   style={{ float: "right" }}
+                  style={{ margin: "10px", fontWeight: "bold" }}
+                  classes={styles}
+                  variant={"contained"}
+                  color={"primary"}
+                  //   onClick={updatePack}
+                >
+                  <i style={{ margin: "6px" }} className="fas fa-save"></i>
+                  Save Changes
+                </Button>
+              </span>
+            </Grid>
+          )}
+        </Grid>
+      </Collapse>
+    </div>
+  );
+};
+
+const Credentials = props => {
+  const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+
+  const [state, setState] = React.useState({
+    show_form: true,
+    is_edit: false,
+    rest_id: props.rest_id || "",
+    rest_psswd: "1234567",
+    re_rest_psswd: "",
+    show_psswd: [false, false]
+  });
+
+  const toggleShow = content => {
+    setState(prevState => ({
+      ...prevState,
+      [content]: !prevState[content]
+      // is_edit:
+      //   content === "show_form"
+      //     ? state.is_edit
+      //       ? false
+      //       : state.is_edit
+      //     : state.is_edit
+    }));
+  };
+
+  const handleEdit = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      is_edit: true,
+      show_form: true,
+      rest_psswd: ""
+    });
+  };
+
+  const handleCancel = () => {
+    setState({
+      ...state,
+      is_edit: false,
+      rest_id: props.rest_id || "",
+      rest_psswd: "1234567",
+      show_psswd: [false, false]
+    });
+  };
+
+  const handleChange = evt => {
+    setState({
+      ...state,
+      [evt.target.id]: evt.target.value
+    });
+  };
+
+  const toggleShowPsswd = id => {
+    setState({
+      ...state,
+      show_psswd: state.show_psswd.map((b, idx) =>
+        Number(id) === idx ? !b : b
+      )
+    });
+  };
+
+  return (
+    <div
+      className={classes.card}
+      style={{ background: "white", width: "100%" }}
+    >
       <Typography
         className={classes.cardTitle}
         onClick={() => toggleShow("show_form")}
@@ -300,7 +724,7 @@ const Credentials = props => {
         >
           <Grid container item xs={12} sm={3} justify="flex-start">
             <label htmlFor="rest_id" className={classes.paper}>
-              <span style={{ fontWeight: "bold" }}>Reataurant ID : </span>
+              <span style={{ fontWeight: "bold" }}>Restaurant ID : </span>
             </label>
           </Grid>
 
@@ -308,29 +732,98 @@ const Credentials = props => {
             <input
               id="rest_id"
               value={props.rest_id}
-              //   onChange={handleChange}
+              // onChange={handleChange}
               className={classes.textField}
-              disabled={state.is_edit ? false : true}
-              placeholder="Both first name and last name"
+              disabled={true} //Because RESTAURANT ID can oly be changed by the TZ Support!!
+              placeholder="Enter unique restaurant ID"
             />
           </Grid>
 
           <Grid container item xs={12} sm={3} justify="flex-start">
             <label htmlFor="rest_psswd" className={classes.paper}>
-              <span style={{ fontWeight: "bold" }}>Password : </span>
+              <span style={{ fontWeight: "bold" }}>
+                {" "}
+                {state.is_edit && "Change "}Password :{" "}
+              </span>
             </label>
           </Grid>
 
           <Grid item xs={12} sm={9}>
-            <input
-              id="rest_psswd"
-              value={"1234567"}
-              type="password"
-              //   onChange={handleChange}
-              className={classes.textField}
-              disabled={state.is_edit ? false : true}
-              placeholder="Both first name and last name"
-            />
+            {!state.is_edit && (
+              <input
+                id="rest_psswd"
+                value={state.rest_psswd}
+                type="password"
+                onChange={handleChange}
+                className={classes.textField}
+                disabled={state.is_edit ? false : true}
+                placeholder="Enter restaurant password"
+              />
+            )}
+            {state.is_edit && (
+              <Grid
+                container
+                spacing={2}
+                style={{ marginTop: "15px" }}
+                direction="row"
+                justify="space-evenly"
+                alignItems="center"
+              >
+                <Grid item xs={12} sm={8}>
+                  <input
+                    id="rest_psswd"
+                    value={state.rest_psswd}
+                    style={{ width: "94%" }}
+                    type={state.show_psswd[0] ? "text" : "password"}
+                    onChange={handleChange}
+                    className={classes.textField}
+                    // disabled={state.is_edit ? false : true}
+                    placeholder="Enter Current restaurant password"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <button
+                    onClick={() => toggleShowPsswd(0)}
+                    style={{
+                      float: "left",
+                      fontWeight: "bold",
+                      backgroundColor: "white",
+                      border: "none",
+                      color: "#0388ca"
+                    }}
+                  >
+                    {state.show_psswd[0] ? "hide" : "show"}
+                  </button>
+                </Grid>
+
+                <Grid item xs={12} sm={8}>
+                  <input
+                    id="re_rest_psswd"
+                    value={state.re_rest_psswd}
+                    style={{ width: "94%" }}
+                    type={state.show_psswd[1] ? "text" : "password"}
+                    onChange={handleChange}
+                    className={classes.textField}
+                    // disabled={state.is_edit ? false : true}
+                    placeholder="Re-type restaurant password"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <button
+                    onClick={() => toggleShowPsswd(1)}
+                    style={{
+                      float: "left",
+                      fontWeight: "bold",
+                      backgroundColor: "white",
+                      border: "none",
+                      color: "#0388ca"
+                    }}
+                  >
+                    {state.show_psswd[1] ? "hide" : "show"}
+                  </button>
+                </Grid>
+              </Grid>
+            )}
           </Grid>
         </Grid>
         {state.is_edit && (
@@ -350,6 +843,7 @@ const Credentials = props => {
                 classes={styles}
                 variant={"contained"}
                 color={"primary"}
+                disabled={state.re_rest_psswd !== state.rest_psswd}
                 //   onClick={updatePack}
               >
                 <i style={{ margin: "6px" }} className="fas fa-save"></i>
@@ -364,6 +858,38 @@ const Credentials = props => {
 };
 
 const Account = props => {
+  const {
+    rest_id,
+    rest_name,
+    rest_email,
+    rest_addr,
+    rest_no,
+    rest_type,
+    rest_timing_start,
+    rest_timing_end,
+    rest_tags,
+    dine_type,
+    is_alcohol,
+    owner_name,
+    owner_email,
+    owner_no
+  } = props.restaurant;
+  const data = {
+    rest_id,
+    rest_name,
+    rest_email,
+    rest_addr,
+    rest_no,
+    rest_type,
+    rest_timing_start,
+    rest_timing_end,
+    rest_tags,
+    dine_type,
+    is_alcohol,
+    owner_name,
+    owner_email,
+    owner_no
+  };
   return (
     <div>
       <Typography
@@ -401,6 +927,8 @@ const Account = props => {
       </Typography>
 
       <Credentials rest_id={props.restaurant.rest_id} />
+      <RestaurantDetails data={data} />
+      <OwnerDetails data={data} />
     </div>
   );
 };

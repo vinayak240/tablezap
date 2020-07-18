@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 // import { connect } from "react-redux";
 import { clone } from "ramda";
@@ -37,6 +37,8 @@ import Paper from "@material-ui/core/Paper";
 // import { useNeumorphShadowStyles } from '@mui-treasury/styles/shadow/neumorph';
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import FlipMove from 'react-flip-move';
+
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -1380,7 +1382,7 @@ const ItemForm = props => {
   );
 };
 
-const Item = props => {
+const Item = forwardRef((props, ref) => {
   const classes = useStyles();
   const {
     item_name,
@@ -1482,7 +1484,7 @@ const Item = props => {
   };
 
   return (
-    <div className={classes.card}>
+    <div ref={ref} className={classes.card}>
       <div className="all_dialogs">
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
@@ -1795,9 +1797,9 @@ const Item = props => {
       )}
     </div>
   );
-};
+})
 
-const Category = props => {
+const Category = forwardRef((props, ref) => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
@@ -1902,7 +1904,7 @@ const Category = props => {
   };
 
   return (
-    <div>
+    <div ref={ref}>
       <div className="all_dialogs">
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
@@ -2113,6 +2115,7 @@ const Category = props => {
           </Typography>
           {/* <Divider /> */}
           <Collapse in={state.cat_show}>
+          <FlipMove>
             {props.category &&
               props.category.items.map((item, idx) => (
                 <Item
@@ -2125,12 +2128,13 @@ const Category = props => {
                   deleteItem={props.deleteItem}
                 />
               ))}
+              </FlipMove>
           </Collapse>
         </div>
       )}
     </div>
   );
-};
+})
 
 const PackageForm = props => {
   const classes = useStyles();
@@ -2905,7 +2909,7 @@ const PackageForm = props => {
   );
 };
 
-const Package = props => {
+const Package = forwardRef((props, ref) => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
@@ -3002,7 +3006,7 @@ const Package = props => {
   };
 
   return (
-    <div style={{ width: "100%", padding: "30px" }} className={classes.card}>
+    <div ref={ref} style={{ width: "100%", padding: "30px" }} className={classes.card}>
       <div className="all_dialogs">
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
@@ -3274,6 +3278,8 @@ const Package = props => {
             ></i>
           </Typography>
           <Collapse in={state.items_show}>
+          <FlipMove>
+
             {items.map((item, idx) => (
               <Item
                 catId={props.packId}
@@ -3285,6 +3291,7 @@ const Package = props => {
                 deleteItem={props.deleteItem}
               />
             ))}
+            </FlipMove>
           </Collapse>
         </Grid>
 
@@ -3380,7 +3387,7 @@ const Package = props => {
       </Grid>
     </div>
   );
-};
+})
 
 const Menu = props => {
   const classes = useStyles();
@@ -3560,6 +3567,7 @@ const Menu = props => {
         else if (cat[tab] === 1)
           return (
             <div>
+              <FlipMove>
               {props.restaurant ? (
                 props.restaurant.menu[tabMap[state.tab]].map((pack, idx) => (
                   <Package
@@ -3578,11 +3586,13 @@ const Menu = props => {
                   No Items Available
                 </div>
               )}
+              </FlipMove>
             </div>
           );
         else
           return (
             <div>
+              <FlipMove>
               {props.restaurant ? (
                 <Package
                   key={0}
@@ -3607,12 +3617,14 @@ const Menu = props => {
                   No Items Available
                 </div>
               )}
+              </FlipMove>
             </div>
           );
 
       case "categ":
         return (
           <div>
+            <FlipMove>
             {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]].map((category, idx) => (
                 <Category
@@ -3631,6 +3643,7 @@ const Menu = props => {
                 No Items Available
               </div>
             )}
+            </FlipMove>
           </div>
         );
       case "item":
@@ -3638,11 +3651,13 @@ const Menu = props => {
         const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
         return (
           <div>
+          <FlipMove>
             {props.restaurant ? (
               props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
-                item => (
+                (item, idx) => (
                   <Item
                     catId={catId}
+                    key={"item" + idx}
                     isPackage={false}
                     item={item}
                     addItem={addItem}
@@ -3656,6 +3671,7 @@ const Menu = props => {
                 No Items Available
               </div>
             )}
+            </FlipMove>
           </div>
         );
 

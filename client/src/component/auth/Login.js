@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { login } from "../../redux/actions/restaurant/auth";
 import AlertWindow from "../layout/Alert";
+
 const useStyles = makeStyles(theme => ({
   root: {
     width: "30%",

@@ -259,6 +259,26 @@ const OwnerDetails = props => {
     });
   };
 
+  const updateInfo = () => {
+    const { owner_name, owner_email, owner_no } = state;
+    const obj = {
+      owner_name,
+      owner_email,
+      owner_no
+    };
+    setState({
+      ...state,
+      is_edit: false
+    });
+
+    if (
+      state.owner_name !== "" &&
+      state.owner_email !== "" &&
+      state.owner_no !== ""
+    )
+      props.updateInfo(obj);
+  };
+
   return (
     <div
       className={classes.card}
@@ -383,7 +403,7 @@ const OwnerDetails = props => {
                   classes={styles}
                   variant={"contained"}
                   color={"primary"}
-                  //   onClick={updatePack}
+                  onClick={updateInfo}
                 >
                   <i style={{ margin: "6px" }} className="fas fa-save"></i>
                   Save Changes
@@ -448,6 +468,28 @@ const RestaurantDetails = props => {
       ...state,
       [evt.target.id]: evt.target.value
     });
+  };
+
+  const updateInfo = () => {
+    const { rest_name, rest_email, rest_addr, rest_no } = state;
+    const obj = {
+      rest_name,
+      rest_email,
+      rest_addr,
+      rest_no
+    };
+    setState({
+      ...state,
+      is_edit: false
+    });
+
+    if (
+      state.rest_name !== "" &&
+      state.rest_addr !== "" &&
+      state.rest_email !== "" &&
+      state.rest_no !== ""
+    )
+      props.updateInfo(obj);
   };
 
   return (
@@ -590,7 +632,7 @@ const RestaurantDetails = props => {
                   classes={styles}
                   variant={"contained"}
                   color={"primary"}
-                  //   onClick={updatePack}
+                  onClick={updateInfo}
                 >
                   <i style={{ margin: "6px" }} className="fas fa-save"></i>
                   Save Changes
@@ -664,6 +706,17 @@ const Credentials = props => {
         Number(id) === idx ? !b : b
       )
     });
+  };
+
+  const updateInfo = () => {
+    setState({
+      ...state,
+      is_edit: false,
+      show_psswd: [false, false]
+    });
+
+    if (Boolean(state.rest_psswd))
+      props.updateInfo({ rest_psswd: state.rest_psswd });
   };
 
   return (
@@ -844,7 +897,7 @@ const Credentials = props => {
                 variant={"contained"}
                 color={"primary"}
                 disabled={state.re_rest_psswd !== state.rest_psswd}
-                //   onClick={updatePack}
+                // onClick={updateInfo}
               >
                 <i style={{ margin: "6px" }} className="fas fa-save"></i>
                 Save Changes
@@ -926,9 +979,17 @@ const Account = props => {
         </span>
       </Typography>
 
-      <Credentials rest_id={props.restaurant.rest_id} />
-      <RestaurantDetails data={data} />
-      <OwnerDetails data={data} />
+      {props.restaurant && (
+        <div className="content">
+          <Credentials
+            rest_id={props.restaurant.rest_id}
+            rest_psswd={props.restaurant.rest_id}
+            updateInfo={props.updateInfo}
+          />
+          <RestaurantDetails data={data} updateInfo={props.updateInfo} />
+          <OwnerDetails data={data} updateInfo={props.updateInfo} />
+        </div>
+      )}
     </div>
   );
 };

@@ -22,7 +22,7 @@ import Menu from "./Menu";
 // import Axios from "axios";
 import { loadRest } from "../../redux/actions/restaurant/auth";
 import Orientation from "./Orientation";
-import { Grid } from "@material-ui/core";
+import { Grid, Badge } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import Account from "./Account";
 // import store from "../../redux/store";
@@ -105,7 +105,8 @@ function Dashboard(props) {
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
     mobileOpen: false,
-    page: "account"
+    page: "account",
+    is_edited: Array.from({ length: 7 }, ele => false)
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
@@ -129,9 +130,12 @@ function Dashboard(props) {
     let newArr = [...restaurant.menu[menuType][catIdx].items, item];
     restaurant.menu[menuType][catIdx].items = newArr;
 
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -143,9 +147,12 @@ function Dashboard(props) {
     };
     let newArr = [...restaurant.menu[menuType], newCat];
     restaurant.menu[menuType] = newArr;
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -153,9 +160,12 @@ function Dashboard(props) {
     let restaurant = clone(state.restaurant);
     let newArr = [...restaurant.menu[menuType], pack];
     restaurant.menu[menuType] = newArr;
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -166,9 +176,12 @@ function Dashboard(props) {
       { ...newTable }
     ];
 
+    let arr = state.is_edited;
+    arr[3] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -192,10 +205,12 @@ function Dashboard(props) {
     }
 
     restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
-
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -211,9 +226,12 @@ function Dashboard(props) {
       );
       restaurant.menu[menuType][idx].category_name = catName;
     }
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -232,9 +250,12 @@ function Dashboard(props) {
       restaurant.menu[menuType][idx] = pack;
     }
 
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -243,9 +264,24 @@ function Dashboard(props) {
     let idx = restaurant.orientation.tables.findIndex(t => t.table_id === id);
     restaurant.orientation.tables[idx] = newTable;
 
+    let arr = state.is_edited;
+    arr[3] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
+    });
+  };
+
+  const updateInfo = data => {
+    let restaurant = { ...state.restaurant, ...data };
+
+    let arr = state.is_edited;
+    arr[5] = true;
+    setState({
+      ...state,
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -265,9 +301,13 @@ function Dashboard(props) {
 
     // The thing that i did befor returns the items arr to the whole Restaurant obj so the whole restaurant in state becomes the items arr
     // that is why i was getting undefined err
+
+    arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -288,9 +328,12 @@ function Dashboard(props) {
     // that is why i was getting undefined err
     // let newRest = restaurant.menu[menuType].filter(ele => ele._id !== id);
 
+    arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -299,9 +342,12 @@ function Dashboard(props) {
     let newArr = restaurant.orientation.tables.filter(t => t.table_id !== id);
     restaurant.orientation.tables = [...newArr];
 
+    let arr = state.is_edited;
+    arr[2] = true;
     setState({
       ...state,
-      restaurant: clone(restaurant)
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
     });
   };
 
@@ -429,7 +475,9 @@ function Dashboard(props) {
           src="https://img.icons8.com/color/96/000000/client-company.png"
         />
       ),
-      component: <Account restaurant={state.restaurant} />
+      component: (
+        <Account restaurant={state.restaurant} updateInfo={updateInfo} />
+      )
     },
     logout: {
       title: "Logout",
@@ -526,12 +574,19 @@ function Dashboard(props) {
                 selected={state.page === text}
               >
                 <ListItemIcon>{pages[text]["icon"]}</ListItemIcon>
+
                 <ListItemText
                   style={{ fontWeight: "bold" }}
                   primary={
-                    <span style={{ fontWeight: "bold" }}>
-                      {pages[text]["title"]}
-                    </span>
+                    <Badge
+                      color="secondary"
+                      variant="dot"
+                      invisible={!state.is_edited[index]}
+                    >
+                      <span style={{ fontWeight: "bold" }}>
+                        {pages[text]["title"]}
+                      </span>
+                    </Badge>
                   }
                 />
               </ListItem>
@@ -559,9 +614,15 @@ function Dashboard(props) {
               <ListItemText
                 style={{ fontWeight: "bold" }}
                 primary={
-                  <span style={{ fontWeight: "bold" }}>
-                    {pages[text]["title"]}
-                  </span>
+                  <Badge
+                    color="secondary"
+                    variant="dot"
+                    invisible={!state.is_edited[index + 5]}
+                  >
+                    <span style={{ fontWeight: "bold" }}>
+                      {pages[text]["title"]}
+                    </span>
+                  </Badge>
                 }
               />
             </ListItem>

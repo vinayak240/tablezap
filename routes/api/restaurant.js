@@ -155,9 +155,7 @@ router.post(
 // @access   Private
 router.get("/rest", rest_auth, async (req, res) => {
   try {
-    const restaurant = await Restaurant.findById(req.restaurant._id).select(
-      "-rest_psswd"
-    );
+    const restaurant = await Restaurant.findById(req.restaurant._id);
 
     if (!restaurant) {
       return res

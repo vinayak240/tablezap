@@ -1,7 +1,8 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import { clone } from "ramda";
+import bcrypt from "bcryptjs";
+// import { clone } from "ramda";
 import { Collapse, Grid, Button } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 
@@ -656,7 +657,8 @@ const Credentials = props => {
     rest_id: props.rest_id || "",
     rest_psswd: "1234567",
     re_rest_psswd: "",
-    show_psswd: [false, false]
+    show_psswd: [false, false],
+    is_pass_err: false
   });
 
   const toggleShow = content => {
@@ -678,7 +680,8 @@ const Credentials = props => {
       ...state,
       is_edit: true,
       show_form: true,
-      rest_psswd: ""
+      rest_psswd: "",
+      re_rest_psswd: ""
     });
   };
 
@@ -708,15 +711,34 @@ const Credentials = props => {
     });
   };
 
-  const updateInfo = () => {
-    setState({
-      ...state,
-      is_edit: false,
-      show_psswd: [false, false]
-    });
+  const resetPsswd = async () => {
+    const isMatch = await bcrypt.compare(state.rest_psswd, props.rest_psswd);
 
-    if (Boolean(state.rest_psswd))
-      props.updateInfo({ rest_psswd: state.rest_psswd });
+    if (Boolean(state.rest_psswd) && isMatch) {
+      setState({
+        ...state,
+        is_edit: false,
+        show_psswd: [false, false],
+        is_pass_err: false
+      });
+
+      let salt = await bcrypt.genSalt(10);
+
+      let newPsswd = await bcrypt.hash(state.re_rest_psswd, salt);
+      // console.log(newPsswd);
+      props.resetPsswd(newPsswd);
+    } else {
+      setState({
+        ...state,
+        is_pass_err: true
+      });
+      setTimeout(() => {
+        setState({
+          ...state,
+          is_pass_err: false
+        });
+      }, 3000);
+    }
   };
 
   return (
@@ -831,7 +853,7 @@ const Credentials = props => {
                     onChange={handleChange}
                     className={classes.textField}
                     // disabled={state.is_edit ? false : true}
-                    placeholder="Enter Current restaurant password"
+                    placeholder="Enter current password"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -858,7 +880,7 @@ const Credentials = props => {
                     onChange={handleChange}
                     className={classes.textField}
                     // disabled={state.is_edit ? false : true}
-                    placeholder="Re-type restaurant password"
+                    placeholder="Type new password"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -875,6 +897,13 @@ const Credentials = props => {
                     {state.show_psswd[1] ? "hide" : "show"}
                   </button>
                 </Grid>
+                {state.is_pass_err && (
+                  <Grid item xs={12}>
+                    <span style={{ fontWeight: "bold", color: "red" }}>
+                      Entered password did not match current password
+                    </span>
+                  </Grid>
+                )}
               </Grid>
             )}
           </Grid>
@@ -896,11 +925,11 @@ const Credentials = props => {
                 classes={styles}
                 variant={"contained"}
                 color={"primary"}
-                disabled={state.re_rest_psswd !== state.rest_psswd}
-                // onClick={updateInfo}
+                disabled={!Boolean(state.re_rest_psswd)}
+                onClick={resetPsswd}
               >
                 <i style={{ margin: "6px" }} className="fas fa-save"></i>
-                Save Changes
+                Reset Password
               </Button>
             </span>
           </Grid>
@@ -983,8 +1012,9 @@ const Account = props => {
         <div className="content">
           <Credentials
             rest_id={props.restaurant.rest_id}
-            rest_psswd={props.restaurant.rest_id}
-            updateInfo={props.updateInfo}
+            rest_psswd={props.restaurant.rest_psswd}
+            // updateInfo={props.updateInfo}
+            resetPsswd={props.resetPsswd}
           />
           <RestaurantDetails data={data} updateInfo={props.updateInfo} />
           <OwnerDetails data={data} updateInfo={props.updateInfo} />

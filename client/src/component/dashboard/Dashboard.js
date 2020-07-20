@@ -25,6 +25,8 @@ import Orientation from "./Orientation";
 import { Grid, Badge } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import Account from "./Account";
+import Snackbar from "@material-ui/core/Snackbar";
+// import CloseIcon from "@material-ui/icons/Close";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
 // import { Chip } from "@material-ui/core";
@@ -86,6 +88,15 @@ function Dashboard(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const pageMap = {
+    home: 0,
+    orders: 1,
+    menu: 2,
+    orientation: 3,
+    feedback: 4,
+    account: 5,
+    logout: 6
+  };
   // const dispatch = useDispatch();
   // const [mobileOpen, setMobileOpen] = React.useState(false);
   // let restaurant = {};
@@ -106,7 +117,8 @@ function Dashboard(props) {
     restaurant: clone(props.restaurant),
     mobileOpen: false,
     page: "account",
-    is_edited: Array.from({ length: 7 }, ele => false)
+    is_edited: Array.from({ length: 7 }, ele => false),
+    snack_open: false
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
@@ -116,11 +128,36 @@ function Dashboard(props) {
       restaurant: clone(props.restaurant)
     }));
   }, [props.restaurant]);
+  // const didMountRef = useRef(false);
+  useEffect(() => {
+    // if (didMountRef.current) {
+    if (state.is_edited[pageMap[state.page]]) {
+      setState(prevState => ({
+        ...prevState,
+        snack_open: true
+      }));
+    } else if (state.snack_open) {
+      setState(prevState => ({
+        ...prevState,
+        snack_open: false
+      }));
+    }
+  }, [state.page, state.is_edited]);
 
   const handleDrawerToggle = () => {
     setState({
       ...state,
       mobileOpen: !state.mobileOpen
+    });
+  };
+
+  const handleSnackClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setState({
+      ...state,
+      snack_open: false
     });
   };
 
@@ -274,6 +311,19 @@ function Dashboard(props) {
   };
 
   const updateInfo = data => {
+    let restaurant = { ...state.restaurant, ...data };
+
+    let arr = state.is_edited;
+    arr[5] = true;
+    setState({
+      ...state,
+      restaurant: clone(restaurant),
+      is_edited: [...arr]
+    });
+  };
+
+  const resetPsswd = newPsswd => {
+    let data = { rest_psswd: newPsswd };
     let restaurant = { ...state.restaurant, ...data };
 
     let arr = state.is_edited;
@@ -476,7 +526,11 @@ function Dashboard(props) {
         />
       ),
       component: (
-        <Account restaurant={state.restaurant} updateInfo={updateInfo} />
+        <Account
+          restaurant={state.restaurant}
+          updateInfo={updateInfo}
+          resetPsswd={resetPsswd}
+        />
       )
     },
     logout: {
@@ -637,6 +691,40 @@ function Dashboard(props) {
 
   return (
     <div className={classes.root}>
+      <div className="all_partials">
+        <Snackbar
+          //this line here treats every page's snackbar differently hence refresh duration
+          key={`Un-saved Changes in "${pages[state.page].title}"`}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right"
+          }}
+          open={state.snack_open}
+          autoHideDuration={4000}
+          onClose={handleSnackClose}
+          message={
+            <span
+              style={{ fontWeight: "bold", color: "#FFD900" }}
+            >{`Un-saved Changes in "${pages[state.page].title}"`}</span>
+          }
+          action={
+            <React.Fragment>
+              <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleSnackClose}
+              >
+                {/* <CloseIcon fontSize="small" /> */}
+                <i
+                  style={{ color: "#F783AC" }}
+                  className="fas fa-times-circle"
+                ></i>
+              </IconButton>
+            </React.Fragment>
+          }
+        />
+      </div>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>

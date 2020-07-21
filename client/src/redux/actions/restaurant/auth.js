@@ -62,7 +62,7 @@ export const login = (rest_id, password) => async dispatch => {
       dispatch(loadRest());
     }
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
 
     const msg = error.response.data.msg;
 

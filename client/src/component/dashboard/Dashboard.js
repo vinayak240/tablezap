@@ -26,6 +26,13 @@ import { Grid, Badge } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import Account from "./Account";
 import Snackbar from "@material-ui/core/Snackbar";
+import { updateRestaurant } from "../../redux/actions/restaurant/dashboard";
+import MuiAlert from "@material-ui/lab/Alert";
+// import { makeStyles } from '@material-ui/core/styles';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 // import CloseIcon from "@material-ui/icons/Close";
 // import store from "../../redux/store";
 // import DoneIcon from "@material-ui/icons/Done";
@@ -118,7 +125,9 @@ function Dashboard(props) {
     mobileOpen: false,
     page: "account",
     is_edited: Array.from({ length: 7 }, ele => false),
-    snack_open: false
+    snack_open: false,
+    loading: false,
+    snack1_open: false
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
@@ -144,6 +153,27 @@ function Dashboard(props) {
     }
   }, [state.page, state.is_edited]);
 
+  useEffect(() => {
+    if (props.isUpdated) {
+      setTimeout(() => {
+        let arr = state.is_edited;
+        arr[pageMap[state.page]] = false;
+        setState(prevState => ({
+          ...prevState,
+          is_edited: [...arr],
+          snack_open: false,
+          loading: false
+        }));
+        setTimeout(() => {
+          setState(prevState => ({
+            ...prevState,
+            snack1_open: true
+          }));
+        }, 100);
+      }, 600);
+    }
+  }, [props.isUpdated]);
+
   const handleDrawerToggle = () => {
     setState({
       ...state,
@@ -151,13 +181,13 @@ function Dashboard(props) {
     });
   };
 
-  const handleSnackClose = (event, reason) => {
+  const handleSnackClose = (event, reason, content) => {
     if (reason === "clickaway") {
       return;
     }
     setState({
       ...state,
-      snack_open: false
+      [content]: false
     });
   };
 
@@ -401,6 +431,23 @@ function Dashboard(props) {
     });
   };
 
+  const upload = categ => {
+    setState({
+      ...state,
+      loading: true
+    });
+    props.updateRestaurant(state.restaurant, categ);
+  };
+
+  const clearChanges = () => {
+    setState({
+      ...state,
+      restaurant: clone(props.restaurant),
+      is_edited: Array.from({ length: 7 }, ele => false),
+      snack_open: false
+    });
+  };
+
   const pages = {
     home: {
       title: "Home",
@@ -464,6 +511,10 @@ function Dashboard(props) {
           updateCat={updateCat}
           updatePack={updatePack}
           deleteCatOrPack={deleteCatOrPack}
+          upload={upload}
+          clearChanges={clearChanges}
+          isEdited={state.is_edited[2]}
+          // isloading={state.loading}
         />
       )
     },
@@ -490,6 +541,9 @@ function Dashboard(props) {
           updateTable={updateTable}
           deleteTable={deleteTable}
           addTable={addTable}
+          upload={upload}
+          clearChanges={clearChanges}
+          isEdited={state.is_edited[3]}
         />
       )
     },
@@ -530,6 +584,9 @@ function Dashboard(props) {
           restaurant={state.restaurant}
           updateInfo={updateInfo}
           resetPsswd={resetPsswd}
+          upload={upload}
+          clearChanges={clearChanges}
+          isEdited={state.is_edited[5]}
         />
       )
     },
@@ -701,7 +758,7 @@ function Dashboard(props) {
           }}
           open={state.snack_open}
           autoHideDuration={4000}
-          onClose={handleSnackClose}
+          onClose={(evt, reason) => handleSnackClose(evt, reason, "snack_open")}
           message={
             <span
               style={{ fontWeight: "bold", color: "#FFD900" }}
@@ -713,7 +770,9 @@ function Dashboard(props) {
                 size="small"
                 aria-label="close"
                 color="inherit"
-                onClick={handleSnackClose}
+                onClick={(evt, reason) =>
+                  handleSnackClose(evt, reason, "snack_open")
+                }
               >
                 {/* <CloseIcon fontSize="small" /> */}
                 <i
@@ -724,6 +783,53 @@ function Dashboard(props) {
             </React.Fragment>
           }
         />
+        <Snackbar
+          //this line here treats every page's snackbar differently hence refresh duration
+          key={`Succesfully Uploaded`}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right"
+          }}
+          // style={{ background: "#4CAF50" }}
+          open={state.snack1_open}
+          autoHideDuration={4000}
+          onClose={(evt, reason) =>
+            handleSnackClose(evt, reason, "snack1_open")
+          }
+          // message={
+          //   <span style={{ fontWeight: "bold", color: "white" }}>
+          //     <i style={{ margin: "5px" }} className="fas fa-check-circle"></i>
+          //     {`Succesfully Uploaded`}
+          //   </span>
+          // }
+          // action={
+          //   <React.Fragment>
+          //     <IconButton
+          //       size="small"
+          //       aria-label="close"
+          //       color="inherit"
+          //       onClick={(evt, reason) =>
+          //         handleSnackClose(evt, reason, "snack1_open")
+          //       }
+          //     >
+          //       {/* <CloseIcon fontSize="small" /> */}
+          //       <i
+          //         style={{ color: "#F783AC" }}
+          //         className="fas fa-times-circle"
+          //       ></i>
+          //     </IconButton>
+          //   </React.Fragment>
+          // }
+        >
+          <Alert
+            onClose={(evt, reason) =>
+              handleSnackClose(evt, reason, "snack1_open")
+            }
+            severity="success"
+          >
+            <span style={{ fontWeight: "bold" }}>Succesfully Uploaded!</span>
+          </Alert>
+        </Snackbar>
       </div>
       <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
@@ -796,10 +902,12 @@ Dashboard.propTypes = {
 
 const mapStateToProps = state => ({
   isAuthenticated: state.rest_auth.isAuthenticated,
-  restaurant: state.rest_auth.restaurant
+  restaurant: state.rest_auth.restaurant,
+  isUpdated: state.rest_auth.isUpdated,
+  loading: state.rest_auth.loading
 });
 
 export default connect(
   mapStateToProps,
-  { loadRest }
+  { loadRest, updateRestaurant }
 )(Dashboard);

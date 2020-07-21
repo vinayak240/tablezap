@@ -1,6 +1,6 @@
-import React, { useState, forwardRef } from "react";
+import React, { useState, forwardRef, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-// import { connect } from "react-redux";
+import { connect } from "react-redux";
 import { clone } from "ramda";
 import Typography from "@material-ui/core/Typography";
 import {
@@ -37,8 +37,8 @@ import Paper from "@material-ui/core/Paper";
 // import { useNeumorphShadowStyles } from '@mui-treasury/styles/shadow/neumorph';
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import CloseRounded from "@material-ui/icons/CloseRounded";
-import FlipMove from 'react-flip-move';
-
+import FlipMove from "react-flip-move";
+import FbSpinner from "../layout/FbSpinner";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -1797,7 +1797,7 @@ const Item = forwardRef((props, ref) => {
       )}
     </div>
   );
-})
+});
 
 const Category = forwardRef((props, ref) => {
   const classes = useStyles();
@@ -2115,26 +2115,26 @@ const Category = forwardRef((props, ref) => {
           </Typography>
           {/* <Divider /> */}
           <Collapse in={state.cat_show}>
-          <FlipMove>
-            {props.category &&
-              props.category.items.map((item, idx) => (
-                <Item
-                  catId={props.catId}
-                  key={idx}
-                  isPackage={false}
-                  item={item}
-                  addItem={addItem}
-                  updateItem={props.updateItem}
-                  deleteItem={props.deleteItem}
-                />
-              ))}
-              </FlipMove>
+            <FlipMove>
+              {props.category &&
+                props.category.items.map((item, idx) => (
+                  <Item
+                    catId={props.catId}
+                    key={idx}
+                    isPackage={false}
+                    item={item}
+                    addItem={addItem}
+                    updateItem={props.updateItem}
+                    deleteItem={props.deleteItem}
+                  />
+                ))}
+            </FlipMove>
           </Collapse>
         </div>
       )}
     </div>
   );
-})
+});
 
 const PackageForm = props => {
   const classes = useStyles();
@@ -3006,7 +3006,11 @@ const Package = forwardRef((props, ref) => {
   };
 
   return (
-    <div ref={ref} style={{ width: "100%", padding: "30px" }} className={classes.card}>
+    <div
+      ref={ref}
+      style={{ width: "100%", padding: "30px" }}
+      className={classes.card}
+    >
       <div className="all_dialogs">
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
@@ -3278,19 +3282,18 @@ const Package = forwardRef((props, ref) => {
             ></i>
           </Typography>
           <Collapse in={state.items_show}>
-          <FlipMove>
-
-            {items.map((item, idx) => (
-              <Item
-                catId={props.packId}
-                key={idx}
-                isPackage={true}
-                item={item}
-                addItem={props.addItem}
-                updateItem={props.updateItem}
-                deleteItem={props.deleteItem}
-              />
-            ))}
+            <FlipMove>
+              {items.map((item, idx) => (
+                <Item
+                  catId={props.packId}
+                  key={idx}
+                  isPackage={true}
+                  item={item}
+                  addItem={props.addItem}
+                  updateItem={props.updateItem}
+                  deleteItem={props.deleteItem}
+                />
+              ))}
             </FlipMove>
           </Collapse>
         </Grid>
@@ -3387,7 +3390,7 @@ const Package = forwardRef((props, ref) => {
       </Grid>
     </div>
   );
-})
+});
 
 const Menu = props => {
   const classes = useStyles();
@@ -3403,10 +3406,22 @@ const Menu = props => {
     category_name: "",
     dialog_open: false,
     dialog2_open: false,
-    dialog3_open: false
+    dialog3_open: false,
+    loading: false
   });
 
-  // const { menu } = props.restaurant;
+  // Add This Tomo
+  useEffect(() => {
+    if (props.isUpdated) {
+      setTimeout(() => {
+        setState(prevState => ({
+          ...prevState,
+          loading: false
+        }));
+      }, 500);
+    }
+  }, [props.isUpdated]);
+
   const tabMap = {
     0: "food",
     1: "bar",
@@ -3522,6 +3537,14 @@ const Menu = props => {
     }
   };
 
+  const upload = () => {
+    setState({
+      ...state,
+      loading: true
+    });
+    props.upload("menu");
+  };
+
   const handleChange = evt => {
     setState({
       ...state,
@@ -3568,24 +3591,24 @@ const Menu = props => {
           return (
             <div>
               <FlipMove>
-              {props.restaurant ? (
-                props.restaurant.menu[tabMap[state.tab]].map((pack, idx) => (
-                  <Package
-                    packId={pack._id}
-                    key={idx}
-                    package={pack}
-                    addItem={addItem}
-                    updateItem={updateItem}
-                    deleteItem={deleteItem}
-                    updatePack={updatePack}
-                    deleteCatOrPack={deleteCatOrPack}
-                  />
-                ))
-              ) : (
-                <div style={{ textAlign: "center", fontWeight: "bold" }}>
-                  No Items Available
-                </div>
-              )}
+                {props.restaurant ? (
+                  props.restaurant.menu[tabMap[state.tab]].map((pack, idx) => (
+                    <Package
+                      packId={pack._id}
+                      key={idx}
+                      package={pack}
+                      addItem={addItem}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                      updatePack={updatePack}
+                      deleteCatOrPack={deleteCatOrPack}
+                    />
+                  ))
+                ) : (
+                  <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                    No Items Available
+                  </div>
+                )}
               </FlipMove>
             </div>
           );
@@ -3593,30 +3616,30 @@ const Menu = props => {
           return (
             <div>
               <FlipMove>
-              {props.restaurant ? (
-                <Package
-                  key={0}
-                  packId={
-                    props.restaurant.menu[tabMap[state.tab]][
-                      cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
-                    ]._id
-                  }
-                  package={
-                    props.restaurant.menu[tabMap[state.tab]][
-                      cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
-                    ]
-                  }
-                  addItem={addItem}
-                  updateItem={updateItem}
-                  deleteItem={deleteItem}
-                  updatePack={updatePack}
-                  deleteCatOrPack={deleteCatOrPack}
-                />
-              ) : (
-                <div style={{ textAlign: "center", fontWeight: "bold" }}>
-                  No Items Available
-                </div>
-              )}
+                {props.restaurant ? (
+                  <Package
+                    key={0}
+                    packId={
+                      props.restaurant.menu[tabMap[state.tab]][
+                        cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
+                      ]._id
+                    }
+                    package={
+                      props.restaurant.menu[tabMap[state.tab]][
+                        cat[tab] >= 2 ? cat[tab] - 2 : cat[tab]
+                      ]
+                    }
+                    addItem={addItem}
+                    updateItem={updateItem}
+                    deleteItem={deleteItem}
+                    updatePack={updatePack}
+                    deleteCatOrPack={deleteCatOrPack}
+                  />
+                ) : (
+                  <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                    No Items Available
+                  </div>
+                )}
               </FlipMove>
             </div>
           );
@@ -3625,24 +3648,26 @@ const Menu = props => {
         return (
           <div>
             <FlipMove>
-            {props.restaurant ? (
-              props.restaurant.menu[tabMap[state.tab]].map((category, idx) => (
-                <Category
-                  catId={category._id}
-                  key={idx}
-                  category={category}
-                  addItem={addItem}
-                  updateItem={updateItem}
-                  deleteItem={deleteItem}
-                  updateCat={updateCat}
-                  deleteCatOrPack={deleteCatOrPack}
-                />
-              ))
-            ) : (
-              <div style={{ textAlign: "center", fontWeight: "bold" }}>
-                No Items Available
-              </div>
-            )}
+              {props.restaurant ? (
+                props.restaurant.menu[tabMap[state.tab]].map(
+                  (category, idx) => (
+                    <Category
+                      catId={category._id}
+                      key={idx}
+                      category={category}
+                      addItem={addItem}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                      updateCat={updateCat}
+                      deleteCatOrPack={deleteCatOrPack}
+                    />
+                  )
+                )
+              ) : (
+                <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                  No Items Available
+                </div>
+              )}
             </FlipMove>
           </div>
         );
@@ -3651,26 +3676,26 @@ const Menu = props => {
         const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
         return (
           <div>
-          <FlipMove>
-            {props.restaurant ? (
-              props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
-                (item, idx) => (
-                  <Item
-                    catId={catId}
-                    key={"item" + idx}
-                    isPackage={false}
-                    item={item}
-                    addItem={addItem}
-                    updateItem={updateItem}
-                    deleteItem={deleteItem}
-                  />
+            <FlipMove>
+              {props.restaurant ? (
+                props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
+                  (item, idx) => (
+                    <Item
+                      catId={catId}
+                      key={"item" + idx}
+                      isPackage={false}
+                      item={item}
+                      addItem={addItem}
+                      updateItem={updateItem}
+                      deleteItem={deleteItem}
+                    />
+                  )
                 )
-              )
-            ) : (
-              <div style={{ textAlign: "center", fontWeight: "bold" }}>
-                No Items Available
-              </div>
-            )}
+              ) : (
+                <div style={{ textAlign: "center", fontWeight: "bold" }}>
+                  No Items Available
+                </div>
+              )}
             </FlipMove>
           </div>
         );
@@ -3804,6 +3829,52 @@ const Menu = props => {
           >
             Menu
           </span>
+          {!state.loading ? (
+            <span
+              style={{
+                display: "inline-block",
+                float: "right",
+                marginBottom: "10px"
+              }}
+              className={gutterStyles.parent}
+            >
+              <Button
+                style={{ fontWeight: "bold", marginLeft: "10px" }}
+                classes={styles}
+                variant={"contained"}
+                color={"primary"}
+                disabled={!props.isEdited}
+                onClick={upload}
+              >
+                <i style={{ margin: "6px" }} className="fas fa-upload"></i>
+                Upload
+              </Button>
+              <Button
+                variant="default"
+                color="primary"
+                onClick={props.clearChanges}
+                disabled={!props.isEdited}
+              >
+                <span style={{ fontWeight: "bold" }}>Clear</span>
+              </Button>
+            </span>
+          ) : (
+            <span
+              style={{
+                fontWeight: "bold",
+                color: "#0388CA",
+                float: "right",
+                display: "flex",
+                justifyContent: "space-evenly",
+                alignContent: "center"
+              }}
+            >
+              {" "}
+              <FbSpinner /> <span style={{ margin: "5px" }}>
+                Uploading...
+              </span>{" "}
+            </span>
+          )}
         </Typography>
       </div>
       <Card
@@ -3929,13 +4000,11 @@ const Menu = props => {
   );
 };
 
-// const mapStateToProps = state => ({
-//   isAuthenticated: state.rest_auth.isAuthenticated,
-//   restaurant: state.rest_auth.restaurant
-// });
+const mapStateToProps = state => ({
+  // isAuthenticated: state.rest_auth.isAuthenticated,
+  isUpdated: state.rest_auth.isUpdated
+});
 
-// export default connect(
-//   mapStateToProps
-// )(Menu);
+export default connect(mapStateToProps)(Menu);
 
-export default Menu;
+// export default Menu;

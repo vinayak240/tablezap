@@ -423,7 +423,7 @@ function Dashboard(props) {
     restaurant.orientation.tables = [...newArr];
 
     let arr = state.is_edited;
-    arr[2] = true;
+    arr[3] = true;
     setState({
       ...state,
       restaurant: clone(restaurant),

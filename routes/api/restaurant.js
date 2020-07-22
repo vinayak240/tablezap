@@ -179,6 +179,7 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
 
   const {
     rest_id,
+    rest_psswd,
     rest_name,
     rest_email,
     rest_addr,
@@ -212,6 +213,7 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
     }
   } else if (categ === "main") {
     if (rest_id) restaurantFields.rest_id = rest_id;
+    if (rest_psswd) restaurantFields.rest_psswd = rest_psswd;
     if (rest_name) restaurantFields.rest_name = rest_name;
     if (rest_email) restaurantFields.rest_email = rest_email;
     if (rest_addr) restaurantFields.rest_addr = rest_addr;
@@ -227,6 +229,29 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
     if (owner_email) restaurantFields.owner_email = owner_email;
     if (owner_no) restaurantFields.owner_no = owner_no;
     // if(date) restaurantFields.date = date;
+  } else if (categ === "all") {
+    if (rest_id) restaurantFields.rest_id = rest_id;
+    if (rest_psswd) restaurantFields.rest_psswd = rest_psswd;
+    if (rest_name) restaurantFields.rest_name = rest_name;
+    if (rest_email) restaurantFields.rest_email = rest_email;
+    if (rest_addr) restaurantFields.rest_addr = rest_addr;
+    if (rest_no) restaurantFields.rest_no = rest_no;
+    if (rest_tags) restaurantFields.rest_tags = [...rest_tags];
+    if (rest_type) restaurantFields.rest_type = rest_type;
+    if (rest_timing_start)
+      restaurantFields.rest_timing_start = rest_timing_start;
+    if (rest_timing_end) restaurantFields.rest_timing_end = rest_timing_end;
+    if (dine_type) restaurantFields.dine_type = dine_type;
+    if (is_alcohol) restaurantFields.is_alcohol = is_alcohol;
+    if (owner_name) restaurantFields.owner_name = owner_name;
+    if (owner_email) restaurantFields.owner_email = owner_email;
+    if (owner_no) restaurantFields.owner_no = owner_no;
+    if (menu) {
+      restaurantFields.menu = { ...menu };
+    }
+    if (orientation) {
+      restaurantFields.orientation = { ...orientation };
+    }
   }
 
   try {

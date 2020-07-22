@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Typography from "@material-ui/core/Typography";
+import { connect } from "react-redux";
 import {
   makeStyles,
   Card,
@@ -21,6 +22,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Paper from "@material-ui/core/Paper";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
+import FbSpinner from "../layout/FbSpinner";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -620,10 +622,24 @@ const TableList = props => {
 
 const Orientation = props => {
   const classes = useStyles();
+  const styles = useFirebaseBtnStyles();
+  const gutterStyles = usePushingGutterStyles();
   const [state, setState] = React.useState({
     dialog_open: false,
-    show_options: false
+    show_options: false,
+    loading: false
   });
+
+  useEffect(() => {
+    if (props.isUpdated) {
+      setTimeout(() => {
+        setState(prevState => ({
+          ...prevState,
+          loading: false
+        }));
+      }, 500);
+    }
+  }, [props.isUpdated]);
 
   //   const handleTab = (evt, newValue) => {
   //     setState({
@@ -669,6 +685,14 @@ const Orientation = props => {
     });
 
     props.addTable(newTable);
+  };
+
+  const upload = () => {
+    setState({
+      ...state,
+      loading: true
+    });
+    props.upload("orientation");
   };
 
   return (
@@ -723,6 +747,52 @@ const Orientation = props => {
           >
             Orientation
           </span>
+          {!state.loading ? (
+            <span
+              style={{
+                display: "inline-block",
+                float: "right",
+                marginBottom: "10px"
+              }}
+              className={gutterStyles.parent}
+            >
+              <Button
+                style={{ fontWeight: "bold", marginLeft: "10px" }}
+                classes={styles}
+                variant={"contained"}
+                color={"primary"}
+                disabled={!props.isEdited}
+                onClick={upload}
+              >
+                <i style={{ margin: "6px" }} className="fas fa-upload"></i>
+                Upload
+              </Button>
+              <Button
+                variant="default"
+                color="primary"
+                onClick={props.clearChanges}
+                disabled={!props.isEdited}
+              >
+                <span style={{ fontWeight: "bold" }}>Clear</span>
+              </Button>
+            </span>
+          ) : (
+            <span
+              style={{
+                fontWeight: "bold",
+                color: "#0388CA",
+                float: "right",
+                display: "flex",
+                justifyContent: "space-evenly",
+                alignContent: "center"
+              }}
+            >
+              {" "}
+              <FbSpinner /> <span style={{ margin: "5px" }}>
+                Uploading...
+              </span>{" "}
+            </span>
+          )}
         </Typography>
       </div>
       <Card
@@ -807,4 +877,11 @@ const Orientation = props => {
   );
 };
 
-export default Orientation;
+const mapStateToProps = state => ({
+  // isAuthenticated: state.rest_auth.isAuthenticated,
+  isUpdated: state.rest_auth.isUpdated
+});
+
+export default connect(mapStateToProps)(Orientation);
+
+// export default Orientation;

@@ -644,7 +644,11 @@ const ItemForm = props => {
     custum_show_arr: [...show_arr],
     custum_edit: false,
     custum_add: false,
-    add_show: false
+    add_show: false,
+    option_add: false,
+    option: "",
+    option_type: "",
+    option_price: ""
   });
 
   const handleChange = evt => {
@@ -756,6 +760,22 @@ const ItemForm = props => {
     }));
   };
 
+  const addOption = idx => {
+    const { option, option_type, option_price } = state;
+    const newOpt = { option, option_type, option_price };
+    let arr = clone(state.custumization_arr);
+    arr[idx].options = [...arr[idx].options, newOpt];
+    if (option !== "" && option_type !== "" && option_price !== "") {
+      setState({
+        ...state,
+        custumization_arr: clone(arr),
+        option: "",
+        option_type: "",
+        option_price: ""
+      });
+    }
+  };
+
   const updateItem = () => {
     const { item_name, item_desc, food_type } = state;
     let newItem = { item_name, item_desc, food_type };
@@ -790,6 +810,27 @@ const ItemForm = props => {
       custum_show: true,
       custum_add: false,
       custum_edit: false
+    });
+  };
+
+  const handleOptionAdd = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: true
+      // option_show: true
+    });
+  };
+
+  const handleOptionCancel = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: false,
+      // option_show: true,
+      option: "",
+      option_type: "",
+      option_price: ""
     });
   };
 
@@ -1143,6 +1184,30 @@ const ItemForm = props => {
                                   state.cust_show ? "up" : "down"
                                 }`}
                               ></i>
+                              {/* option_add_btn */}
+                              <Button
+                                style={{
+                                  margin: "5px 10px",
+                                  ontWeight: "bold",
+                                  float: "right"
+                                }}
+                                classes={styles}
+                                variant={"contained"}
+                                color={"primary"}
+                                onClick={
+                                  !state.option_add
+                                    ? handleOptionAdd
+                                    : handleOptionCancel
+                                }
+                              >
+                                <i
+                                  style={{ margin: "5px" }}
+                                  className={`fas fa-${
+                                    state.option_add ? "minus-square" : "plus"
+                                  }`}
+                                ></i>
+                                {state.option_add ? "Hide" : "Add"}
+                              </Button>
                             </Typography>
                             <Collapse in={state.custum_show_arr[idx]}>
                               {cust.options.length === 0 && !state.option_add && (
@@ -1155,6 +1220,116 @@ const ItemForm = props => {
                                 >
                                   No Options Available (Press Undo to undo
                                   changes made..)
+                                </div>
+                              )}
+                              {/* option_add_form */}
+                              {state.option_add && (
+                                <div
+                                  // style={{ marginBottom: "0px", padding: "20px",  }}
+                                  style={{ width: "92%", margin: "18px auto" }}
+                                  className={classes.card}
+                                >
+                                  <Typography
+                                    style={{
+                                      margin: "12px",
+                                      marginBottom: "18px"
+                                    }}
+                                    className={classes.cardDesc}
+                                  >
+                                    Add Option
+                                    <Button
+                                      style={{
+                                        // margin: "5px 10px",
+                                        fontWeight: "bold",
+                                        float: "right"
+                                      }}
+                                      classes={styles}
+                                      variant={"contained"}
+                                      color={"primary"}
+                                      onClick={() => addOption(idx)}
+                                    >
+                                      Add
+                                    </Button>
+                                  </Typography>
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option"
+                                    value={state.option}
+                                    onChange={handleChange}
+                                    type="text"
+                                    className={classes.textField}
+                                    placeholder="Option name"
+                                  />
+
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option_price"
+                                    value={state.option_price}
+                                    onChange={handleChange}
+                                    type="number"
+                                    className={classes.textField}
+                                    placeholder="Option cost"
+                                  />
+                                  <RadioGroup
+                                    aria-label="position"
+                                    value={state.option_type}
+                                    onChange={handleChange}
+                                    row
+                                  >
+                                    <FormControlLabel
+                                      value={"minus"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Deduct from total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"add"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Add to total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"total"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Option cost becomes total.
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+                                  </RadioGroup>
                                 </div>
                               )}
                               {cust.options.map((opt, id) => (
@@ -1491,6 +1666,7 @@ const Item = forwardRef((props, ref) => {
           open={state.dialog_open}
           fullWidth={true}
           maxWidth={"md"}
+          // classes={{paperWidthMd: {width: "80%", minWidth: "350px"}, paperFullWidth: {width: "80%", minWidth: "350px"}}}
           scroll="body"
           onClose={() => handleDialogClose("dialog_open")}
           PaperComponent={PaperComponent}
@@ -2160,12 +2336,16 @@ const PackageForm = props => {
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
+    option: "",
+    option_type: "",
+    option_price: "",
     // item_show: false,
     custum_show: false,
     custum_show_arr: [...show_arr],
     custum_edit: false,
     custum_add: false,
-    add_show: false
+    add_show: false,
+    option_add: false
   });
 
   // const { custumization_arr } = state;
@@ -2319,6 +2499,27 @@ const PackageForm = props => {
     });
   };
 
+  const handleOptionAdd = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: true
+      // option_show: true
+    });
+  };
+
+  const handleOptionCancel = evt => {
+    evt.stopPropagation();
+    setState({
+      ...state,
+      option_add: false,
+      // option_show: true,
+      option: "",
+      option_type: "",
+      option_price: ""
+    });
+  };
+
   const addCustum = newCustum => {
     let arr = clone(state.custumization_arr);
     arr = [...arr, newCustum];
@@ -2327,6 +2528,22 @@ const PackageForm = props => {
       ...state,
       custumization_arr: clone(arr)
     });
+  };
+
+  const addOption = idx => {
+    const { option, option_type, option_price } = state;
+    const newOpt = { option, option_type, option_price };
+    let arr = clone(state.custumization_arr);
+    arr[idx].options = [...arr[idx].options, newOpt];
+    if (option !== "" && option_type !== "" && option_price !== "") {
+      setState({
+        ...state,
+        custumization_arr: clone(arr),
+        option: "",
+        option_type: "",
+        option_price: ""
+      });
+    }
   };
 
   const updatePack = () => {
@@ -2675,9 +2892,33 @@ const PackageForm = props => {
                                   state.cust_show ? "up" : "down"
                                 }`}
                               ></i>
+                              {/* pack_option_add_btn */}
+                              <Button
+                                style={{
+                                  margin: "5px 10px",
+                                  ontWeight: "bold",
+                                  float: "right"
+                                }}
+                                classes={styles}
+                                variant={"contained"}
+                                color={"primary"}
+                                onClick={
+                                  !state.option_add
+                                    ? handleOptionAdd
+                                    : handleOptionCancel
+                                }
+                              >
+                                <i
+                                  style={{ margin: "5px" }}
+                                  className={`fas fa-${
+                                    state.option_add ? "minus-square" : "plus"
+                                  }`}
+                                ></i>
+                                {state.option_add ? "Hide" : "Add"}
+                              </Button>
                             </Typography>
                             <Collapse in={state.custum_show_arr[idx]}>
-                              {cust.options.length === 0 && (
+                              {cust.options.length === 0 && !state.option_add && (
                                 <div
                                   style={{
                                     textAlign: "center",
@@ -2688,6 +2929,117 @@ const PackageForm = props => {
                                   changes made..)
                                 </div>
                               )}
+                              {/* pack_option_add_form */}
+                              {state.option_add && (
+                                <div
+                                  // style={{ marginBottom: "0px", padding: "20px",  }}
+                                  style={{ width: "92%", margin: "18px auto" }}
+                                  className={classes.card}
+                                >
+                                  <Typography
+                                    style={{
+                                      margin: "12px",
+                                      marginBottom: "18px"
+                                    }}
+                                    className={classes.cardDesc}
+                                  >
+                                    Add Option
+                                    <Button
+                                      style={{
+                                        // margin: "5px 10px",
+                                        fontWeight: "bold",
+                                        float: "right"
+                                      }}
+                                      classes={styles}
+                                      variant={"contained"}
+                                      color={"primary"}
+                                      onClick={() => addOption(idx)}
+                                    >
+                                      Add
+                                    </Button>
+                                  </Typography>
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option"
+                                    value={state.option}
+                                    onChange={handleChange}
+                                    type="text"
+                                    className={classes.textField}
+                                    placeholder="Option name"
+                                  />
+
+                                  <input
+                                    style={{
+                                      margin: "auto",
+                                      marginBottom: "10px"
+                                    }}
+                                    id="option_price"
+                                    value={state.option_price}
+                                    onChange={handleChange}
+                                    type="number"
+                                    className={classes.textField}
+                                    placeholder="Option cost"
+                                  />
+                                  <RadioGroup
+                                    aria-label="position"
+                                    value={state.option_type}
+                                    onChange={handleChange}
+                                    row
+                                  >
+                                    <FormControlLabel
+                                      value={"minus"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Deduct from total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"add"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Add to total
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+
+                                    <FormControlLabel
+                                      value={"total"}
+                                      control={
+                                        <Radio
+                                          id="option_type"
+                                          color="primary"
+                                        />
+                                      }
+                                      label={
+                                        <span style={{ fontWeight: "bold" }}>
+                                          Option cost becomes total.
+                                        </span>
+                                      }
+                                      labelPlacement="end"
+                                    />
+                                  </RadioGroup>
+                                </div>
+                              )}
+
                               {cust.options.map((opt, id) => (
                                 <div className={classes.card}>
                                   <Typography

@@ -73,7 +73,7 @@ const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   }
 }));
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   section: {
     border: "1px solid lightgray",
     borderRadius: "5px",
@@ -115,9 +115,12 @@ const useStyles = makeStyles(() => ({
     borderRadius: 16,
     transition: "0.4s",
     minWidth: "200px",
-
+    // overflow: "auto",
     "&:hover": {
       borderColor: "#7CB2F1"
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%"
     }
   },
   cardTitle: {
@@ -125,7 +128,10 @@ const useStyles = makeStyles(() => ({
     color: "#122740",
     textAlign: "left",
     marginBottom: "5px",
-    fontWeight: "bolder"
+    fontWeight: "bolder",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "15px"
+    }
   },
   cardSub: {
     fontSize: "0.975rem",
@@ -133,7 +139,10 @@ const useStyles = makeStyles(() => ({
     // color: "#756e6e",
     borderRadius: "5px",
     fontWeight: "bold",
-    marginBottom: "5px"
+    marginBottom: "5px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "15px"
+    }
   },
   itemImage: {
     border: "1px solid lightgray",
@@ -154,7 +163,10 @@ const useStyles = makeStyles(() => ({
     // borderRadius: "5px",
     fontWeight: "bold",
     // border: "1px solid lightgray",
-    marginBottom: "5px"
+    marginBottom: "5px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: "15px"
+    }
   },
   itemList: {
     margin: "auto",
@@ -189,6 +201,10 @@ const useStyles = makeStyles(() => ({
     },
     "&::-webkit-scrollbar-button": {
       display: "none"
+    },
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+      padding: "10px"
     }
   },
   tag: {
@@ -212,11 +228,10 @@ const useStyles = makeStyles(() => ({
     // borderBottom: "1px solid lightgray"
   },
   breadCrumb: {
-    backgroundColor: "#e8eff4",
-    border: "1px solid #90caf9",
-    fontWeight: "bold",
-    padding: "12px",
-    borderRadius: "8px"
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: "60px"
   },
   textField: {
     fontFamily: "'Nunito', sans-serif",
@@ -230,6 +245,10 @@ const useStyles = makeStyles(() => ({
   },
   paper: {
     width: "750px"
+  },
+  dialog_form: {
+    width: "80%",
+    minWidth: "350px"
   }
 }));
 
@@ -1559,6 +1578,10 @@ const ItemForm = props => {
 
 const Item = forwardRef((props, ref) => {
   const classes = useStyles();
+  const matchesSm = useMediaQuery(theme => theme.breakpoints.up("sm"));
+  const matchesImdDim = useMediaQuery("(min-width:1200px)");
+  const matchesSmDw = useMediaQuery(theme => theme.breakpoints.down("sm"));
+
   const {
     item_name,
     // item_price,
@@ -1647,7 +1670,13 @@ const Item = forwardRef((props, ref) => {
       ...state,
       dialog_open: false
     });
-    props.updateItem(item, props.item._id, props.catId, props.item.item_name);
+    props.updateItem(
+      item,
+      props.item._id,
+      props.catId,
+      props.item.item_name,
+      props.name
+    );
   };
 
   const deleteItem = () => {
@@ -1655,7 +1684,12 @@ const Item = forwardRef((props, ref) => {
       ...state,
       dialog2_open: false
     });
-    props.deleteItem(props.item._id, props.catId, props.item.item_name);
+    props.deleteItem(
+      props.item._id,
+      props.catId,
+      props.item.item_name,
+      props.name
+    );
   };
 
   return (
@@ -1666,7 +1700,8 @@ const Item = forwardRef((props, ref) => {
           open={state.dialog_open}
           fullWidth={true}
           maxWidth={"md"}
-          // classes={{paperWidthMd: {width: "80%", minWidth: "350px"}, paperFullWidth: {width: "80%", minWidth: "350px"}}}
+          fullScreen={matchesSmDw}
+          // classes={{paperWidthMd: classes.dialog_form, paperFullWidth: classes.dialog_form}}
           scroll="body"
           onClose={() => handleDialogClose("dialog_open")}
           PaperComponent={PaperComponent}
@@ -1785,6 +1820,15 @@ const Item = forwardRef((props, ref) => {
               <i style={{ margin: "8px" }} className="fas fa-pen"></i>
               Edit
             </MenuItem>
+            {!matchesSm && (
+              <MenuItem
+                className={classes.menuItem}
+                //  onClick={() => handleDialogOpen("dialog2_open")}
+              >
+                <i style={{ margin: "8px" }} className="fas fa-upload"></i>
+                Add image
+              </MenuItem>
+            )}
             <MenuItem
               className={classes.menuItem}
               onClick={() => handleDialogOpen("dialog2_open")}
@@ -1794,18 +1838,20 @@ const Item = forwardRef((props, ref) => {
             </MenuItem>
           </MaterialMenu>
         </Grid>
-        <Grid style={{ paddingLeft: "25px" }} item xs={12} sm={12} md={3}>
-          <img
-            src={item_img}
-            alt="Item"
-            className={classes.itemImage}
-            style={{
-              width: "120px",
-              height: "120px"
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={12} md={9}>
+        {matchesSm && (
+          <Grid style={{ paddingLeft: "25px" }} item xs={3} sm={3} md={3}>
+            <img
+              src={item_img}
+              alt="Item"
+              className={classes.itemImage}
+              style={{
+                width: matchesImdDim ? "120px" : "90%",
+                height: matchesImdDim ? "120px" : "90%"
+              }}
+            />
+          </Grid>
+        )}
+        <Grid item xs={9} sm={9} md={9}>
           <Grid
             container
             // spacing={1}
@@ -1813,14 +1859,14 @@ const Item = forwardRef((props, ref) => {
             alignItems="start"
             justify="flex-start"
           >
-            <Grid item xs={6} sm={6} md={12}>
+            <Grid item xs={12} sm={12} md={12}>
               {" "}
               <Typography className={classes.cardTitle}>
                 <b>{item_name}</b>
               </Typography>
             </Grid>
             {props.item.item_price && (
-              <Grid item xs={6} sm={6} md={12}>
+              <Grid item xs={12} sm={12} md={12}>
                 <Typography className={classes.cardSub}>
                   Rs. {props.item.item_price}
                 </Typography>
@@ -2056,7 +2102,7 @@ const Category = forwardRef((props, ref) => {
       ...state,
       dialog_open: false
     });
-    props.addItem(item, props.catId);
+    props.addItem(item, props.catId, props.category.category_name);
   };
 
   const updateCat = () => {
@@ -2123,7 +2169,7 @@ const Category = forwardRef((props, ref) => {
 
           <DialogContent>
             <Typography className={classes.cardDesc}>
-              Do yo really want to delete the Category "
+              Do you really want to delete the Category "
               {props.category.category_name}", Deleting will also delete all
               items in it ?
             </Typography>
@@ -2299,6 +2345,7 @@ const Category = forwardRef((props, ref) => {
                     key={idx}
                     isPackage={false}
                     item={item}
+                    name={props.category.category_name}
                     addItem={addItem}
                     updateItem={props.updateItem}
                     deleteItem={props.deleteItem}
@@ -2549,7 +2596,10 @@ const PackageForm = props => {
   const updatePack = () => {
     const { package_name, package_desc, package_price } = state;
     let custumization_arr = clone(state.custumization_arr);
-    let items = clone(props.package.items);
+    let items = [];
+    if (Boolean(props.package.items)) {
+      items = clone(props.package.items);
+    }
     let newPack = {
       package_name,
       package_desc,
@@ -3284,7 +3334,8 @@ const Package = forwardRef((props, ref) => {
     items_show: false,
     status: true,
     dialog_open: false,
-    dialog2_open: false
+    dialog2_open: false,
+    dialog3_open: false
   });
 
   const toggleCollapse = content => {
@@ -3339,6 +3390,14 @@ const Package = forwardRef((props, ref) => {
       ...state,
       [content]: false
     });
+  };
+
+  const addItem = item => {
+    setState({
+      ...state,
+      dialog3_open: false
+    });
+    props.addItem(item, props.packId, props.package.package_name);
   };
 
   const updatePack = pack => {
@@ -3431,6 +3490,23 @@ const Package = forwardRef((props, ref) => {
             </Button>
           </DialogActions>
         </Dialog>
+        <Dialog
+          open={state.dialog3_open}
+          fullWidth={true}
+          maxWidth={"md"}
+          scroll="body"
+          onClose={() => handleDialogClose("dialog3_open")}
+          PaperComponent={PaperComponent}
+          aria-labelledby="draggable-dialog-title"
+        >
+          <ItemForm
+            item={props.item ? props.item : {}}
+            isPackage={true}
+            isEdit={false}
+            handleDialogClose={() => handleDialogClose("dialog3_open")}
+            updateItem={addItem}
+          />
+        </Dialog>
       </div>
       <Grid
         container
@@ -3483,7 +3559,7 @@ const Package = forwardRef((props, ref) => {
             alignItems="start"
             justify="flex-start"
           >
-            <Grid item xs={6} sm={6} md={12}>
+            <Grid item xs={12}>
               {" "}
               <Typography className={classes.cardTitle}>
                 <b>{package_name}</b>
@@ -3532,6 +3608,16 @@ const Package = forwardRef((props, ref) => {
                   >
                     <i style={{ margin: "8px" }} className="fas fa-pen"></i>
                     Edit
+                  </MenuItem>
+                  <MenuItem
+                    className={classes.menuItem}
+                    onClick={() => handleDialogOpen("dialog3_open")}
+                  >
+                    <i
+                      style={{ margin: "8px" }}
+                      className="fas fa-plus-square"
+                    ></i>
+                    Add Item
                   </MenuItem>
                   <MenuItem
                     className={classes.menuItem}
@@ -3641,6 +3727,7 @@ const Package = forwardRef((props, ref) => {
                   key={idx}
                   isPackage={true}
                   item={item}
+                  name={props.package.package_name}
                   addItem={props.addItem}
                   updateItem={props.updateItem}
                   deleteItem={props.deleteItem}
@@ -3750,6 +3837,7 @@ const Menu = props => {
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
   const matches = useMediaQuery("(min-width:440px)");
+  const matchesSm = useMediaQuery(theme => theme.breakpoints.up("sm"));
   const minimalSelectClasses = useMinimalSelectStyles();
   // minimalSelectClasses.select.color = deepPurple[50];
   const [state, setState] = useState({
@@ -3825,12 +3913,12 @@ const Menu = props => {
     });
   };
 
-  const addItem = (item, catId) => {
-    props.addItem(item, catId, tabMap[state.tab]);
+  const addItem = (item, catId, name) => {
+    props.addItem(item, catId, tabMap[state.tab], name);
   };
 
-  const updateItem = (item, itemId, catId, itemName) => {
-    props.updateItem(item, itemId, catId, tabMap[state.tab], itemName);
+  const updateItem = (item, itemId, catId, itemName, name) => {
+    props.updateItem(item, itemId, catId, tabMap[state.tab], itemName, name);
   };
 
   const updateCat = (catName, catId, oldCatName) => {
@@ -3841,8 +3929,9 @@ const Menu = props => {
     props.updatePack(pack, packId, tabMap[state.tab], packName);
   };
 
-  const deleteItem = (itemId, catId, itemName) => {
-    props.deleteItem(itemId, catId, tabMap[state.tab], itemName);
+  // name - name of package or category in wg=hich it is
+  const deleteItem = (itemId, catId, itemName, name) => {
+    props.deleteItem(itemId, catId, tabMap[state.tab], itemName, name);
   };
 
   const deleteCatOrPack = (id, catName) => {
@@ -3854,12 +3943,13 @@ const Menu = props => {
     const tab = state.tab;
     const catIdx = cat[tab] >= 2 ? cat[tab] - 2 : cat[tab];
     const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
+    const name = props.restaurant.menu[tabMap[state.tab]][catIdx].category_name;
 
     setState({
       ...state,
       dialog_open: false
     });
-    props.addItem(item, catId, tabMap[state.tab]);
+    props.addItem(item, catId, tabMap[state.tab], name);
   };
 
   const addCat2 = () => {
@@ -4026,6 +4116,8 @@ const Menu = props => {
       case "item":
         const catIdx = cat[tab] >= 2 ? cat[tab] - 2 : cat[tab];
         const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
+        const catName =
+          props.restaurant.menu[tabMap[state.tab]][catIdx].category_name;
         return (
           <div>
             <FlipMove>
@@ -4036,6 +4128,7 @@ const Menu = props => {
                       catId={catId}
                       key={"item" + idx}
                       isPackage={false}
+                      name={catName}
                       item={item}
                       addItem={addItem}
                       updateItem={updateItem}
@@ -4149,43 +4242,41 @@ const Menu = props => {
           />
         </Dialog>
       </div>
-      <div>
-        <Typography
-          // className={classes.breadCrumb}
-          paragraph
-        >
-          <span
-            style={{
-              padding: "5px 10px ",
-              // backgroundColor: "#fce76f",
-              color: "#282C34",
-              borderRadius: "5px",
-              fontWeight: "bold"
-              // border: "1px solid lightgray"
-            }}
-          >
-            Dashboard
-          </span>
+      <div className={classes.breadCrumb}>
+        <div>
+          {matchesSm && (
+            <span>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold"
+                }}
+              >
+                Dashboard
+              </span>
 
-          <b>/</b>
-          <span
-            style={{
-              padding: "5px 10px ",
-              // backgroundColor: "#fce76f",
-              color: "#282C34",
-              borderRadius: "5px",
-              fontWeight: "bold",
-              textDecoration: "underline"
-              // border: "1px solid lightgray"
-            }}
-          >
-            Menu
-          </span>
+              <b>/</b>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  textDecoration: "underline"
+                }}
+              >
+                Menu
+              </span>
+            </span>
+          )}
+        </div>
+        <div>
           {!state.loading ? (
             <span
               style={{
                 display: "inline-block",
-                float: "right",
                 marginBottom: "10px"
               }}
               className={gutterStyles.parent}
@@ -4227,7 +4318,7 @@ const Menu = props => {
               </span>{" "}
             </span>
           )}
-        </Typography>
+        </div>
       </div>
       <Card
         className={classes.section}
@@ -4235,6 +4326,7 @@ const Menu = props => {
           // height: "650px",
           // maxHeight: "560px",
           minWidth: "350px",
+          marginTop: "10px",
           paddingBottom: "25px",
           borderRadius: "8px"
         }}

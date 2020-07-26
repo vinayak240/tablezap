@@ -9,7 +9,8 @@ import {
   withStyles,
   Button,
   Switch,
-  Tooltip
+  Tooltip,
+  useMediaQuery
 } from "@material-ui/core";
 import MaterialMenu from "@material-ui/core/Menu";
 import { deepPurple } from "@material-ui/core/colors";
@@ -212,11 +213,10 @@ const useStyles = makeStyles(() => ({
     fontWeight: "bolder"
   },
   breadCrumb: {
-    backgroundColor: "#e8eff4",
-    border: "1px solid #90caf9",
-    fontWeight: "bold",
-    padding: "12px",
-    borderRadius: 12
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: "60px"
   },
   textField: {
     fontFamily: "'Nunito', sans-serif",
@@ -324,6 +324,7 @@ const TableForm = props => {
 const Table = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
+  const matchesQrDim = useMediaQuery("(max-width:500px)");
   const gutterStyles = usePushingGutterStyles();
 
   const [state, setState] = React.useState({
@@ -535,7 +536,7 @@ const Table = props => {
       </div>
       <div>
         <QRCode
-          id={props.table ? props.table.table_id : "123456"}
+          id={props.table ? props.table.table_id : "no-id"}
           style={{
             padding: "4px",
             borderRadius: 8,
@@ -547,7 +548,7 @@ const Table = props => {
             margin: "16px 0"
           }}
           value={`${props.rest_id}/${props.table.table_id}`}
-          size={200}
+          size={matchesQrDim ? 150 : 200}
           level={"H"}
           includeMargin={true}
         />
@@ -623,6 +624,7 @@ const TableList = props => {
 const Orientation = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
+  const matchesSm = useMediaQuery(theme => theme.breakpoints.up("sm"));
   const gutterStyles = usePushingGutterStyles();
   const [state, setState] = React.useState({
     dialog_open: false,
@@ -715,43 +717,41 @@ const Orientation = props => {
           />
         </Dialog>
       </div>
-      <div>
-        <Typography
-          // className={classes.breadCrumb}
-          paragraph
-        >
-          <span
-            style={{
-              padding: "5px 10px ",
-              // backgroundColor: "#fce76f",
-              color: "#282C34",
-              borderRadius: "5px",
-              fontWeight: "bold"
-              // border: "1px solid lightgray"
-            }}
-          >
-            Dashboard
-          </span>
+      <div className={classes.breadCrumb}>
+        <div>
+          {matchesSm && (
+            <span>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold"
+                }}
+              >
+                Dashboard
+              </span>
 
-          <b>/</b>
-          <span
-            style={{
-              padding: "5px 10px ",
-              // backgroundColor: "#fce76f",
-              color: "#282C34",
-              borderRadius: "5px",
-              fontWeight: "bold",
-              textDecoration: "underline"
-              // border: "1px solid lightgray"
-            }}
-          >
-            Orientation
-          </span>
+              <b>/</b>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  textDecoration: "underline"
+                }}
+              >
+                Menu
+              </span>
+            </span>
+          )}
+        </div>
+        <div>
           {!state.loading ? (
             <span
               style={{
                 display: "inline-block",
-                float: "right",
                 marginBottom: "10px"
               }}
               className={gutterStyles.parent}
@@ -793,14 +793,15 @@ const Orientation = props => {
               </span>{" "}
             </span>
           )}
-        </Typography>
+        </div>
       </div>
       <Card
         className={classes.section}
         style={{
           minWidth: "350px",
           paddingBottom: "25px",
-          borderRadius: "16px"
+          borderRadius: "16px",
+          marginTop: "10px"
         }}
         onMouseEnter={handleMouseIn}
         onMouseLeave={handleMouseOut}

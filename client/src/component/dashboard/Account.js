@@ -4,7 +4,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import bcrypt from "bcryptjs";
 // import { clone } from "ramda";
-import { Collapse, Grid, Button } from "@material-ui/core";
+import { Collapse, Grid, Button, useMediaQuery } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import FbSpinner from "../layout/FbSpinner";
@@ -183,11 +183,10 @@ const useStyles = makeStyles(() => ({
     fontWeight: "bolder"
   },
   breadCrumb: {
-    backgroundColor: "#e8eff4",
-    border: "1px solid #90caf9",
-    fontWeight: "bold",
-    padding: "12px",
-    borderRadius: 12
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: "60px"
   },
   textField: {
     fontFamily: "'Nunito', sans-serif",
@@ -943,8 +942,9 @@ const Credentials = props => {
 };
 
 const Account = props => {
-  // const classes = useStyles();
+  const classes = useStyles();
   const styles = useFirebaseBtnStyles();
+  const matchesSm = useMediaQuery(theme => theme.breakpoints.up("sm"));
   const gutterStyles = usePushingGutterStyles();
   const [state, setState] = React.useState({
     loading: false
@@ -1004,85 +1004,84 @@ const Account = props => {
 
   return (
     <div>
-      <Typography
-        // className={classes.breadCrumb}
-        style={{ marginBottom: "23px" }}
-        paragraph
-      >
-        <span
-          style={{
-            padding: "5px 10px ",
-            // backgroundColor: "#fce76f",
-            color: "#282C34",
-            borderRadius: "5px",
-            fontWeight: "bold"
-            // border: "1px solid lightgray"
-          }}
-        >
-          Dashboard
-        </span>
+      <div className={classes.breadCrumb}>
+        <div>
+          {matchesSm && (
+            <span>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold"
+                }}
+              >
+                Dashboard
+              </span>
 
-        <b>/</b>
-        <span
-          style={{
-            padding: "5px 10px ",
-            // backgroundColor: "#fce76f",
-            color: "#282C34",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            textDecoration: "underline"
-            // border: "1px solid lightgray"
-          }}
-        >
-          Account
-        </span>
-        {!state.loading ? (
-          <span
-            style={{
-              display: "inline-block",
-              float: "right",
-              marginBottom: "10px"
-            }}
-            className={gutterStyles.parent}
-          >
-            <Button
-              style={{ fontWeight: "bold", marginLeft: "10px" }}
-              classes={styles}
-              variant={"contained"}
-              color={"primary"}
-              disabled={!props.isEdited}
-              onClick={upload}
+              <b>/</b>
+              <span
+                style={{
+                  padding: "5px 10px ",
+                  color: "#282C34",
+                  borderRadius: "5px",
+                  fontWeight: "bold",
+                  textDecoration: "underline"
+                }}
+              >
+                Menu
+              </span>
+            </span>
+          )}
+        </div>
+        <div>
+          {!state.loading ? (
+            <span
+              style={{
+                display: "inline-block",
+                marginBottom: "10px"
+              }}
+              className={gutterStyles.parent}
             >
-              <i style={{ margin: "6px" }} className="fas fa-upload"></i>
-              Upload
-            </Button>
-            <Button
-              variant="default"
-              color="primary"
-              onClick={props.clearChanges}
-              disabled={!props.isEdited}
+              <Button
+                style={{ fontWeight: "bold", marginLeft: "10px" }}
+                classes={styles}
+                variant={"contained"}
+                color={"primary"}
+                disabled={!props.isEdited}
+                onClick={upload}
+              >
+                <i style={{ margin: "6px" }} className="fas fa-upload"></i>
+                Upload
+              </Button>
+              <Button
+                variant="default"
+                color="primary"
+                onClick={props.clearChanges}
+                disabled={!props.isEdited}
+              >
+                <span style={{ fontWeight: "bold" }}>Clear</span>
+              </Button>
+            </span>
+          ) : (
+            <span
+              style={{
+                fontWeight: "bold",
+                color: "#0388CA",
+                float: "right",
+                display: "flex",
+                justifyContent: "space-evenly",
+                alignContent: "center"
+              }}
             >
-              <span style={{ fontWeight: "bold" }}>Clear</span>
-            </Button>
-          </span>
-        ) : (
-          <span
-            style={{
-              fontWeight: "bold",
-              color: "#0388CA",
-              float: "right",
-              display: "flex",
-              justifyContent: "space-evenly",
-              alignContent: "center"
-            }}
-          >
-            {" "}
-            <FbSpinner /> <span style={{ margin: "5px" }}>
-              Uploading...
-            </span>{" "}
-          </span>
-        )}
-      </Typography>
+              {" "}
+              <FbSpinner /> <span style={{ margin: "5px" }}>
+                Uploading...
+              </span>{" "}
+            </span>
+          )}
+        </div>
+      </div>
 
       {props.restaurant && (
         <div className="content">

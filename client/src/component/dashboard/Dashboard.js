@@ -74,7 +74,10 @@ const useStyles = makeStyles(theme => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3)
+    padding: theme.spacing(3),
+    [theme.breakpoints.down("sm")]: {
+      padding: "14px"
+    }
   },
   section: {
     border: "1px solid lightgray",
@@ -151,6 +154,7 @@ function Dashboard(props) {
         snack_open: false
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.page, state.is_edited]);
 
   useEffect(() => {
@@ -172,6 +176,7 @@ function Dashboard(props) {
         }, 100);
       }, 600);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isUpdated]);
 
   const handleDrawerToggle = () => {
@@ -191,12 +196,47 @@ function Dashboard(props) {
     });
   };
 
-  const addItem = (item, catId, menuType) => {
+  const getCatIdx = (catId, menuType, name) => {
     let restaurant = clone(state.restaurant);
-    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let catIdx = -1;
+    if (Boolean(catId)) {
+      catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    } else {
+      if (menuType === "buffet") {
+        catIdx = restaurant.menu[menuType].findIndex(
+          ele => ele.package_name === name
+        );
+      } else {
+        catIdx = restaurant.menu[menuType].findIndex(
+          ele => ele.category_name === name
+        );
+      }
+    }
+    return catIdx;
+  };
+
+  // name - category or package name
+  const addItem = (item, catId, menuType, name) => {
+    let restaurant = clone(state.restaurant);
+    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let catIdx = getCatIdx(catId, menuType, name);
+
+    // if (Boolean(catId)) {
+    //   catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    // } else {
+    //   if (menuType === "buffet") {
+    //     catIdx = restaurant.menu[menuType].findIndex(
+    //       ele => ele.package_name === name
+    //     );
+    //   } else {
+    //     catIdx = restaurant.menu[menuType].findIndex(
+    //       ele => ele.category_name === name
+    //     );
+    //   }
+    // }
+
     let newArr = [...restaurant.menu[menuType][catIdx].items, item];
     restaurant.menu[menuType][catIdx].items = newArr;
-
     let arr = state.is_edited;
     arr[2] = true;
     setState({
@@ -252,14 +292,10 @@ function Dashboard(props) {
     });
   };
 
-  const updateItem = (item, itemId, catId, menuType, itemName) => {
-    // console.log("Dash Item id - ", itemId);
-    // console.log("Dash Cat id - ", catId);
-    // console.log("Dash Item obj - ", item);
-
+  const updateItem = (item, itemId, catId, menuType, itemName, name) => {
     let restaurant = clone(state.restaurant);
-    // restaurant.menu = clone(menu);
-    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let catIdx = getCatIdx(catId, menuType, name);
     let itemIdx = "";
     if (Boolean(itemId)) {
       itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
@@ -365,10 +401,12 @@ function Dashboard(props) {
     });
   };
 
-  const deleteItem = (itemId, catId, menuType, itemName) => {
+  const deleteItem = (itemId, catId, menuType, itemName, name) => {
     let restaurant = clone(state.restaurant);
     // restaurant.menu = clone(menu);
-    let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+    let catIdx = getCatIdx(catId, menuType, name);
+
     let arr = restaurant.menu[menuType][catIdx].items;
     let newArr = [];
     if (Boolean(itemId)) {
@@ -750,7 +788,7 @@ function Dashboard(props) {
     <div className={classes.root}>
       <div className="all_partials">
         <Snackbar
-          //this line here treats every page's snackbar differently hence refresh duration
+          // this line here treats every page's snackbar differently hence refresh duration
           key={`Un-saved Changes in "${pages[state.page].title}"`}
           anchorOrigin={{
             vertical: "bottom",
@@ -884,7 +922,7 @@ function Dashboard(props) {
         </Hidden>
       </nav>
       <main className={classes.content}>
-        <div className={classes.toolbar} />
+        {/* <div className={classes.toolbar} /> */}
 
         {state.restaurant && pages[state.page].component}
       </main>

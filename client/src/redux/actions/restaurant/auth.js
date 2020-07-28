@@ -19,7 +19,7 @@ export const loadRest = token => async dispatch => {
     const res = await axios.get("http://localhost:5000/restaurants/rest/");
     // console.log(res);
 
-    if (res.data.success) {
+    if (Boolean(res.data) && res.data.success) {
       // See the returned JSON properly
       dispatch({
         type: USER_LOADED,
@@ -52,7 +52,7 @@ export const login = (rest_id, password) => async dispatch => {
     );
     //   console.log(res);
 
-    if (res.data.success) {
+    if (Boolean(res.data) && res.data.success) {
       dispatch({
         type: LOGIN_SUCCESS,
         payload: {
@@ -110,7 +110,7 @@ export const register = data => async dispatch => {
     const errors = err.response.data.errors;
 
     if (errors) {
-      errors.forEach(error => dispatch(setAlert(error.msg, "danger")));
+      errors.forEach(error => dispatch(setAlert(error.msg, "error")));
     }
 
     dispatch({

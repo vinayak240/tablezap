@@ -105,7 +105,7 @@ function Dashboard(props) {
     orientation: 3,
     feedback: 4,
     account: 5,
-    logout: 6
+    settings: 6
   };
   // const dispatch = useDispatch();
   // const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -628,8 +628,8 @@ function Dashboard(props) {
         />
       )
     },
-    logout: {
-      title: "Logout",
+    settings: {
+      title: "Settings",
       // icon: (
       //   <i style={{ fontSize: "21px" }} className="fas fa-sign-out-alt"></i>
       // ),
@@ -641,11 +641,12 @@ function Dashboard(props) {
             // margin: "10px",
             float: "left"
           }}
-          alt="logout-icon"
-          src="https://img.icons8.com/fluent/96/000000/exit.png"
+          alt="settings-icon"
+          src="https://img.icons8.com/fluent/96/000000/settings.png"
         />
+        // <img src="https://img.icons8.com/fluent/48/000000/settings.png"/>
       ),
-      component: <>Logout</>
+      component: <>Settings</>
     }
   };
   const drawer = (
@@ -744,7 +745,7 @@ function Dashboard(props) {
         </List>
         <Divider />
         <List>
-          {["account", "logout"].map((text, index) => (
+          {["account", "settings"].map((text, index) => (
             <ListItem
               button
               key={text}

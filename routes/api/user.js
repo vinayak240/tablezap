@@ -136,7 +136,7 @@ router.post(
   }
 );
 
-// @route    POST users/login
+// @route    POST users/google-login
 // @desc     Login user & get token
 // @access   Public
 router.post("/google-login", async (req, res) => {

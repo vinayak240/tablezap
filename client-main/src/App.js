@@ -5,6 +5,7 @@ import { createMuiTheme } from "@material-ui/core/styles";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import Landing from "./components/layout/Landing";
+import { SnackbarProvider } from "notistack";
 const theme = createMuiTheme({
   typography: {
     fontFamily: "'Nunito', sans-serif"
@@ -15,9 +16,11 @@ const App = () => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <div>
-          <Landing />
-        </div>
+        <SnackbarProvider maxSnack={4}>
+          <div>
+            <Landing />
+          </div>
+        </SnackbarProvider>
       </ThemeProvider>
     </Provider>
   );

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import GoogleLogin from "react-google-login";
 import config from "../../config/default.json";
-import { login, googleLogin } from "../../redux/actions/auth";
+import { register, googleLogin } from "../../redux/actions/auth";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { ButtonBase, Button, Divider } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import user_lock from "../../img/user_lock.png";
+import user_add from "../../img/user_add.png";
 import { useSnackbar } from "notistack";
+import { useEffect } from "react";
+
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
     borderRadius: 8
@@ -65,12 +67,15 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Login = props => {
+const Register = props => {
   const classes = useStyles();
   const styles = useFirebaseBtnStyles();
   const { enqueueSnackbar } = useSnackbar();
+
   const [state, setState] = useState({
+    name: "",
     email: "",
+    phone: "",
     password: ""
   });
 
@@ -97,14 +102,17 @@ const Login = props => {
     console.log("Response here", res);
   };
 
-  const login = () => {
+  const register = () => {
+    const { name, email, phone, password } = state;
     setState({
       ...state,
       email: "",
-      password: ""
+      password: "",
+      phone: "",
+      name: ""
     });
 
-    props.login(state.email, state.password);
+    props.register({ name, email, phone, password });
 
     if (props.isAuthenticated) {
       console.log("Authenticated");
@@ -121,14 +129,22 @@ const Login = props => {
         ></i>
       </div>
       <div style={{ textAlign: "center" }}>
-        <img alt="user" src={user_lock} />
+        <img alt="user" src={user_add} />
       </div>
       <div
         style={{ margin: "10px", marginBottom: "18px", textAlign: "center" }}
       >
-        <span className={classes.cardTitle}>Login</span>
+        <span className={classes.cardTitle}>Register</span>
       </div>
       <div>
+        <input
+          id="name"
+          className={classes.textField}
+          type="text"
+          value={state.name}
+          onChange={handleChange}
+          placeholder="Enter full name"
+        />
         <input
           id="email"
           className={classes.textField}
@@ -136,6 +152,14 @@ const Login = props => {
           value={state.email}
           onChange={handleChange}
           placeholder="Enter email ID"
+        />
+        <input
+          id="phone"
+          className={classes.textField}
+          type="text"
+          value={state.phone}
+          onChange={handleChange}
+          placeholder="Enter phone number"
         />
         <input
           id="password"
@@ -149,14 +173,19 @@ const Login = props => {
       <div style={{ marginTop: "18px" }}>
         <Button
           classes={styles}
-          onClick={login}
+          onClick={register}
           variant={"contained"}
           color={"primary"}
           style={{ display: "block", width: "90%", margin: "auto" }}
-          disabled={state.email === "" || state.password === ""}
+          disabled={
+            state.name === "" ||
+            state.email === "" ||
+            state.phone === "" ||
+            state.password === ""
+          }
           fullWidth
         >
-          Login
+          Register
         </Button>
         <div style={{ margin: "18px" }}>
           <Divider />
@@ -213,9 +242,9 @@ const Login = props => {
         </div>
         <div style={{ marginTop: "18px", textAlign: "center" }}>
           <span className={classes.cardTitle} style={{ fontSize: "1rem" }}>
-            or
+            Have account?
             <span
-              onClick={props.openRegister}
+              onClick={props.openLogin}
               style={{
                 color: "#4285f4",
                 marginLeft: "6px",
@@ -223,7 +252,7 @@ const Login = props => {
                 cursor: "pointer"
               }}
             >
-              Create Account
+              Login
             </span>
           </span>
         </div>
@@ -232,9 +261,10 @@ const Login = props => {
   );
 };
 
-Login.propTypes = {
-  login: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.bool
+Register.propTypes = {
+  register: PropTypes.func.isRequired,
+  isAuthenticated: PropTypes.bool,
+  googleLogin: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -244,5 +274,5 @@ const mapStateToProps = state => ({
 
 export default connect(
   mapStateToProps,
-  { login, googleLogin }
-)(Login);
+  { register, googleLogin }
+)(Register);

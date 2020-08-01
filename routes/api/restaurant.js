@@ -9,6 +9,28 @@ const { check, validationResult } = require("express-validator/check");
 
 const Restaurant = require("../../models/Restaurant");
 
+// @route    GET restaurants/
+// @desc     Get all restaurants
+// @access   Public
+
+router.get("/", async (req, res) => {
+  try {
+    let restaurants = await Restaurant.find().select(
+      "_id rest_name rest_tags rest_timing_start rest_timing_end rest_type dine_type"
+    );
+    if (!restaurants) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "There is no entry for this restaurant" });
+    }
+
+    res.json({ success: true, restaurants });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, msg: "Server Error" });
+  }
+});
+
 // @route    POST restaurants/register
 // @desc     Register restaurant
 // @access   Public
@@ -157,6 +179,29 @@ router.get("/rest", rest_auth, async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.restaurant._id);
 
+    if (!restaurant) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "There is no entry for this restaurant" });
+    }
+
+    res.json({ success: true, restaurant });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, msg: "Server Error" });
+  }
+});
+
+// @route    GET restaurants/id
+// @desc     Get selected restaurants
+// @access   Public
+
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    let restaurant = await Restaurant.findOne({ _id: id }).select(
+      "-rest_id -rest_psswd"
+    );
     if (!restaurant) {
       return res
         .status(400)

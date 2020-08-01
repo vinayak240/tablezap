@@ -64,7 +64,9 @@ export const login = (rest_id, password) => async dispatch => {
   } catch (error) {
     // console.log(error.message);
 
-    const msg = error.response.data.msg;
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
 
     if (msg.toLowerCase() === "validation errors") {
       const errors = error.response.data.errors;
@@ -107,10 +109,16 @@ export const register = data => async dispatch => {
 
     dispatch(loadRest());
   } catch (err) {
-    const errors = err.response.data.errors;
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
 
-    if (errors) {
-      errors.forEach(error => dispatch(setAlert(error.msg, "error")));
+    if (msg.toLowerCase() === "validation errors") {
+      const errors = error.response.data.errors;
+      if (errors)
+        errors.forEach(error => dispatch(setAlert(error.msg, "error")));
+    } else {
+      dispatch(setAlert(msg, "error"));
     }
 
     dispatch({

@@ -70,7 +70,9 @@ export const register = ({
       dispatch(loadUser());
     }
   } catch (error) {
-    const msg = error.response.data.msg;
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
 
     if (msg.toLowerCase() === "validation errors") {
       const errors = error.response.data.errors;
@@ -113,7 +115,9 @@ export const login = (email, password) => async dispatch => {
       dispatch(loadUser());
     }
   } catch (error) {
-    const msg = error.response.data.msg;
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
 
     if (msg.toLowerCase() === "validation errors") {
       const errors = error.response.data.errors;
@@ -156,7 +160,10 @@ export const googleLogin = token => async dispatch => {
       dispatch(loadUser());
     }
   } catch (error) {
-    const msg = error.response.data.msg;
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
+    // const msg = error.response.data.msg;
     dispatch(setAlert(msg, "error"));
     dispatch({
       type: LOGIN_FAIL

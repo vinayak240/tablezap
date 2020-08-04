@@ -84,6 +84,19 @@ const Login = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alerts]);
 
+  // useEffect(() => {
+  //   if (props.isAuthenticated) {
+  //     console.log("Authenticated");
+
+  //     props.handleDialogClose();
+  //   } else {
+  //     console.log("NOT Authenticated");
+
+  //     props.handleDialogClose();
+  //   }
+  //   // eslint-disable-next-line
+  // }, [props.isAuthenticated]);
+
   const handleChange = e => {
     setState({
       ...state,
@@ -92,6 +105,7 @@ const Login = props => {
   };
   const googleSuccess = res => {
     props.googleLogin(res.tokenId);
+    props.handleDialogClose();
   };
   const googleFailure = res => {
     console.log("Response here", res);
@@ -105,10 +119,6 @@ const Login = props => {
     });
 
     props.login(state.email, state.password);
-
-    if (props.isAuthenticated) {
-      console.log("Authenticated");
-    }
   };
 
   return (

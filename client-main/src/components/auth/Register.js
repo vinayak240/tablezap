@@ -89,6 +89,19 @@ const Register = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alerts]);
 
+  useEffect(() => {
+    if (props.isAuthenticated) {
+      setState(prev => ({
+        ...state,
+        email: "",
+        password: "",
+        phone: "",
+        name: ""
+      }));
+    }
+    // eslint-disable-next-line
+  }, [props.isAuthenticated]);
+
   const handleChange = e => {
     setState({
       ...state,
@@ -104,13 +117,6 @@ const Register = props => {
 
   const register = () => {
     const { name, email, phone, password } = state;
-    setState({
-      ...state,
-      email: "",
-      password: "",
-      phone: "",
-      name: ""
-    });
 
     props.register({ name, email, phone, password });
 

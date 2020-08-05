@@ -11,9 +11,34 @@ import AppBar from "@material-ui/core/AppBar";
 import LandingImg from "../../img/landing.jpg";
 
 import Logo from "../layout/logos/Logo";
+import { deepPurple } from "@material-ui/core/colors";
 const useStyles = makeStyles(theme => ({
   root: {
-    flexGrow: 1
+    "&::-webkit-scrollbar": {
+      width: "16px",
+      backgroundColor: "#ffffff"
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "#ffffff",
+      paddingTop: "10px",
+      paddingBottom: "20px",
+
+      "&:hover": {
+        backgroundColor: "#F4F7FA"
+      }
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: deepPurple[300],
+      borderRadius: "16px",
+      border: "5px solid white",
+      "&:hover": {
+        backgroundColor: deepPurple[400],
+        border: "5px solid #F4F7FA"
+      }
+    },
+    "&::-webkit-scrollbar-button": {
+      display: "none"
+    }
   },
   menuButton: {
     marginRight: theme.spacing(2)
@@ -53,10 +78,10 @@ const useStyles = makeStyles(theme => ({
     // backgroundImage: "linear-gradient(315deg, #fbb034 0%, #ffdd00 74%)"
     backgroundImage: `url(${LandingImg})`,
     backgroundRepeat: "no-repeat",
-    backgroundAttachment: "fixed",
+    // backgroundAttachment: "fixed",
     backgroundSize: "100vw 100vh",
     // background: `rgba(251, 176, 52, 0.4)", url(${LandingImg})`
-    boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.4)"
+    boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
   },
   appbar: {
     boxShadow: "none",
@@ -143,6 +168,12 @@ const useStyles = makeStyles(theme => ({
     "100%": {
       transform: "rotate(0)"
     }
+  },
+  features: {
+    background: "#282c34",
+    width: "100vw",
+    height: "300px",
+    marginBottom: "20%"
   }
 }));
 
@@ -163,7 +194,8 @@ const Landing = props => {
     if (props.isAuthenticated) {
       setState(prevState => ({
         ...prevState,
-        isAuthenticated: true
+        isAuthenticated: true,
+        dialog_open: false
       }));
     } else {
       setState(prevState => ({
@@ -219,7 +251,7 @@ const Landing = props => {
   };
 
   return (
-    <div>
+    <div className={classes.root}>
       <div className="all_partials">
         <Dialog
           open={state.dialog_open}
@@ -322,6 +354,7 @@ const Landing = props => {
           </div>
         </div>
       </div>
+      <div className={classes.features}></div>
     </div>
   );
 };

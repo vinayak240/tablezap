@@ -84,18 +84,17 @@ const Login = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alerts]);
 
-  // useEffect(() => {
-  //   if (props.isAuthenticated) {
-  //     console.log("Authenticated");
-
-  //     props.handleDialogClose();
-  //   } else {
-  //     console.log("NOT Authenticated");
-
-  //     props.handleDialogClose();
-  //   }
-  //   // eslint-disable-next-line
-  // }, [props.isAuthenticated]);
+  useEffect(() => {
+    if (props.isAuthenticated) {
+      // props.handleDialogClose();
+      setState({
+        ...state,
+        email: "",
+        password: ""
+      });
+    }
+    // eslint-disable-next-line
+  }, [props.isAuthenticated]);
 
   const handleChange = e => {
     setState({
@@ -112,12 +111,6 @@ const Login = props => {
   };
 
   const login = () => {
-    setState({
-      ...state,
-      email: "",
-      password: ""
-    });
-
     props.login(state.email, state.password);
   };
 

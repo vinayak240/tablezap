@@ -108,7 +108,7 @@ export const register = data => async dispatch => {
     });
 
     dispatch(loadRest());
-  } catch (err) {
+  } catch (error) {
     const msg = error.response
       ? error.response.data.msg
       : "Something went wrong...";

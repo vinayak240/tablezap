@@ -82,6 +82,7 @@ const useStyles = makeStyles(theme => ({
     backgroundSize: "100vw 100vh",
     // background: `rgba(251, 176, 52, 0.4)", url(${LandingImg})`
     boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
+    // boxShadow: "inset 0 0 0 100vh rgba(0, 0, 0, 0.4)"
   },
   appbar: {
     boxShadow: "none",
@@ -119,40 +120,53 @@ const useStyles = makeStyles(theme => ({
   icon: {
     margin: "10px"
   },
-  searchInput: {
-    display: "block",
-    width: "40vw",
+  searchBox: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "50vw",
+    boxShadow: "rgba(28, 28, 28, 0.08) 0px 2px 8px",
+    animation: `$stretchAnimation 2s 1 1s ${theme.transitions.easing.easeInOut}`,
+    borderRadius: "20px",
+    padding: "5px",
     margin: "auto",
     marginTop: "18px",
     marginBottom: "10px",
-    borderRadius: "5px",
+    background: "white",
+    [theme.breakpoints.down("sm")]: {
+      width: "90vw"
+    }
+  },
+  searchInput: {
+    // display: "block",
+    // margin: "auto",
+    // marginTop: "18px",
+    // marginBottom: "10px",
+    // borderRadius: "5px",
+    width: "100%",
     border: "1px solid lightgray",
     borderWidth: "0px",
-    padding: "13px",
     fontFamily: "'Nunito', sans-serif",
     fontSize: "18px",
     fontWeight: "bold",
-    boxShadow: "rgba(28, 28, 28, 0.08) 0px 2px 8px",
+    // boxShadow: "rgba(28, 28, 28, 0.08) 0px 2px 8px",
     textAlign: "center",
-    animation: `$yourAnimation 0.5s 1 0s ${theme.transitions.easing.easeInOut}`,
     "&:focus": {
-      border: "none"
-    },
-    [theme.breakpoints.down("sm")]: {
-      width: "80vw"
+      border: "none",
+      outline: "0px transparent !important"
     }
   },
   chkIn: {
     backgroundColor: "#282c34",
     color: "white",
-    borderRadius: "5px",
+    borderRadius: "15px",
     fontFamily: "'Nunito', sans-serif",
     fontSize: "16px",
     fontWeight: "bold",
     border: "none",
-    padding: "7px"
+    padding: "4px"
   },
-  "@keyframes yourAnimation": {
+  "@keyframes shakeAnimation": {
     "0%": {
       transform: "rotate(-8deg)"
     },
@@ -169,11 +183,22 @@ const useStyles = makeStyles(theme => ({
       transform: "rotate(0)"
     }
   },
+  "@keyframes stretchAnimation": {
+    "0%": {
+      width: "20%"
+    },
+
+    "100%": {
+      transform: "rotate(xx)",
+      width: "50vw"
+    }
+  },
   features: {
-    background: "#282c34",
+    // background: "#282c34",
     width: "100vw",
     height: "300px",
     marginBottom: "20%"
+    // boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
   }
 }));
 
@@ -327,30 +352,53 @@ const Landing = props => {
             >
               Enter Table Code
             </Typography>
-            <input
-              id="table_code"
-              className={classes.searchInput}
-              value={state.table_code}
-              onChange={handleChange}
-              type="text"
-              placeholder="##-###-###-##"
-            />
-            <div style={{ textAlign: "center" }}>
-              <button
-                className={classes.chkIn}
-                onClick={
-                  props.isAuthenticated
-                    ? () => alert("checked in!!")
-                    : () => handleLoginRegister("login")
-                }
-              >
+            <div className={classes.searchBox}>
+              <div>
                 <i
-                  style={{ margin: "8px" }}
-                  className="fas fa-external-link-alt"
+                  style={{
+                    borderRight: "2px solid lightgray",
+                    padding: "5px",
+                    // borderRadius: "5px",
+                    margin: "5px",
+                    color: "#494545",
+                    paddingLeft: "10px",
+                    paddingRight: "10px",
+                    fontSize: "18px"
+                  }}
+                  className="fab fa-slack-hash"
                 ></i>
-                Check In
-              </button>
+              </div>
+
+              <div style={{ flex: "0 0 80%" }}>
+                <input
+                  id="table_code"
+                  className={classes.searchInput}
+                  value={state.table_code}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="##-###-###-##"
+                />
+              </div>
+              <div>
+                <button
+                  style={{ float: "right" }}
+                  className={classes.chkIn}
+                  onClick={
+                    props.isAuthenticated
+                      ? () => alert("checked in!!")
+                      : () => handleLoginRegister("login")
+                  }
+                >
+                  <i
+                    style={{ margin: "8px" }}
+                    className="fas fa-external-link-alt"
+                  ></i>
+                </button>
+              </div>
             </div>
+            {/* <div style={{ textAlign: "center" }}>
+             
+            </div> */}
           </div>
         </div>
       </div>

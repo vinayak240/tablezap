@@ -728,17 +728,24 @@ function Dashboard(props) {
                 <ListItemText
                   style={{ fontWeight: "bold" }}
                   primary={
-                    <Badge
-                      color="secondary"
-                      variant="dot"
-                      invisible={!state.is_edited[index]}
-                    >
-                      <span style={{ fontWeight: "bold" }}>
-                        {pages[text]["title"]}
-                      </span>
-                    </Badge>
+                    // <Badge
+                    //   color="secondary"
+                    //   variant="dot"
+                    //   invisible={!state.is_edited[index]}
+                    // >
+                    <span style={{ fontWeight: "bold" }}>
+                      {pages[text]["title"]}
+                    </span>
+                    // </Badge>
                   }
                 />
+                <Badge
+                  color="secondary"
+                  variant="dot"
+                  invisible={!state.is_edited[index]}
+                >
+                  {" "}
+                </Badge>
               </ListItem>
             )
           )}
@@ -764,17 +771,24 @@ function Dashboard(props) {
               <ListItemText
                 style={{ fontWeight: "bold" }}
                 primary={
-                  <Badge
-                    color="secondary"
-                    variant="dot"
-                    invisible={!state.is_edited[index + 5]}
-                  >
-                    <span style={{ fontWeight: "bold" }}>
-                      {pages[text]["title"]}
-                    </span>
-                  </Badge>
+                  // <Badge
+                  //   color="secondary"
+                  //   variant="dot"
+                  //   invisible={!state.is_edited[index + 5]}
+                  // >
+                  <span style={{ fontWeight: "bold" }}>
+                    {pages[text]["title"]}
+                  </span>
+                  // </Badge>
                 }
               />
+              <Badge
+                color="secondary"
+                variant="dot"
+                invisible={!state.is_edited[index + 5]}
+              >
+                {" "}
+              </Badge>
             </ListItem>
           ))}
         </List>

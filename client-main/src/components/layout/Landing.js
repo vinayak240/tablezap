@@ -2,13 +2,24 @@ import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import Login from "../auth/Login";
-import { Paper, Dialog, Grow, makeStyles, Typography } from "@material-ui/core";
+import {
+  Paper,
+  Dialog,
+  Grow,
+  makeStyles,
+  Typography,
+  Grid
+} from "@material-ui/core";
 import Register from "../auth/Register";
 import AppBar from "@material-ui/core/AppBar";
 // import phone_img from "../../img/phone_qr.png";
 // import qr_img from "../../img/qr.png";
 // import burger_img from "../../img/burger.png";
 import LandingImg from "../../img/landing.jpg";
+import shield_img from "../../img/shield.png";
+import qr_landing_img from "../../img/qr_landing.png";
+import time_img from "../../img/time.png";
+// import online_payment_img from "../../img/online_payment.png";
 
 import Logo from "../layout/logos/Logo";
 import { deepPurple } from "@material-ui/core/colors";
@@ -76,13 +87,25 @@ const useStyles = makeStyles(theme => ({
     // backgroundColor: "#fbb034",
     // background-color: #fbb034;
     // backgroundImage: "linear-gradient(315deg, #fbb034 0%, #ffdd00 74%)"
-    backgroundImage: `url(${LandingImg})`,
+    // backgroundImage: `url(${LandingImg})`,
     backgroundRepeat: "no-repeat",
     // backgroundAttachment: "fixed",
     backgroundSize: "100vw 100vh",
-    // background: `rgba(251, 176, 52, 0.4)", url(${LandingImg})`
-    boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
+    // zIndex: "0",
+    background: `url(${LandingImg}), rgba(251, 176, 52, 0.23)`,
+    backgroundBlendMode: "overlay"
+    // boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
     // boxShadow: "inset 0 0 0 100vh rgba(0, 0, 0, 0.4)"
+    // "&::before": {
+    //   content: "''",
+    //   position: "absolute",
+    //   top: "0",
+    //   right: "0",
+    //   bottom: "0",
+    //   left: "0",
+    //   backgroundImage: "linear-gradient(to bottom right,#002f4b,#dc4225)",
+    //   opacity: "0.6"
+    // }
   },
   appbar: {
     boxShadow: "none",
@@ -133,6 +156,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: "18px",
     marginBottom: "10px",
     background: "white",
+    zIndex: "1",
     [theme.breakpoints.down("sm")]: {
       width: "90vw"
     }
@@ -198,6 +222,7 @@ const useStyles = makeStyles(theme => ({
     width: "100vw",
     height: "300px",
     marginBottom: "20%"
+    // color: "white"
     // boxShadow: "inset 0 0 0 100vh rgba(251, 176, 52, 0.2)"
   }
 }));
@@ -339,13 +364,13 @@ const Landing = props => {
               <img alt="burger img" src={burger_img} />
             </div>
           </div> */}
-          <div style={{ marginTop: "20vh" }}>
+          <div style={{ marginTop: "24vh" }}>
             <Typography
               style={{
                 textAlign: "center",
                 fontWeight: "bolder",
                 fontFamily: "'Staatliches', cursive",
-                textShadow: "3px 2px #f0cd03",
+                textShadow: "2px 2px #f0cd03",
                 color: "#423f39"
               }}
               variant="h3"
@@ -356,7 +381,7 @@ const Landing = props => {
               <div>
                 <i
                   style={{
-                    borderRight: "2px solid lightgray",
+                    // borderRight: "2px solid lightgray",
                     padding: "5px",
                     // borderRadius: "5px",
                     margin: "5px",
@@ -396,13 +421,159 @@ const Landing = props => {
                 </button>
               </div>
             </div>
-            {/* <div style={{ textAlign: "center" }}>
-             
-            </div> */}
           </div>
         </div>
       </div>
-      <div className={classes.features}></div>
+      <Grid
+        container
+        style={{ padding: "15px", width: "94%", margin: "auto" }}
+        className={classes.features}
+        spacing={3}
+        justify="space-evenly"
+        alignItems="center"
+      >
+        <Grid item sm={12} md={3}>
+          {/* Protection */}
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              minWidth: "260px"
+            }}
+          >
+            <img style={{ width: "85px" }} src={shield_img} alt="shield img" />
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              fontWeight: "bold",
+              maxWidth: "300px",
+              minWidth: "260px",
+              margin: "auto"
+            }}
+          >
+            <Typography
+              variant="h6"
+              style={{
+                fontWeight: "bolder",
+                marginBottom: "8px",
+                fontSize: "19px",
+                textAlign: "center"
+              }}
+            >
+              Heading Here
+            </Typography>
+            <div style={{ fontWeight: "550" }}>
+              Expierence pure contactless dining, Directly order from table
+              using Qr Code
+            </div>
+          </div>
+        </Grid>
+        <Grid item sm={12} md={3}>
+          {/* Directly order from table using Qr Code */}
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              minWidth: "260px"
+            }}
+          >
+            <img
+              style={{ width: "85px" }}
+              src={qr_landing_img}
+              alt="shield img"
+            />
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              fontWeight: "bold",
+              maxWidth: "300px",
+              minWidth: "260px",
+              margin: "auto"
+            }}
+          >
+            <Typography
+              variant="h6"
+              style={{
+                fontWeight: "bolder",
+                marginBottom: "8px",
+                fontSize: "19px",
+                textAlign: "center"
+              }}
+            >
+              Heading Here
+            </Typography>
+            <div style={{ fontWeight: "550" }}>
+              Expierence pure contactless dining, Directly order from table
+              using Qr Code
+            </div>
+          </div>
+        </Grid>
+        <Grid item sm={12} md={3}>
+          {/* No Waiting */}
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              minWidth: "260px"
+            }}
+          >
+            <img style={{ width: "85px" }} src={time_img} alt="shield img" />
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              fontWeight: "bold",
+              maxWidth: "300px",
+              minWidth: "260px",
+              margin: "auto"
+            }}
+          >
+            <Typography
+              variant="h6"
+              style={{
+                fontWeight: "bolder",
+                marginBottom: "8px",
+                fontSize: "19px",
+                textAlign: "center"
+              }}
+            >
+              Heading Here
+            </Typography>
+            <div style={{ fontWeight: "550" }}>
+              Expierence pure contactless dining, Directly order from table
+              using Qr Code
+            </div>
+          </div>
+        </Grid>
+        {/* <Grid item sm={12} md={3}> */}
+        {/* Online PAyment */}
+        {/* <div style={{ textAlign: "center", padding: "12px 6px" }}>
+            <img
+              style={{ width: "85px" }}
+              src={online_payment_img}
+              alt="shield img"
+            />
+          </div>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "12px 6px",
+              fontWeight: "bold"
+            }}
+          >
+            <div>Heading Here</div>
+            <div>
+              Expierence pure contactless dining, Directly order from table
+              using Qr Code
+            </div>
+          </div> */}
+        {/* </Grid> */}
+      </Grid>
     </div>
   );
 };

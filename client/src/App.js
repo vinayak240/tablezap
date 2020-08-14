@@ -8,8 +8,9 @@ import { Provider } from "react-redux";
 import store from "./redux/store";
 // import QRCode from "qrcode.react";
 // import Stepper from './component/layout/HorizontalStepper';
-// import Register from "./component/auth/register/Register";
+import Register from "./component/auth/register/Register";
 import Dashboard from "./component/dashboard/Dashboard";
+import ImageUploader from "./component/layout/ImageUploader";
 const theme = createMuiTheme({
   typography: {
     fontFamily: "'Nunito', sans-serif"
@@ -46,8 +47,9 @@ const App = () => {
           {/* <Register /> */}
 
           {/* <Login /> */}
-          {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />}
+          {/* {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />} */}
           {/* <Register /> */}
+          <ImageUploader multiple={true} show={true} />
 
           {/* <div>
             <QRCode

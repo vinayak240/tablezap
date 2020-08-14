@@ -794,7 +794,7 @@ const TableForm = props => {
       <Alert severity="info">
         <AlertTitle>Note</AlertTitle>
         1. The form that shows up here is based on the "Establishment type" you
-        selected in the form in Step 2.<br></br>2. If the form does appear
+        selected in the form in Step 2.<br></br>2. If the form does not appear
         please select the "Establishment type" in Step 2.
       </Alert>
       {getForm(props.formData.rest_type)}

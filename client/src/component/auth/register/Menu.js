@@ -19,6 +19,7 @@ import AlertWindow from "../../layout/Alert";
 import { setAlert } from "../../../redux/actions/alert";
 import { useDispatch } from "react-redux";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import ImageUploader from "../../layout/ImageUploader";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -538,10 +539,12 @@ const Item = props => {
   );
 };
 
+//FRemove Item Image property
 const ItemForm = props => {
   const classes = useStyles();
   const [state, setState] = React.useState({
     item_name: "",
+    item_img: {},
     item_price: "",
     currency: "",
     item_desc: "",
@@ -557,6 +560,7 @@ const ItemForm = props => {
       ...state,
       item_name: "",
       item_price: "",
+      item_img: {},
       currency: "",
       item_desc: "",
       food_type: "",
@@ -577,6 +581,7 @@ const ItemForm = props => {
     const {
       item_name,
       item_price,
+      item_img,
       currency,
       item_desc,
       food_type,
@@ -584,6 +589,7 @@ const ItemForm = props => {
     } = state;
     const newItem = {
       item_name,
+      item_img,
       item_price,
       currency,
       item_desc,
@@ -675,6 +681,15 @@ const ItemForm = props => {
     props.deleteItemFromState(props.category.category_name, item_name);
   };
 
+  const addImage = payload => {
+    console.log("here payload", payload);
+
+    setState({
+      ...state,
+      item_img: { ...payload }
+    });
+  };
+
   return (
     <div
       style={{
@@ -757,6 +772,9 @@ const ItemForm = props => {
             alignItems="center"
             justify="center"
           >
+            <Grid item md={11}>
+              <ImageUploader multiple={false} show={true} upload={addImage} />
+            </Grid>
             <Grid item md={11}>
               <input
                 id="item_name"

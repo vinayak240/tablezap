@@ -5,6 +5,7 @@ import ArrowRightAlt from "@material-ui/icons/ArrowRightAlt";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import table_img from "../../../img/table.png";
 import room_img from "../../../img/door.png";
+// import ImageUploader from "../../layout/ImageUploader";
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
@@ -369,6 +370,8 @@ const RestForm = props => {
           deleteTable={deleteTable}
         />
       )}
+      {/* <ImageUploader multiple={true} show={true} /> */}
+
       <div className={classes.btnGroup}>
         <Button
           disabled={props.step === 0}

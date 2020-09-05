@@ -8,19 +8,21 @@ import {
   withStyles,
   FormControlLabel
 } from "@material-ui/core";
+import { storage } from "../../firebase";
 
 const useStyles = makeStyles(theme => ({
   card: {
-    border: "2px solid",
-    borderColor: "#E7EDF3",
-    width: "90%",
+    width: "94%",
     margin: "auto",
     marginTop: "10px",
     padding: "22px",
-    borderRadius: 16,
     transition: "0.4s",
     minWidth: "200px",
     // overflow: "auto",
+    border: "2px solid",
+    borderColor: "#E7EDF3",
+    borderRadius: 16,
+
     "&:hover": {
       borderColor: "#7CB2F1"
     },
@@ -96,6 +98,7 @@ const ImageUploader = props => {
       ...state,
       imgList: clone(props.multiple ? [...state.imgList, ...files] : files)
     });
+    props.upload && props.upload(props.multiple ? files : files[0]);
     // }
   };
 
@@ -105,6 +108,23 @@ const ImageUploader = props => {
       [evt.target.name]: evt.target.checked
     });
   };
+
+  // const uploadFiles = async () => {
+  //   const taskLst = state.imgList.map(obj =>
+  //     storage.ref(`images/${obj.file.name}`).put(obj.file)
+  //   );
+  //   const resp = await Promise.all(taskLst);
+  //   console.log("Response here", resp);
+
+  //   console.log("\n\nGetting Image...");
+
+  //   const url = await storage
+  //     .ref("images")
+  //     .child("02.jpg")
+  //     .getDownloadURL();
+
+  //   console.log("URL - ", url);
+  // };
 
   return (
     <div className={classes.card}>
@@ -126,7 +146,7 @@ const ImageUploader = props => {
           }}
         >
           <i style={{ margin: "8px" }} className="fas fa-images"></i>
-          Upload Images
+          Upload Image{props.multiple ? "s" : ""}
         </Typography>
         <div>
           <input
@@ -173,7 +193,7 @@ const ImageUploader = props => {
             }
             label={
               <span style={{ fontWeight: "bold", fontSize: "15px" }}>
-                Show images
+                Show image{props.multiple ? "s" : ""}
               </span>
             }
           />
@@ -274,6 +294,7 @@ const ImageUploader = props => {
           )
         )}
       </div>
+      {/* <button onClick={uploadFiles}>Upload to Firebase</button> */}
     </div>
   );
 };

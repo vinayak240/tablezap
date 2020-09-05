@@ -16,6 +16,7 @@ import TableForm from "./TableForm";
 import Completed from "../../logos/Completed";
 import question from "../../../img/question.png";
 import Loading from "../../logos/Loading";
+import uploadRestImages from "../../../firebase/upload_lib";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -116,8 +117,12 @@ const Register = props => {
       loading: true
     });
 
-    props.register(state.formData);
-    console.log(props.errors);
+    // here UNDO there
+    // props.register(state.formData);
+    // console.log(props.errors);
+    // END
+    let obj23 = await uploadRestImages(state.formData);
+    console.log("\n\nRest Object - ", obj23);
 
     if (state.submitted) {
       console.log("REGISTER SUCCESS!!");

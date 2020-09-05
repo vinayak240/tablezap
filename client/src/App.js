@@ -48,8 +48,8 @@ const App = () => {
 
           {/* <Login /> */}
           {/* {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />} */}
-          {/* <Register /> */}
-          <ImageUploader multiple={true} show={true} />
+          <Register />
+          {/* <ImageUploader multiple={true} show={true} /> */}
 
           {/* <div>
             <QRCode

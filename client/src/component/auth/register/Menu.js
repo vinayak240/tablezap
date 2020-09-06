@@ -682,13 +682,27 @@ const ItemForm = props => {
   };
 
   const addImage = payload => {
-    console.log("here payload", payload);
+    // console.log("here payload", payload);
 
     setState({
       ...state,
       item_img: { ...payload }
     });
   };
+
+  const deleteImg = (id, name) => {
+    setState({
+      ...state,
+      item_img: {}
+    });
+  };
+
+  function isObjEmpty(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
 
   return (
     <div
@@ -773,7 +787,13 @@ const ItemForm = props => {
             justify="center"
           >
             <Grid item md={11}>
-              <ImageUploader multiple={false} show={true} upload={addImage} />
+              <ImageUploader
+                imgList={isObjEmpty(state.item_img) ? [] : [state.item_img]}
+                multiple={false}
+                show={true}
+                upload={addImage}
+                deleteImg={deleteImg}
+              />
             </Grid>
             <Grid item md={11}>
               <input

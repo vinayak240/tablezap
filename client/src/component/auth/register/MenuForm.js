@@ -71,9 +71,9 @@ const MenuForm = props => {
   const [state, setState] = React.useState({
     tab: 0, //its the number of tabs - 1
     category: "",
-    food: [],
-    bar: [],
-    buffet: []
+    food: (props.formData.menu && props.formData.menu.food) || [],
+    bar: (props.formData.menu && props.formData.menu.bar) || [],
+    buffet: (props.formData.menu && props.formData.menu.buffet) || []
   });
 
   const handleTab = (evt, newValue) => {

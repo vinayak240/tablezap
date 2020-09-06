@@ -16,7 +16,7 @@ import TableForm from "./TableForm";
 import Completed from "../../logos/Completed";
 import question from "../../../img/question.png";
 import Loading from "../../logos/Loading";
-import uploadRestImages from "../../../firebase/upload_lib";
+// import uploadRestImages from "../../../firebase/upload_lib";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -70,11 +70,13 @@ const Register = props => {
     loading: false
   });
   useEffect(() => {
-    setState(prevState => ({
-      ...prevState,
-      loading: false,
-      submitted: props.isAuthenticated ? true : false
-    }));
+    if (props.isAuthenticated) {
+      setState(prevState => ({
+        ...prevState,
+        loading: false,
+        submitted: props.isAuthenticated ? true : false
+      }));
+    }
   }, [props.isAuthenticated]);
   const steps = getSteps();
 
@@ -106,7 +108,10 @@ const Register = props => {
   const handleReset = () => {
     setState({
       ...state,
-      step: 0
+      step: 0,
+      formData: {},
+      submitted: false,
+      loading: false
     });
   };
 
@@ -114,15 +119,16 @@ const Register = props => {
     // console.log(JSON.stringify(state.formData));
     setState({
       ...state,
-      loading: true
+      loading: true,
+      submitted: false
     });
 
     // here UNDO there
-    // props.register(state.formData);
-    // console.log(props.errors);
+    props.register(state.formData);
+    console.log(props.errors);
     // END
-    let obj23 = await uploadRestImages(state.formData);
-    console.log("\n\nRest Object - ", obj23);
+    // let obj23 = await uploadRestImages(state.formData);
+    // console.log("\n\nRest Object - ", obj23);
 
     if (state.submitted) {
       console.log("REGISTER SUCCESS!!");

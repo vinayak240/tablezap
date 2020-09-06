@@ -9,6 +9,7 @@ import {
 } from "../types";
 import setAuthToken from "../../../utils/setAuthToken";
 import { setAlert } from "../alert";
+import uploadRestImages from "../../../firebase/upload_lib";
 
 export const loadRest = token => async dispatch => {
   if (localStorage.rest_token) {
@@ -91,9 +92,10 @@ export const register = data => async dispatch => {
     }
   };
 
-  const body = JSON.stringify(data);
-
   try {
+    let final_obj = await uploadRestImages(data);
+    const body = JSON.stringify(final_obj);
+
     const res = await axios.post(
       "http://localhost:5000/restaurants/register/",
       body,

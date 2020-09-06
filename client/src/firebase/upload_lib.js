@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { clone } from "ramda";
 import { storage } from "./index";
-import { useDispatch } from "react-redux";
-import { setAlert } from "../redux/actions/alert";
+// import { useDispatch } from "react-redux";
+// import { setAlert } from "../redux/actions/alert";
 
 const uploadFiles = async fileLst => {
   const taskLst = fileLst.map(obj =>
@@ -180,10 +180,10 @@ const uploadRestImages = async restObj => {
         }
       }
     }
-    alert("Success!!");
+    // alert("Success!!");
   } catch (err) {
-    // dispatch(setAlert("Images cannot be uploaded..", "error"));
-    alert("---FAIL---ERR---");
+    //this is just trial add CleanUP here by deleting the partially uploaded unwanted images...
+    throw err;
   }
 
   return clone(restObj);

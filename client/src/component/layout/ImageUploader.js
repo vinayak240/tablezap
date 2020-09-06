@@ -1,5 +1,5 @@
 import React from "react";
-import { clone } from "ramda";
+// import { clone } from "ramda";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Typography,
@@ -8,14 +8,14 @@ import {
   withStyles,
   FormControlLabel
 } from "@material-ui/core";
-import { storage } from "../../firebase";
+// import { storage } from "../../firebase";
 
 const useStyles = makeStyles(theme => ({
   card: {
     width: "94%",
     margin: "auto",
     marginTop: "10px",
-    padding: "22px",
+    padding: "32px 20px",
     transition: "0.4s",
     minWidth: "200px",
     // overflow: "auto",
@@ -58,7 +58,7 @@ const ImageUploader = props => {
   const classes = useStyles();
   const hiddenFileInput = React.useRef(null);
   const [state, setState] = React.useState({
-    imgList: [],
+    // imgList: props.imgList || [],
     show_img: false
   });
 
@@ -72,10 +72,11 @@ const ImageUploader = props => {
     hiddenFileInput.current.files = null;
     hiddenFileInput.current.value = null;
 
-    setState({
-      ...state,
-      imgList: state.imgList.filter(ele => ele.id !== id)
-    });
+    // setState({
+    //   ...state,
+    //   imgList: state.imgList.filter(ele => ele.id !== id)
+    // });
+    props.deleteImg(id, name);
   };
 
   const handleImgChange = e => {
@@ -89,15 +90,18 @@ const ImageUploader = props => {
     });
 
     files = files.filter(ele => {
-      return !state.imgList.find(
+      return !props.imgList.find(
         (obj, index) => obj.file.name === ele.file.name
       );
     });
     //   console.log(files);
-    setState({
-      ...state,
-      imgList: clone(props.multiple ? [...state.imgList, ...files] : files)
-    });
+    // setState({
+    //   ...state,
+    //   imgList: clone(props.multiple ? [...state.imgList, ...files] : files)
+    // });
+    hiddenFileInput.current.files = null;
+    hiddenFileInput.current.value = null;
+
     props.upload && props.upload(props.multiple ? files : files[0]);
     // }
   };
@@ -179,7 +183,7 @@ const ImageUploader = props => {
           </Button>
         </div>
       </div>
-      {state.imgList.length > 0 && (
+      {props.imgList.length > 0 && (
         <div style={{ marginTop: "18px", marginBottom: "8px" }}>
           {" "}
           <FormControlLabel
@@ -207,7 +211,7 @@ const ImageUploader = props => {
           flexWrap: "wrap"
         }}
       >
-        {state.imgList.map(({ file, src, id }, index) =>
+        {props.imgList.map(({ file, src, id }, index) =>
           state.show_img ? (
             <div
               style={{ margin: "10px" }}

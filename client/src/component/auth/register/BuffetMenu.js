@@ -17,6 +17,7 @@ import AlertWindow from "../../layout/Alert";
 import { setAlert } from "../../../redux/actions/alert";
 import { useDispatch } from "react-redux";
 import CloseRounded from "@material-ui/icons/CloseRounded";
+import ImageUploader from "../../layout/ImageUploader";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -469,6 +470,7 @@ const Package = props => {
   const classes = useStyles();
   const [state, setState] = useState({
     form_show: false,
+    item_img: {},
     item_name: "",
     food_type: "",
     item_desc: "",
@@ -480,6 +482,7 @@ const Package = props => {
     setState(state => ({
       ...state,
       item_name: "",
+      item_img: {},
       food_type: "",
       item_desc: "",
       item_type: "",
@@ -507,9 +510,10 @@ const Package = props => {
   };
 
   const addItem = () => {
-    const { item_name, item_desc, food_type, item_type } = state;
+    const { item_name, item_img, item_desc, food_type, item_type } = state;
     const newItem = {
       item_name,
+      item_img,
       item_desc,
       food_type,
       item_type
@@ -540,6 +544,29 @@ const Package = props => {
       cust_show: !state.cust_show
     });
   };
+
+  const addImage = payload => {
+    // console.log("here payload", payload);
+
+    setState({
+      ...state,
+      item_img: { ...payload }
+    });
+  };
+
+  const deleteImg = () => {
+    setState({
+      ...state,
+      item_img: {}
+    });
+  };
+
+  function isObjEmpty(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
 
   return (
     <div
@@ -634,6 +661,15 @@ const Package = props => {
             alignItems="center"
             justify="center"
           >
+            <Grid item md={11}>
+              <ImageUploader
+                imgList={isObjEmpty(state.item_img) ? [] : [state.item_img]}
+                multiple={false}
+                show={true}
+                upload={addImage}
+                deleteImg={deleteImg}
+              />
+            </Grid>
             <Grid item md={11}>
               <input
                 id="item_name"

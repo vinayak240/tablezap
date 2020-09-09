@@ -342,10 +342,30 @@ const Item = props => {
         justify="flex-start"
       >
         <Grid item xs={3}>
-          {props.type === "bar" ? (
+          {props.item.item_img && props.item.item_img.src ? (
+            // <div
+            //   style={{
+            //     padding: "20px",
+            //     border: "1px solid lightgray",
+            //     borderRadius: "5px"
+            //   }}
+            // >
+            <img
+              src={props.item.item_img.src}
+              alt={props.item.item_name}
+              style={{
+                width: "110px",
+                height: "110px",
+                border: "1px solid lightgray",
+                borderRadius: "4px",
+                padding: "2px"
+              }}
+            />
+          ) : // </div>
+          props.type === "bar" ? (
             <img
               src={wine_img}
-              alt="Wine"
+              alt={props.item.item_name}
               style={{
                 width: "100px",
                 height: "100px",
@@ -357,7 +377,7 @@ const Item = props => {
           ) : (
             <img
               src={item_img}
-              alt="Item"
+              alt={props.item.item_name}
               style={{
                 width: "100px",
                 height: "100px",

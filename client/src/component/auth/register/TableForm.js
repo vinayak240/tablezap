@@ -5,6 +5,7 @@ import ArrowRightAlt from "@material-ui/icons/ArrowRightAlt";
 import { Alert, AlertTitle } from "@material-ui/lab";
 import table_img from "../../../img/table.png";
 import room_img from "../../../img/door.png";
+import ImageUploader from "../../layout/ImageUploader";
 // import ImageUploader from "../../layout/ImageUploader";
 const useStyles = makeStyles(theme => ({
   root: {
@@ -259,9 +260,14 @@ const AddTable = props => {
 const RestForm = props => {
   const classes = useStyles();
   const [state, setState] = React.useState({
-    service_type: "",
-    n_tables: "",
-    tables: []
+    display_images: props.formData.display_images || [],
+    service_type:
+      (props.formData.orientation && props.formData.orientation.service_type) ||
+      "",
+    n_tables:
+      (props.formData.orientation && props.formData.orientation.n_tables) || "",
+    tables:
+      (props.formData.orientation && props.formData.orientation.tables) || []
   });
 
   const handleChange = evt => {
@@ -292,15 +298,44 @@ const RestForm = props => {
   };
 
   const handleNext = () => {
-    let orientation = { ...state };
+    let orientation = {
+      service_type: state.service_type,
+      n_tables: state.n_tables,
+      tables: state.tables
+    };
     orientation.n_tables = orientation.tables.length;
-    let data = { orientation };
+    let data = { orientation, display_images: state.display_images };
 
     props.handleNext(data);
   };
 
+  const addImage = payload => {
+    // console.log("here payload", payload);
+
+    setState({
+      ...state,
+      display_images: [...state.display_images, ...payload]
+    });
+  };
+
+  const deleteImg = (id, name) => {
+    let arr = state.display_images;
+    arr = arr.filter(ele => ele.id !== id);
+    setState({
+      ...state,
+      display_images: [...arr]
+    });
+  };
+
+  // function isObjEmpty(obj) {
+  //   for (var key in obj) {
+  //     if (obj.hasOwnProperty(key)) return false;
+  //   }
+  //   return true;
+  // }
+
   return (
-    <div className={classes.section}>
+    <div style={{ padding: "25px" }} className={classes.section}>
       <Typography
         style={{ margin: "10px", textDecoration: "underline" }}
         variant="h6"
@@ -311,9 +346,22 @@ const RestForm = props => {
         container
         spacing={2}
         direction="row"
-        justify="space-evenly"
+        justify="center"
         alignItems="center"
       >
+        <Grid item xs={12}>
+          <ImageUploader
+            imgList={
+              state.display_images && state.display_images.length > 0
+                ? state.display_images
+                : []
+            }
+            multiple={true}
+            show={true}
+            upload={addImage}
+            deleteImg={deleteImg}
+          />
+        </Grid>
         <Grid container item xs={3} justify="flex-start">
           <label htmlFor="service_type" className={classes.paper}>
             Service type :{" "}
@@ -446,8 +494,10 @@ const Room = props => {
 const LodgeForm = props => {
   const classes = useStyles();
   const [state, setState] = React.useState({
+    display_images: props.formData.display_images || [],
     room_id: "",
-    rooms: []
+    rooms:
+      (props.formData.orientation && props.formData.orientation.rooms) || []
   });
 
   useEffect(() => {
@@ -486,9 +536,27 @@ const LodgeForm = props => {
 
   const handleNext = () => {
     let orientation = { rooms: state.rooms };
-    let data = { orientation };
+    let data = { orientation, display_images: state.display_images };
 
     props.handleNext(data);
+  };
+
+  const addImage = payload => {
+    // console.log("here payload", payload);
+
+    setState({
+      ...state,
+      display_images: [...state.display_images, ...payload]
+    });
+  };
+
+  const deleteImg = (id, name) => {
+    let arr = state.display_images;
+    arr = arr.filter(ele => ele.id !== id);
+    setState({
+      ...state,
+      display_images: [...arr]
+    });
   };
 
   return (
@@ -506,6 +574,19 @@ const LodgeForm = props => {
         justify="space-evenly"
         alignItems="center"
       >
+        <Grid item xs={12}>
+          <ImageUploader
+            imgList={
+              state.display_images && state.display_images.length > 0
+                ? state.display_images
+                : []
+            }
+            multiple={true}
+            show={true}
+            upload={addImage}
+            deleteImg={deleteImg}
+          />
+        </Grid>
         <Grid container item xs={3} justify="flex-start">
           <label htmlFor="room_id" className={classes.paper}>
             Add a room :{" "}
@@ -580,11 +661,18 @@ const LodgeForm = props => {
 const MallForm = props => {
   const classes = useStyles();
   const [state, setState] = React.useState({
+    display_images: props.formData.display_images || [],
     mall_id: "",
-    is_verified: false,
-    service_type: "",
-    n_tables: "",
-    tables: []
+    is_verified:
+      (props.formData.orientation && props.formData.orientation.is_verified) ||
+      "",
+    service_type:
+      (props.formData.orientation && props.formData.orientation.service_type) ||
+      "",
+    n_tables:
+      (props.formData.orientation && props.formData.orientation.n_tables) || "",
+    tables:
+      (props.formData.orientation && props.formData.orientation.tables) || []
   });
 
   const handleChange = evt => {
@@ -623,12 +711,31 @@ const MallForm = props => {
   const handleNext = () => {
     let orientation = {
       is_verified: state.is_verified,
-      service_type: state.is_verified,
-      n_tables: state.n_tables
+      service_type: state.service_type,
+      n_tables: state.n_tables,
+      tables: state.tables
     };
-    let data = { orientation };
+    let data = { orientation, display_images: state.display_images };
 
     props.handleNext(data);
+  };
+
+  const addImage = payload => {
+    // console.log("here payload", payload);
+
+    setState({
+      ...state,
+      display_images: [...state.display_images, ...payload]
+    });
+  };
+
+  const deleteImg = (id, name) => {
+    let arr = state.display_images;
+    arr = arr.filter(ele => ele.id !== id);
+    setState({
+      ...state,
+      display_images: [...arr]
+    });
   };
 
   return (
@@ -646,6 +753,19 @@ const MallForm = props => {
         justify="space-evenly"
         alignItems="center"
       >
+        <Grid item xs={12}>
+          <ImageUploader
+            imgList={
+              state.display_images && state.display_images.length > 0
+                ? state.display_images
+                : []
+            }
+            multiple={true}
+            show={true}
+            upload={addImage}
+            deleteImg={deleteImg}
+          />
+        </Grid>
         <Grid container item xs={3} justify="flex-start">
           <label htmlFor="mall_id" className={classes.paper}>
             Mall ID :{" "}

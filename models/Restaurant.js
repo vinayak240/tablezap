@@ -1,6 +1,18 @@
 const mongoose = require("mongoose");
 const Menu = require("./Menu");
 // console.log("Schema : ", Menu);
+
+const imgSchema = new mongoose.Schema({
+  name: {
+    type: String
+    // required: true
+  },
+  imgURL: {
+    type: String
+    // required: true
+  }
+});
+
 const restSchema = new mongoose.Schema({
   rest_id: {
     type: String,
@@ -22,6 +34,7 @@ const restSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  display_images: [imgSchema],
   rest_addr: {
     type: String,
     required: true
@@ -76,18 +89,6 @@ const restSchema = new mongoose.Schema({
   },
   orientation: {}
 });
-
-// const categorySchema = new mongoose.Schema({
-//   category_name: {
-//     type: String,
-//     required: true
-//   },
-
-//   items : [
-
-//   ]
-
-// })
 
 // const packageSchema = new mongoose.Schema({
 //   package_name: {

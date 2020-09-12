@@ -152,7 +152,9 @@ router.post(
       }
 
       const payload = {
-        restaurant
+        restaurant: {
+          _id: restaurant._id
+        }
       };
 
       jwt.sign(
@@ -172,11 +174,13 @@ router.post(
   }
 );
 
-// @route    GET /restaurant
+// @route    GET /restaurants/rest
 // @desc     To get the restaurant
 // @access   Private
 router.get("/rest", rest_auth, async (req, res) => {
   try {
+    // console.log("ID: ", req.restaurant._id);
+
     const restaurant = await Restaurant.findById(req.restaurant._id);
 
     if (!restaurant) {

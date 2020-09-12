@@ -4,6 +4,7 @@ const config = require("config");
 module.exports = async function(req, res, next) {
   // Get token from header
   const token = req.header("x-auth-token");
+  // console.log("Here1");
 
   // Check if not token
   if (!token) {
@@ -19,6 +20,8 @@ module.exports = async function(req, res, next) {
         res.status(401).json({ success: false, msg: "Token is not valid" });
       } else {
         req.restaurant = decoded.restaurant;
+        // console.log("Here Rest - \n", decoded.restaurant);
+
         next();
       }
     });

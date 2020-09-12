@@ -47,8 +47,8 @@ const App = () => {
           {/* <Register /> */}
 
           {/* <Login /> */}
-          {/* {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />} */}
-          <Register />
+          {state.islogged ? <Dashboard /> : <Login setLogged={setLogged} />}
+          {/* <Register /> */}
           {/* <ImageUploader multiple={true} show={true} /> */}
 
           {/* <div>

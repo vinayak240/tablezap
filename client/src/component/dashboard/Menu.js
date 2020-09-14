@@ -39,6 +39,7 @@ import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 import FlipMove from "react-flip-move";
 import FbSpinner from "../layout/FbSpinner";
+import ImageUploader from "../layout/ImageUploader";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -656,6 +657,7 @@ const ItemForm = props => {
     currency: (props.item && props.item.currency) || "",
     item_desc: (props.item && props.item.item_desc) || "",
     food_type: (props.item && props.item.food_type) || "",
+    item_img: (props.item && props.item.item_img) || {}, 
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
@@ -863,6 +865,13 @@ const ItemForm = props => {
     });
   };
 
+  function isObjEmpty(obj) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
+
   return (
     <div>
       <DialogTitle
@@ -880,8 +889,11 @@ const ItemForm = props => {
           spacing={2}
           direction="row"
           alignItems="center"
-          justify="center"
+          justify="flex-start"
         >
+          <Grid item xs={12}>
+            <ImageUploader imgList={isObjEmpty(state.item_img) ? [] : [state.item_img]} show={isObjEmpty(state.item_img)} multiple={false} width="97%" />
+          </Grid>
           <Grid item xs={12}>
             <input
               id="item_name"
@@ -1692,6 +1704,13 @@ const Item = forwardRef((props, ref) => {
     );
   };
 
+  function isObjEmpty(obj) {
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) return false;
+    }
+    return true;
+  }
+
   return (
     <div ref={ref} className={classes.card}>
       <div className="all_dialogs">
@@ -1838,7 +1857,7 @@ const Item = forwardRef((props, ref) => {
             </MenuItem>
           </MaterialMenu>
         </Grid>
-        {matchesSm && (
+        {matchesSm && isObjEmpty(props.item.item_img) && (
           <Grid style={{ paddingLeft: "25px" }} item xs={3} sm={3} md={3}>
             <img
               src={item_img}
@@ -1847,6 +1866,20 @@ const Item = forwardRef((props, ref) => {
               style={{
                 width: matchesImdDim ? "120px" : "90%",
                 height: matchesImdDim ? "120px" : "90%"
+              }}
+            />
+          </Grid>
+        )}
+        {!isObjEmpty(props.item.item_img) && (
+          <Grid style={{ paddingLeft: "25px" }} item xs={3} sm={3} md={3}>
+            <img
+              src={props.item.item_img.imgURL}
+              alt="Item"
+              style={{
+                width: matchesImdDim ? "100px" : "90%",
+                height: matchesImdDim ? "100px" : "90%",
+                borderRadius: "5px",
+                boxShadow: "2px 2px 2px lightgray"
               }}
             />
           </Grid>

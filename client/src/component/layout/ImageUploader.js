@@ -13,8 +13,8 @@ import {
 const useStyles = makeStyles(theme => ({
   card: {
     width: "94%",
-    margin: "auto",
-    marginTop: "10px",
+    // margin: "auto",
+    // marginTop: "10px",
     padding: "32px 20px",
     transition: "0.4s",
     minWidth: "200px",
@@ -131,7 +131,7 @@ const ImageUploader = props => {
   // };
 
   return (
-    <div className={classes.card}>
+    <div style={{ width: props.width || "94%" }} className={classes.card}>
       <div
         style={{
           display: "flex",

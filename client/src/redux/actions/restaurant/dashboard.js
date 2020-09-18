@@ -3,6 +3,7 @@ import { UPDATED_REST, UPDATING_REST, UPDATE_ERR } from "../types";
 import setAuthToken from "../../../utils/setAuthToken";
 import { setAlert } from "../alert";
 import { clone } from "ramda";
+import updateRestImages from "../../../firebase/update_lib";
 
 export const updateRestaurant = (restaurant, categ) => async dispatch => {
   const config = {
@@ -11,7 +12,7 @@ export const updateRestaurant = (restaurant, categ) => async dispatch => {
     }
   };
 
-  const body = clone(restaurant);
+  // const body = clone(restaurant);
 
   if (localStorage.rest_token) {
     setAuthToken(localStorage.rest_token);
@@ -21,6 +22,8 @@ export const updateRestaurant = (restaurant, categ) => async dispatch => {
     dispatch({
       type: UPDATING_REST
     });
+    let final_obj = await updateRestImages(restaurant);
+    const body = JSON.stringify(final_obj);
     const res = await axios.put(
       `http://localhost:5000/restaurants/rest/${categ}/`,
       body,
@@ -38,7 +41,11 @@ export const updateRestaurant = (restaurant, categ) => async dispatch => {
       });
     }
   } catch (error) {
-    const msg = error.response.data.msg;
+    // console.log(error);
+
+    const msg = error.response
+      ? error.response.data.msg
+      : "Something went wrong...";
 
     if (msg.toLowerCase() === "validation errors") {
       const errors = error.response.data.errors;

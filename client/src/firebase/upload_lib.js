@@ -5,10 +5,9 @@ import { storage } from "./index";
 // import { setAlert } from "../redux/actions/alert";
 
 const uploadFiles = async fileLst => {
-  const taskLst = fileLst.map(obj =>
-    storage.ref(`images/${obj.name}`).put(obj.file)
+  await Promise.all(
+    fileLst.map(obj => storage.ref(`images/${obj.name}`).put(obj.file))
   );
-  await Promise.all(taskLst);
 };
 
 const getURL = async name => {
@@ -95,10 +94,7 @@ const uploadRestImages = async restObj => {
         if (key === "display_images") {
           restObj.display_images = await Promise.all(
             restObj.display_images.map(async ele => {
-              let url = await storage
-                .ref("images")
-                .child(ele.name)
-                .getDownloadURL();
+              let url = await getURL(ele.name);
 
               return { name: ele.name, imgURL: url };
             })
@@ -112,10 +108,7 @@ const uploadRestImages = async restObj => {
                 categ.items.map(async item => {
                   let url = "";
                   if (item.item_img && item.item_img.name) {
-                    url = await storage
-                      .ref("images")
-                      .child(item.item_img.name)
-                      .getDownloadURL();
+                    url = await getURL(item.item_img.name);
                   }
 
                   return item.item_img && item.item_img.name
@@ -136,10 +129,7 @@ const uploadRestImages = async restObj => {
                 categ.items.map(async item => {
                   let url = "";
                   if (item.item_img && item.item_img.name) {
-                    url = await storage
-                      .ref("images")
-                      .child(item.item_img.name)
-                      .getDownloadURL();
+                    url = await getURL(item.item_img.name);
                   }
 
                   return item.item_img && item.item_img.name
@@ -160,10 +150,7 @@ const uploadRestImages = async restObj => {
                 categ.items.map(async item => {
                   let url = "";
                   if (item.item_img && item.item_img.name) {
-                    url = await storage
-                      .ref("images")
-                      .child(item.item_img.name)
-                      .getDownloadURL();
+                    url = await getURL(item.item_img.name);
                   }
 
                   return item.item_img && item.item_img.name

@@ -165,11 +165,12 @@ const ImageUploader = props => {
           <Button
             style={{
               // float: "right",
-              backgroundColor: "#039be5",
+              backgroundColor: props.show ? "#039be5" : "lightgray",
               color: "white",
               borderRadius: "6px"
             }}
             onClick={handleClick}
+            disabled={!props.show}
           >
             <span
               style={{
@@ -211,7 +212,7 @@ const ImageUploader = props => {
           flexWrap: "wrap"
         }}
       >
-        {props.imgList.map(({ file, src, id }, index) =>
+        {props.imgList.map((ele, index) =>
           state.show_img ? (
             <div
               style={{ margin: "10px" }}
@@ -230,7 +231,9 @@ const ImageUploader = props => {
                 <i
                   style={{ color: "#514f4f" }}
                   className="fas fa-times"
-                  onClick={() => deleteImg(id, file.name)}
+                  onClick={() =>
+                    deleteImg(ele.id, ele.file ? ele.file.name : "item image")
+                  }
                 ></i>
               </div>
               <img
@@ -243,8 +246,8 @@ const ImageUploader = props => {
                   marginTop: "4px"
                   // boxShadow: "3px 3px 3px lightgray"
                 }}
-                src={src}
-                alt={id}
+                src={ele.src}
+                alt={ele.id}
               />
               <Typography
                 style={{
@@ -254,7 +257,7 @@ const ImageUploader = props => {
                   color: "#514f4f"
                 }}
               >
-                {file.name}
+                {ele.file ? ele.file.name : "item image"}
               </Typography>
             </div>
           ) : (
@@ -281,7 +284,7 @@ const ImageUploader = props => {
                   color: "#514f4f"
                 }}
               >
-                {file.name}
+                {ele.file ? ele.file.name : "item image"}
               </span>
               <span>
                 {" "}
@@ -291,7 +294,9 @@ const ImageUploader = props => {
                     marginLeft: "10px"
                   }}
                   className="fas fa-times"
-                  onClick={() => deleteImg(id, file.name)}
+                  onClick={() =>
+                    deleteImg(ele.id, ele.file ? ele.file.name : "item image")
+                  }
                 ></i>
               </span>
             </div>

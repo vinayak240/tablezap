@@ -657,7 +657,7 @@ const ItemForm = props => {
     currency: (props.item && props.item.currency) || "",
     item_desc: (props.item && props.item.item_desc) || "",
     food_type: (props.item && props.item.food_type) || "",
-    item_img: (props.item && props.item.item_img) || {}, 
+    item_img: (props.item && props.item.item_img) || {},
     // custumization: "",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
@@ -798,8 +798,8 @@ const ItemForm = props => {
   };
 
   const updateItem = () => {
-    const { item_name, item_desc, food_type } = state;
-    let newItem = { item_name, item_desc, food_type };
+    const { item_name, item_desc, food_type, item_img } = state;
+    let newItem = { item_name, item_desc, food_type, item_img };
 
     if (!props.isPackage) {
       let { item_price, currency } = state;
@@ -872,6 +872,30 @@ const ItemForm = props => {
     return true;
   }
 
+  const addImg = payload => {
+    payload = {
+      ...payload,
+      updated: true,
+      preID:
+        props.item.item_img && props.item.item_img.preID
+          ? props.item.item_img.preID
+          : props.item.item_img && props.item.item_img.name
+          ? props.item.item_img.name
+          : undefined
+    };
+    setState({
+      ...state,
+      item_img: { ...payload }
+    });
+  };
+
+  const deleteImg = (id, name) => {
+    setState({
+      ...state,
+      item_img: {}
+    });
+  };
+
   return (
     <div>
       <DialogTitle
@@ -892,7 +916,25 @@ const ItemForm = props => {
           justify="flex-start"
         >
           <Grid item xs={12}>
-            <ImageUploader imgList={isObjEmpty(state.item_img) ? [] : [state.item_img]} show={isObjEmpty(state.item_img)} multiple={false} width="97%" />
+            <ImageUploader
+              imgList={
+                isObjEmpty(state.item_img)
+                  ? []
+                  : [
+                      state.item_img.file
+                        ? state.item_img
+                        : {
+                            src: state.item_img.imgURL,
+                            id: state.item_img.name
+                          }
+                    ]
+              }
+              show={isObjEmpty(state.item_img)}
+              multiple={false}
+              width="97%"
+              upload={addImg}
+              deleteImg={deleteImg}
+            />
           </Grid>
           <Grid item xs={12}>
             <input
@@ -1873,13 +1915,14 @@ const Item = forwardRef((props, ref) => {
         {!isObjEmpty(props.item.item_img) && (
           <Grid style={{ paddingLeft: "25px" }} item xs={3} sm={3} md={3}>
             <img
-              src={props.item.item_img.imgURL}
+              src={props.item.item_img.imgURL || props.item.item_img.src}
               alt="Item"
               style={{
                 width: matchesImdDim ? "100px" : "90%",
                 height: matchesImdDim ? "100px" : "90%",
-                borderRadius: "5px",
+                borderRadius: "3px",
                 boxShadow: "2px 2px 2px lightgray"
+                // border: "2px solid lightgray"
               }}
             />
           </Grid>

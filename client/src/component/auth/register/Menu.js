@@ -810,7 +810,7 @@ const ItemForm = props => {
               <ImageUploader
                 imgList={isObjEmpty(state.item_img) ? [] : [state.item_img]}
                 multiple={false}
-                show={true}
+                show={true} //used for disabling browse btn..
                 upload={addImage}
                 deleteImg={deleteImg}
               />

@@ -8,6 +8,8 @@ import { Collapse, Grid, Button, useMediaQuery } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import FbSpinner from "../layout/FbSpinner";
+import ImageSlider from "../layout/ImageSlider";
+import RestLogo from "../logos/RestLogo";
 
 const useFirebaseBtnStyles = makeStyles(({ shadows, palette }) => ({
   root: {
@@ -210,6 +212,91 @@ const useStyles = makeStyles(() => ({
     fontSize: "14px"
   }
 }));
+
+const Profile = props => {
+  const classes = useStyles();
+  return (
+    <div
+      className={classes.card}
+      style={{
+        background: "white",
+        width: "100%",
+        padding: "0px 0px 22px 0px"
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          borderRadius: 16,
+          backgroundColor: "black",
+          margin: "auto",
+          padding: "10px 10px",
+          borderBottomLeftRadius: "0px",
+          borderBottomRightRadius: "0px"
+        }}
+      >
+        {/* <div style={{ width: "95%", margin: "auto", maxHeight: "500px" }}> */}
+        <ImageSlider imgList={props.restaurant.display_images} />
+        {/* </div> */}
+      </div>
+
+      <div>
+        <Grid
+          // className={classes.section}
+          style={{ marginTop: "7px", padding: "15px 10px" }}
+          container
+          // spacing={1}
+          direction="row"
+          alignItems="center"
+          justify="flex-start"
+        >
+          <Grid style={{ paddingRight: "8px" }} item xs={3} sm={2} md={1}>
+            <RestLogo height="35px" width="35px" />
+          </Grid>
+
+          <Grid style={{ paddingRight: "8px" }} item xs={9} sm={10} md={11}>
+            <Typography
+              style={{
+                fontWeight: "bolder",
+                fontSize: "15px"
+                // textDecoration: "underline"
+              }}
+              // align={"center"}
+            >
+              {props.restaurant ? props.restaurant.rest_name : "Restaurant"}
+            </Typography>
+            <Typography>
+              <span
+                style={{
+                  borderRadius: "6px",
+                  padding: "3px",
+                  backgroundColor: "#cdefc9",
+                  textDecoration: "underline",
+                  color: "green",
+                  marginTop: "10x",
+                  fontSize: "13px",
+                  fontWeight: "bold"
+                }}
+              >
+                <img
+                  style={{
+                    width: "13px",
+                    verticalAlign: "middle",
+                    margin: "3px"
+                    // float: "left"
+                  }}
+                  src="https://img.icons8.com/fluent/48/000000/verified-account.png"
+                  alt="ID"
+                />
+                {props.restaurant ? props.restaurant.rest_id : "123"}
+              </span>
+            </Typography>
+          </Grid>
+        </Grid>
+      </div>
+    </div>
+  );
+};
 
 const OwnerDetails = props => {
   const classes = useStyles();
@@ -1085,6 +1172,7 @@ const Account = props => {
 
       {props.restaurant && (
         <div className="content">
+          <Profile restaurant={props.restaurant} />
           <Credentials
             rest_id={props.restaurant.rest_id}
             rest_psswd={props.restaurant.rest_psswd}

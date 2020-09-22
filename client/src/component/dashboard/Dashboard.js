@@ -126,7 +126,7 @@ function Dashboard(props) {
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
     mobileOpen: false,
-    page: "menu",
+    page: "account",
     is_edited: Array.from({ length: 7 }, ele => false),
     snack_open: false,
     loading: false,

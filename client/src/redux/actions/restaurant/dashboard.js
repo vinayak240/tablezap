@@ -1,33 +1,21 @@
-import axios from "axios";
+// import axios from "axios";
+import apiClient from "../../../api-clients/axios_rest";
 import { UPDATED_REST, UPDATING_REST, UPDATE_ERR } from "../types";
-import setAuthToken from "../../../utils/setAuthToken";
 import { setAlert } from "../alert";
 import { clone } from "ramda";
 import updateRestImages from "../../../firebase/update_lib";
 
 export const updateRestaurant = (restaurant, categ) => async dispatch => {
-  const config = {
-    headers: {
-      "Content-Type": "application/json"
-    }
-  };
-
   // const body = clone(restaurant);
-
-  if (localStorage.rest_token) {
-    setAuthToken(localStorage.rest_token);
-  }
-
   try {
     dispatch({
       type: UPDATING_REST
     });
     let final_obj = await updateRestImages(restaurant);
     const body = JSON.stringify(final_obj);
-    const res = await axios.put(
-      `http://localhost:5000/restaurants/rest/${categ}/`,
-      body,
-      config
+    const res = await apiClient().put(
+      `/rest/${categ}/`,
+      body
     );
     // console.log(res);
 

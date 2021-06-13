@@ -1,7 +1,7 @@
 import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
-  USER_LOADED,
+  REST_LOADED,
   AUTH_ERROR,
   LOGIN_SUCCESS,
   LOGIN_FAIL,
@@ -10,7 +10,8 @@ import {
   UPDATED_REST,
   UPDATE_ERR,
   UPDATING_REST,
-  SET_LOADING
+  SET_LOADING,
+  REFRESHED_TOKEN,
 } from "../../actions/types";
 import { clone } from "ramda";
 
@@ -19,46 +20,47 @@ const initialState = {
   isAuthenticated: null,
   isUpdated: false,
   loading: true,
-  restaurant: null
+  restaurant: null,
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
     case SET_LOADING:
       return {
         ...state,
-        loading: true
+        loading: true,
       };
-    case USER_LOADED:
+    case REST_LOADED:
       return {
         ...state,
         isAuthenticated: true,
         loading: false,
-        restaurant: clone(payload)
+        restaurant: clone(payload),
       };
     case REGISTER_SUCCESS:
     case LOGIN_SUCCESS:
+    case REFRESHED_TOKEN:
       localStorage.setItem("rest_token", payload.token);
       return {
         ...state,
         ...payload,
         isAuthenticated: true,
-        loading: false
+        loading: false,
       };
     case UPDATING_REST:
       return {
         ...state,
         isUpdated: false,
-        loading: true
+        loading: true,
       };
     case UPDATED_REST:
       return {
         ...state,
         loading: false,
         isUpdated: true,
-        restaurant: clone(payload)
+        restaurant: clone(payload),
       };
     case REGISTER_FAIL:
     case AUTH_ERROR:
@@ -70,13 +72,13 @@ export default function(state = initialState, action) {
         ...state,
         token: null,
         isAuthenticated: false,
-        loading: false
+        loading: false,
       };
     case UPDATE_ERR:
       return {
         ...state,
         loading: false,
-        isUpdated: false
+        isUpdated: false,
       };
     default:
       return state;

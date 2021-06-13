@@ -132,7 +132,6 @@ function Login({ login, isAuthenticated, setLogged }) {
             </Button>
           </div>
         </form>
-
         <AlertWindow />
       </Card>
     </>

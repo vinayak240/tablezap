@@ -2,19 +2,24 @@ const express = require("express");
 const connectDB = require("./config/db");
 const path = require("path");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 
 const app = express();
-
-console.log("\n<>=================================<>");
 
 // Connect Database
 connectDB();
 
 // CORS Middleware
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: ["http://localhost:3000"],
+  })
+);
 
 // Init Middleware
 app.use(express.json({ extended: false }));
+app.use(cookieParser());
 
 // Define Routes
 app.use("/users", require("./routes/api/user"));

@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
 const rest_auth = require("../../middleware/rest_auth");
+const refresh_auth = require("../../middleware/refresh_auth");
 const { check, validationResult } = require("express-validator/check");
 
 const Restaurant = require("../../models/Restaurant");
@@ -38,17 +39,13 @@ router.get("/", async (req, res) => {
 router.post(
   "/register",
   [
-    check("rest_name", "Name is required")
-      .not()
-      .isEmpty(),
-    check("rest_id", "Restaurant ID is required")
-      .not()
-      .isEmpty(),
+    check("rest_name", "Name is required").not().isEmpty(),
+    check("rest_id", "Restaurant ID is required").not().isEmpty(),
     check("rest_email", "Please include a valid email").isEmail(),
     check(
       "rest_psswd",
       "Please enter a password with 6 or more characters"
-    ).isLength({ min: 6 })
+    ).isLength({ min: 6 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -56,7 +53,7 @@ router.post(
       return res.status(400).json({
         success: false,
         msg: "Validation errors",
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -68,7 +65,7 @@ router.post(
       if (restaurant) {
         return res.status(400).json({
           success: false,
-          msg: "Restaurant with this ID already exists"
+          msg: "Restaurant with this ID already exists",
         });
       }
 
@@ -77,12 +74,12 @@ router.post(
       if (restaurant) {
         return res.status(400).json({
           success: false,
-          msg: "Restaurant with this name already exists"
+          msg: "Restaurant with this name already exists",
         });
       }
 
       restaurant = new Restaurant({
-        ...req.body
+        ...req.body,
       });
 
       const salt = await bcrypt.genSalt(10);
@@ -92,16 +89,46 @@ router.post(
       await restaurant.save();
 
       const payload = {
-        restaurant
+        restaurant,
       };
+
+      // jwt.sign(
+      //   payload,
+      //   config.get("jwtSecret"),
+      //   { expiresIn: 360000 },
+      //   (err, token) => {
+      //     if (err) throw err;
+      //     res.json({ success: true, token, rest_name });
+      //   }
+      // );
 
       jwt.sign(
         payload,
         config.get("jwtSecret"),
-        { expiresIn: 360000 },
-        (err, token) => {
+        { expiresIn: "1y" },
+        (err, refresh_token) => {
+          // Here
           if (err) throw err;
-          res.json({ success: true, token, rest_name });
+          jwt.sign(
+            payload,
+            config.get("jwtSecret"),
+            { expiresIn: "5m" },
+            (err, access_token) => {
+              if (err) throw err;
+              //.cookie should come before .json
+              res
+                .cookie("_refresh_token_", refresh_token, {
+                  maxAge: 31536000000,
+                  httpOnly: true,
+                  //secure: true -- For Prod
+                })
+                .json({
+                  success: true,
+                  token: access_token,
+                  rest_name: restaurant.rest_name,
+                });
+            }
+          );
         }
       );
     } catch (err) {
@@ -117,10 +144,8 @@ router.post(
 router.post(
   "/login",
   [
-    check("rest_id", "Please include a valid Restaurant ID")
-      .not()
-      .isEmpty(),
-    check("rest_psswd", "Password is required").exists()
+    check("rest_id", "Please include a valid Restaurant ID").not().isEmpty(),
+    check("rest_psswd", "Password is required").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -128,7 +153,7 @@ router.post(
       return res.status(400).json({
         success: false,
         msg: "Validation errors",
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -153,18 +178,36 @@ router.post(
 
       const payload = {
         restaurant: {
-          _id: restaurant._id
-        }
+          _id: restaurant._id,
+        },
       };
 
       jwt.sign(
         payload,
         config.get("jwtSecret"),
-        { expiresIn: 360000 },
-        (err, token) => {
+        { expiresIn: "1y" },
+        (err, refresh_token) => {
           // Here
           if (err) throw err;
-          res.json({ success: true, token, rest_name: restaurant.rest_name });
+          jwt.sign(
+            payload,
+            config.get("jwtSecret"),
+            { expiresIn: "5m" },
+            (err, access_token) => {
+              if (err) throw err;
+              res
+                .cookie("_refresh_token_", refresh_token, {
+                  maxAge: 31536000000,
+                  httpOnly: true,
+                  //secure: true -- For Prod
+                })
+                .json({
+                  success: true,
+                  token: access_token,
+                  rest_name: restaurant.rest_name,
+                });
+            }
+          );
         }
       );
     } catch (err) {
@@ -173,6 +216,35 @@ router.post(
     }
   }
 );
+
+// @route    GET /restaurants/refresh-token
+// @desc     To Refresh the access token
+// @access   Private
+router.get("/refresh-token", refresh_auth, async (req, res) => {
+  const payload = {
+    restaurant: {
+      _id: req.restaurant._id,
+    },
+  };
+
+  try {
+    jwt.sign(
+      payload,
+      config.get("jwtSecret"),
+      { expiresIn: "5m" },
+      (err, access_token) => {
+        if (err) throw err;
+        res.status(200).json({
+          success: true,
+          token: access_token,
+        });
+      }
+    );
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, msg: "Server Error" });
+  }
+});
 
 // @route    GET /restaurants/rest
 // @desc     To get the restaurant
@@ -190,6 +262,22 @@ router.get("/rest", rest_auth, async (req, res) => {
     }
 
     res.json({ success: true, restaurant });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ success: false, msg: "Server Error" });
+  }
+});
+
+// @route    GET restaurants/id
+// @desc     Get selected restaurants
+// @access   Public
+
+router.get("/logout", async (req, res) => {
+  try {
+    res
+      .clearCookie("_refresh_token_")
+      .status(200)
+      .json({ success: true, msg: "Reastaurant Logged Out" });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ success: false, msg: "Server Error" });
@@ -244,7 +332,7 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
     owner_no,
     // date,
     menu,
-    orientation
+    orientation,
   } = req.body;
 
   const categ = req.params.categ.trim();

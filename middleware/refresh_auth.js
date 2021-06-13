@@ -2,26 +2,25 @@ const jwt = require("jsonwebtoken");
 const config = require("config");
 
 module.exports = async function (req, res, next) {
-  // Get token from header
-  const token = req.header("x-auth-token");
-  // console.log("Here1");
+  // Get token from cookies
+  const token = req.cookies["_refresh_token_"];
 
   // Check if not token
   if (!token) {
     return res
       .status(401)
-      .json({ success: false, msg: "No token, authorization denied" });
+      .json({ success: false, msg: "No refresh token, authorization denied" });
   }
 
   // Verify token
   try {
     await jwt.verify(token, config.get("jwtSecret"), (error, decoded) => {
       if (error) {
-        res.status(401).json({ success: false, msg: "Token is not valid" });
+        res
+          .status(401)
+          .json({ success: false, msg: "Refresh token is not valid" });
       } else {
         req.restaurant = decoded.restaurant;
-        // console.log("Here Rest - \n", decoded.restaurant);
-
         next();
       }
     });

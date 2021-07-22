@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { clone } from "ramda";
 import AppBar from "@material-ui/core/AppBar";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -18,17 +18,18 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import RestLogo from "../logos/RestLogo";
 import Logo from "../logos/Logo";
-import Menu from "./Menu";
+import Menu from "./pages/menu/Menu";
 // import Axios from "axios";
-import { loadRest } from "../../redux/actions/restaurant/auth";
-import Orientation from "./Orientation";
+import { loadRest, logout } from "../../redux/actions/restaurant/auth";
+import Orientation from "./pages/orientation/Orientation";
 import { Grid, Badge } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
-import Account from "./Account";
+import Account from "./pages/account/Account";
 import Snackbar from "@material-ui/core/Snackbar";
 import { updateRestaurant } from "../../redux/actions/restaurant/dashboard";
 import MuiAlert from "@material-ui/lab/Alert";
-// import { makeStyles } from '@material-ui/core/styles';
+import MenuItem from "@material-ui/core/MenuItem";
+import MaterialMenu from "@material-ui/core/Menu";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -40,44 +41,44 @@ function Alert(props) {
 
 const drawerWidth = 260;
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex"
+    display: "flex",
   },
   drawer: {
     [theme.breakpoints.up("md")]: {
       width: drawerWidth,
-      flexShrink: 0
+      flexShrink: 0,
     },
-    zIndex: 2
+    zIndex: 2,
   },
   appBar: {
     [theme.breakpoints.up("md")]: {
       width: "100%",
-      marginLeft: 0
+      marginLeft: 0,
     },
     backgroundColor: "#282C34",
     zIndex: 3,
     boxShadow: "none",
-    borderBottom: "1px solid lightgray"
+    borderBottom: "1px solid lightgray",
   },
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.up("md")]: {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
   drawerPaper: {
-    width: drawerWidth
+    width: drawerWidth,
   },
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
     [theme.breakpoints.down("sm")]: {
-      padding: "14px"
-    }
+      padding: "14px",
+    },
   },
   section: {
     border: "1px solid lightgray",
@@ -87,17 +88,35 @@ const useStyles = makeStyles(theme => ({
     marginTop: "24px",
     marginBottom: "20px",
     width: "88%",
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   listItemSelect: {
-    color: deepPurple[500]
-  }
+    color: deepPurple[500],
+  },
+  logoutBtn: {
+    marginLeft: "auto",
+    padding: "6px",
+    borderRadius: "5px",
+    backgroundColor: "#444444",
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: "#565454",
+    },
+  },
+  menuItem: {
+    width: "150px",
+    padding: "6px 16px",
+    fontWeight: "bold",
+    textAlign: "left",
+    // borderBottom: "1px solid lightgray"
+  },
 }));
 
 function Dashboard(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const dispatch = useDispatch();
   const pageMap = {
     home: 0,
     orders: 1,
@@ -105,7 +124,7 @@ function Dashboard(props) {
     orientation: 3,
     feedback: 4,
     account: 5,
-    settings: 6
+    settings: 6,
   };
   // const dispatch = useDispatch();
   // const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -126,32 +145,33 @@ function Dashboard(props) {
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
     mobileOpen: false,
-    page: "account",
-    is_edited: Array.from({ length: 7 }, ele => false),
+    page: "menu",
+    is_edited: Array.from({ length: 7 }, (ele) => false),
     snack_open: false,
     loading: false,
-    snack1_open: false
+    snack1_open: false,
+    anchorEl: null,
   });
 
   // The page becomes unresponsive due to the infinite loop created by the local reference variable..
   useEffect(() => {
-    setState(prevState => ({
+    setState((prevState) => ({
       ...prevState,
-      restaurant: clone(props.restaurant)
+      restaurant: clone(props.restaurant),
     }));
   }, [props.restaurant]);
   // const didMountRef = useRef(false);
   useEffect(() => {
     // if (didMountRef.current) {
     if (state.is_edited[pageMap[state.page]]) {
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
-        snack_open: true
+        snack_open: true,
       }));
     } else if (state.snack_open) {
-      setState(prevState => ({
+      setState((prevState) => ({
         ...prevState,
-        snack_open: false
+        snack_open: false,
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -162,16 +182,16 @@ function Dashboard(props) {
       setTimeout(() => {
         let arr = state.is_edited;
         arr[pageMap[state.page]] = false;
-        setState(prevState => ({
+        setState((prevState) => ({
           ...prevState,
           is_edited: [...arr],
           snack_open: false,
-          loading: false
+          loading: false,
         }));
         setTimeout(() => {
-          setState(prevState => ({
+          setState((prevState) => ({
             ...prevState,
-            snack1_open: true
+            snack1_open: true,
           }));
         }, 100);
       }, 600);
@@ -182,7 +202,7 @@ function Dashboard(props) {
   const handleDrawerToggle = () => {
     setState({
       ...state,
-      mobileOpen: !state.mobileOpen
+      mobileOpen: !state.mobileOpen,
     });
   };
 
@@ -192,7 +212,7 @@ function Dashboard(props) {
     }
     setState({
       ...state,
-      [content]: false
+      [content]: false,
     });
   };
 
@@ -200,15 +220,15 @@ function Dashboard(props) {
     let restaurant = clone(state.restaurant);
     let catIdx = -1;
     if (Boolean(catId)) {
-      catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
+      catIdx = restaurant.menu[menuType].findIndex((ele) => ele._id === catId);
     } else {
       if (menuType === "buffet") {
         catIdx = restaurant.menu[menuType].findIndex(
-          ele => ele.package_name === name
+          (ele) => ele.package_name === name
         );
       } else {
         catIdx = restaurant.menu[menuType].findIndex(
-          ele => ele.category_name === name
+          (ele) => ele.category_name === name
         );
       }
     }
@@ -242,7 +262,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -250,7 +270,7 @@ function Dashboard(props) {
     let restaurant = clone(state.restaurant);
     let newCat = {
       category_name: catName,
-      items: []
+      items: [],
     };
     let newArr = [...restaurant.menu[menuType], newCat];
     restaurant.menu[menuType] = newArr;
@@ -259,7 +279,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -272,15 +292,15 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
-  const addTable = newTable => {
+  const addTable = (newTable) => {
     let restaurant = clone(state.restaurant);
     restaurant.orientation.tables = [
       ...restaurant.orientation.tables,
-      { ...newTable }
+      { ...newTable },
     ];
 
     let arr = state.is_edited;
@@ -288,7 +308,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -299,11 +319,11 @@ function Dashboard(props) {
     let itemIdx = "";
     if (Boolean(itemId)) {
       itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
-        ele => ele._id === itemId
+        (ele) => ele._id === itemId
       );
     } else {
       itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
-        ele => ele.item_name === itemName
+        (ele) => ele.item_name === itemName
       );
     }
 
@@ -313,7 +333,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -321,11 +341,11 @@ function Dashboard(props) {
     let restaurant = clone(state.restaurant);
 
     if (Boolean(id)) {
-      let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+      let idx = restaurant.menu[menuType].findIndex((ele) => ele._id === id);
       restaurant.menu[menuType][idx].category_name = catName;
     } else {
       let idx = restaurant.menu[menuType].findIndex(
-        ele => ele.category_name === oldCatName
+        (ele) => ele.category_name === oldCatName
       );
       restaurant.menu[menuType][idx].category_name = catName;
     }
@@ -334,7 +354,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -344,11 +364,11 @@ function Dashboard(props) {
     // restaurant.menu[menuType][idx] = clone(pack);
 
     if (Boolean(id)) {
-      let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
+      let idx = restaurant.menu[menuType].findIndex((ele) => ele._id === id);
       restaurant.menu[menuType][idx] = pack;
     } else {
       let idx = restaurant.menu[menuType].findIndex(
-        ele => ele.package_name === oldPackName
+        (ele) => ele.package_name === oldPackName
       );
       restaurant.menu[menuType][idx] = pack;
     }
@@ -358,13 +378,13 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
   const updateTable = (newTable, id) => {
     let restaurant = clone(state.restaurant);
-    let idx = restaurant.orientation.tables.findIndex(t => t.table_id === id);
+    let idx = restaurant.orientation.tables.findIndex((t) => t.table_id === id);
     restaurant.orientation.tables[idx] = newTable;
 
     let arr = state.is_edited;
@@ -372,11 +392,11 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
-  const updateInfo = data => {
+  const updateInfo = (data) => {
     let restaurant = { ...state.restaurant, ...data };
 
     let arr = state.is_edited;
@@ -384,11 +404,11 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
-  const resetPsswd = newPsswd => {
+  const resetPsswd = (newPsswd) => {
     let data = { rest_psswd: newPsswd };
     let restaurant = { ...state.restaurant, ...data };
 
@@ -397,7 +417,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -410,9 +430,9 @@ function Dashboard(props) {
     let arr = restaurant.menu[menuType][catIdx].items;
     let newArr = [];
     if (Boolean(itemId)) {
-      newArr = arr.filter(ele => ele._id !== itemId);
+      newArr = arr.filter((ele) => ele._id !== itemId);
     } else {
-      newArr = arr.filter(ele => ele.item_name !== itemName);
+      newArr = arr.filter((ele) => ele.item_name !== itemName);
     }
     // restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
     restaurant.menu[menuType][catIdx].items = clone(newArr);
@@ -425,7 +445,7 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
@@ -436,9 +456,9 @@ function Dashboard(props) {
     let arr = restaurant.menu[menuType];
     let newArr = [];
     if (Boolean(id)) {
-      newArr = arr.filter(ele => ele._id !== id);
+      newArr = arr.filter((ele) => ele._id !== id);
     } else {
-      newArr = arr.filter(ele => ele[name] !== oldName);
+      newArr = arr.filter((ele) => ele[name] !== oldName);
     }
     restaurant.menu[menuType] = clone(newArr);
 
@@ -451,13 +471,13 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
-  const deleteTable = id => {
+  const deleteTable = (id) => {
     let restaurant = clone(state.restaurant);
-    let newArr = restaurant.orientation.tables.filter(t => t.table_id !== id);
+    let newArr = restaurant.orientation.tables.filter((t) => t.table_id !== id);
     restaurant.orientation.tables = [...newArr];
 
     let arr = state.is_edited;
@@ -465,14 +485,14 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(restaurant),
-      is_edited: [...arr]
+      is_edited: [...arr],
     });
   };
 
-  const upload = categ => {
+  const upload = (categ) => {
     setState({
       ...state,
-      loading: true
+      loading: true,
     });
     props.updateRestaurant(state.restaurant, categ);
   };
@@ -481,8 +501,8 @@ function Dashboard(props) {
     setState({
       ...state,
       restaurant: clone(props.restaurant),
-      is_edited: Array.from({ length: 7 }, ele => false),
-      snack_open: false
+      is_edited: Array.from({ length: 7 }, (ele) => false),
+      snack_open: false,
     });
   };
 
@@ -496,13 +516,13 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="home-icon"
           src="https://img.icons8.com/officexs/80/000000/restaurant-building.png"
         />
       ),
-      component: <>Home</>
+      component: <>Home</>,
     },
     orders: {
       title: "Orders",
@@ -515,13 +535,13 @@ function Dashboard(props) {
             width: "1.7rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="order-icon"
           src="https://img.icons8.com/fluent/96/000000/purchase-order.png"
         />
       ),
-      component: <>Orders</>
+      component: <>Orders</>,
     },
     menu: {
       title: "Menu",
@@ -532,7 +552,7 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="menu-icon"
           src="https://img.icons8.com/dusk/64/000000/restaurant-menu.png"
@@ -554,7 +574,7 @@ function Dashboard(props) {
           isEdited={state.is_edited[2]}
           // isloading={state.loading}
         />
-      )
+      ),
     },
     orientation: {
       title: "Orientation",
@@ -566,7 +586,7 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="plan-icon"
           src="https://img.icons8.com/dusk/64/000000/floor-plan.png"
@@ -583,7 +603,7 @@ function Dashboard(props) {
           clearChanges={clearChanges}
           isEdited={state.is_edited[3]}
         />
-      )
+      ),
     },
     feedback: {
       title: "Feedback",
@@ -594,13 +614,13 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="feedback-icon"
           src="https://img.icons8.com/fluent/96/000000/web-analystics.png"
         />
       ),
-      component: <>Feedback</>
+      component: <>Feedback</>,
     },
     account: {
       title: "Account",
@@ -611,7 +631,7 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt={"acc-icon"}
           src="https://img.icons8.com/color/96/000000/client-company.png"
@@ -626,7 +646,7 @@ function Dashboard(props) {
           clearChanges={clearChanges}
           isEdited={state.is_edited[5]}
         />
-      )
+      ),
     },
     settings: {
       title: "Settings",
@@ -639,15 +659,15 @@ function Dashboard(props) {
             width: "1.5rem",
             verticalAlign: "middle",
             // margin: "10px",
-            float: "left"
+            float: "left",
           }}
           alt="settings-icon"
           src="https://img.icons8.com/fluent/96/000000/settings.png"
         />
         // <img src="https://img.icons8.com/fluent/48/000000/settings.png"/>
       ),
-      component: <>Settings</>
-    }
+      component: <>Settings</>,
+    },
   };
   const drawer = (
     <div>
@@ -669,7 +689,7 @@ function Dashboard(props) {
           <Typography
             style={{
               fontWeight: "bolder",
-              fontSize: "15px"
+              fontSize: "15px",
               // textDecoration: "underline"
             }}
             // align={"center"}
@@ -686,20 +706,21 @@ function Dashboard(props) {
                 color: "green",
                 marginTop: "10x",
                 fontSize: "13px",
-                fontWeight: "bold"
+                fontWeight: "bold",
               }}
             >
               <img
                 style={{
                   width: "13px",
                   verticalAlign: "middle",
-                  margin: "3px"
+                  margin: "3px",
                   // float: "left"
                 }}
                 src="https://img.icons8.com/fluent/48/000000/verified-account.png"
                 alt="ID"
               />
-              {props.restaurant ? props.restaurant.rest_id : "123"}
+              {props.restaurant ? "status" : "status"}
+              {/* Implement Restaurant Statuses where in Restaurant can be Open/Closed/TemporarilyClosed */}
             </span>
           </Typography>
         </Grid>
@@ -715,10 +736,10 @@ function Dashboard(props) {
                 key={text}
                 classes={{ selected: classes.listItemSelect }}
                 onClick={() =>
-                  setState(prevState => ({
+                  setState((prevState) => ({
                     ...prevState,
                     page: text,
-                    mobileOpen: false
+                    mobileOpen: false,
                   }))
                 }
                 selected={state.page === text}
@@ -759,10 +780,10 @@ function Dashboard(props) {
               classes={{ selected: classes.listItemSelect }}
               onClick={() => {
                 // console.log(evt);
-                setState(prevState => ({
+                setState((prevState) => ({
                   ...prevState,
                   page: text,
-                  mobileOpen: false
+                  mobileOpen: false,
                 }));
               }}
               selected={state.page === text}
@@ -807,7 +828,7 @@ function Dashboard(props) {
           key={`Un-saved Changes in "${pages[state.page].title}"`}
           anchorOrigin={{
             vertical: "bottom",
-            horizontal: "right"
+            horizontal: "right",
           }}
           open={state.snack_open}
           autoHideDuration={4000}
@@ -841,7 +862,7 @@ function Dashboard(props) {
           key={`Succesfully Uploaded`}
           anchorOrigin={{
             vertical: "bottom",
-            horizontal: "right"
+            horizontal: "right",
           }}
           // style={{ background: "#4CAF50" }}
           open={state.snack1_open}
@@ -900,6 +921,43 @@ function Dashboard(props) {
             {/* TZ PARTNER */}
             <Logo width="100px" height="50px" />
           </Typography>
+
+          <div
+            aria-controls="menu-profile"
+            aria-haspopup="true"
+            className={classes.logoutBtn}
+            onClick={(evt) =>
+              setState({ ...state, anchorEl: evt.currentTarget })
+            }
+          >
+            <Badge
+              color="secondary"
+              overlap="circle"
+              variant="dot"
+              badgeContent=" "
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <RestLogo width="20px" height="20px" />
+            </Badge>
+
+            <span
+              style={{
+                marginLeft: "8px",
+                fontWeight: "600",
+                textDecoration: "underline",
+              }}
+              variant="p"
+              noWrap
+            >
+              {props.restaurant.rest_id.length < 10
+                ? props.restaurant.rest_id
+                : props.restaurant.rest_id.slice(0, 8) + " .."}
+            </span>
+            <i style={{ marginLeft: "5px" }} className="fas fa-angle-down"></i>
+          </div>
         </Toolbar>
       </AppBar>
       <nav className={classes.drawer} aria-label="mailbox folders">
@@ -913,10 +971,10 @@ function Dashboard(props) {
             open={state.mobileOpen}
             onClose={handleDrawerToggle}
             classes={{
-              paper: classes.drawerPaper
+              paper: classes.drawerPaper,
             }}
             ModalProps={{
-              keepMounted: true // Better open performance on mobile.
+              keepMounted: true, // Better open performance on mobile.
             }}
           >
             {drawer}
@@ -927,7 +985,7 @@ function Dashboard(props) {
 
           <Drawer
             classes={{
-              paper: classes.drawerPaper
+              paper: classes.drawerPaper,
             }}
             variant="permanent"
             open
@@ -938,7 +996,37 @@ function Dashboard(props) {
       </nav>
       <main className={classes.content}>
         {/* <div className={classes.toolbar} /> */}
-
+        <div className="partials">
+          <MaterialMenu
+            id="menu-profile"
+            anchorEl={state.anchorEl}
+            getContentAnchorEl={null}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            transformOrigin={{ vertical: "top", horizontal: "center" }}
+            keepMounted
+            open={Boolean(state.anchorEl)}
+            onClose={() =>
+              setState({
+                ...state,
+                anchorEl: null,
+              })
+            }
+          >
+            <MenuItem
+              className={classes.menuItem}
+              onClick={props.logout} //handle Logout
+            >
+              <i
+                style={{
+                  margin: "8px",
+                  transform: "rotate(180deg)",
+                }}
+                className="fas fa-sign-out-alt"
+              ></i>
+              Logout
+            </MenuItem>
+          </MaterialMenu>
+        </div>
         {state.restaurant && pages[state.page].component}
       </main>
     </div>
@@ -950,17 +1038,16 @@ Dashboard.propTypes = {
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
    */
-  window: PropTypes.func
+  window: PropTypes.func,
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   isAuthenticated: state.rest_auth.isAuthenticated,
   restaurant: state.rest_auth.restaurant,
   isUpdated: state.rest_auth.isUpdated,
-  loading: state.rest_auth.loading
+  loading: state.rest_auth.loading,
 });
 
-export default connect(
-  mapStateToProps,
-  { loadRest, updateRestaurant }
-)(Dashboard);
+export default connect(mapStateToProps, { loadRest, updateRestaurant, logout })(
+  Dashboard
+);

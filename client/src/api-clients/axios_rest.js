@@ -14,8 +14,7 @@ export default () => {
     headers,
     withCredentials: true,
   });
-
-  // Add response interceptor when routes are done!
+  // Add response interceptor when routes are done!,To handle ERR Reponses
 
   return instance;
 };

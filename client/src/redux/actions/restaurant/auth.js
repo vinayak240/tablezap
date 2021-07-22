@@ -8,6 +8,7 @@ import {
   REGISTER_FAIL,
   REGISTER_SUCCESS,
   REFRESHED_TOKEN,
+  LOGOUT,
 } from "../types";
 import { setAlert } from "../alert";
 import uploadRestImages from "../../../firebase/upload_lib";
@@ -39,7 +40,7 @@ export const login = (rest_id, password) => async (dispatch) => {
   const body = JSON.stringify({ rest_id, rest_psswd: password });
 
   try {
-    const res = await apiClient().post("/login/", body);
+    const res = await apiClient().post("/auth/login/", body);
     //   console.log(res);
 
     if (Boolean(res.data) && res.data.success) {
@@ -85,7 +86,7 @@ export const register = (data) => async (dispatch) => {
     let final_obj = await uploadRestImages(data);
     const body = JSON.stringify(final_obj);
 
-    const res = await apiClient().post("/register/", body);
+    const res = await apiClient().post("/auth/register/", body);
     if (Boolean(res.data) && res.data.success) {
       dispatch({
         type: REGISTER_SUCCESS,
@@ -121,22 +122,14 @@ export const register = (data) => async (dispatch) => {
   }
 };
 
-export const refreshToken = (timeout) => async (dispatch) => {
+export const logout = () => async (dispatch) => {
   try {
-    const res = await apiClient().get("/refresh-token/");
+    const res = await apiClient().post("/auth/logout/");
     // console.log(res);
 
     if (Boolean(res.data) && res.data.success) {
-      setTimeout(() => {
-        dispatch(refreshToken(5 * 60 * 1000)); // use this convention bcoz refreshToken() just return action creator to reduce it we use dispatch
-      }, timeout - 500); // After every 5mins do a silent refresh of token
-
-      // See the returned JSON properly
       dispatch({
-        type: REFRESHED_TOKEN,
-        payload: {
-          token: res.data.token,
-        },
+        type: LOGOUT,
       });
     } else {
       throw new Error();
@@ -147,3 +140,35 @@ export const refreshToken = (timeout) => async (dispatch) => {
     });
   }
 };
+
+export const refreshToken =
+  (timeout, isStartUp = false) =>
+  async (dispatch) => {
+    try {
+      const res = await apiClient().get("/auth/refresh-token/");
+      // console.log(res);
+
+      if (Boolean(res.data) && res.data.success) {
+        setTimeout(() => {
+          dispatch(refreshToken(5 * 60 * 1000)); // use this convention bcoz refreshToken() just return action creator to reduce it we use dispatch
+        }, timeout - 500); // After every 5mins do a silent refresh of token
+
+        // See the returned JSON properly
+        dispatch({
+          type: REFRESHED_TOKEN,
+          payload: {
+            token: res.data.token,
+          },
+        });
+        if (isStartUp) {
+          dispatch(loadRest());
+        }
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      dispatch({
+        type: AUTH_ERROR,
+      });
+    }
+  };

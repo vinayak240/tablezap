@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import { Redirect } from "react-router-dom";
 import Card from "@material-ui/core/Card";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
@@ -9,7 +10,7 @@ import PropTypes from "prop-types";
 import { login } from "../../redux/actions/restaurant/auth";
 import AlertWindow from "../layout/Alert";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "30%",
     minWidth: "300px",
@@ -17,7 +18,7 @@ const useStyles = makeStyles(theme => ({
     marginTop: "4%",
     marginBottom: "2%",
     padding: "4px",
-    borderRadius: "7px"
+    borderRadius: "7px",
   },
   textField: {
     margin: "9px",
@@ -29,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     padding: "4%",
     backgroundColor: "#ebede8",
     borderRadius: "5px",
-    border: "none"
+    border: "none",
   },
   button: {
     marginLeft: "5%",
@@ -40,45 +41,43 @@ const useStyles = makeStyles(theme => ({
     marginTop: "10px",
     marginBottom: "15px",
     fontFamily: "'Nunito', sans-serif",
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   p: {
     textAlign: "center",
     color: "#000000",
     fontWeight: "900",
     fontSize: "26px",
-    textDecoration: "underline"
+    textDecoration: "underline",
   },
   logo: {
-    margin: "30px"
-  }
+    margin: "30px",
+  },
 }));
 
-function Login({ login, isAuthenticated, setLogged }) {
+function Login({ login, isAuthenticated }) {
   const classes = useStyles();
   const [state, setState] = useState({
     rest_id: "",
-    password: ""
+    password: "",
   });
 
-  // const state1 = useSelector(state => state);
-
-  const onChange = e => {
+  const onChange = (e) => {
     setState({
       ...state,
-      [e.target.id]: e.target.value
+      [e.target.id]: e.target.value,
     });
   };
-  const onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
     login(state.rest_id, state.password);
     //  dont use isAuthenticated here it is not changed yet!!!
   };
 
   if (isAuthenticated) {
-    // console.log("User is authenticated");
-    setLogged();
+    return <Redirect to="/dashboard" />;
   }
+
   return (
     <>
       <Card elevation="4" className={classes.root} disableTouchRipple>
@@ -140,14 +139,11 @@ function Login({ login, isAuthenticated, setLogged }) {
 
 Login.propTypes = {
   login: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.bool
+  isAuthenticated: PropTypes.bool,
 };
 
-const mapStateToProps = state => ({
-  isAuthenticated: state.rest_auth.isAuthenticated
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.rest_auth.isAuthenticated,
 });
 
-export default connect(
-  mapStateToProps,
-  { login }
-)(Login);
+export default connect(mapStateToProps, { login })(Login);

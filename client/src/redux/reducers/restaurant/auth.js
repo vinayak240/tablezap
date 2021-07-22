@@ -45,15 +45,11 @@ export default function (state = initialState, action) {
       localStorage.setItem("rest_token", payload.token);
       return {
         ...state,
-        ...payload,
-        isAuthenticated: true,
-        loading: false,
       };
     case UPDATING_REST:
       return {
         ...state,
         isUpdated: false,
-        loading: true,
       };
     case UPDATED_REST:
       return {
@@ -73,6 +69,7 @@ export default function (state = initialState, action) {
         token: null,
         isAuthenticated: false,
         loading: false,
+        restaurant: null,
       };
     case UPDATE_ERR:
       return {

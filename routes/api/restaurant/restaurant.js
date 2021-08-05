@@ -1,14 +1,9 @@
 /*jshint esversion: 9 */
 const express = require("express");
 const router = express.Router();
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const config = require("config");
 const rest_auth = require("../../../middleware/rest_auth");
-const refresh_auth = require("../../../middleware/refresh_auth");
-const { check, validationResult } = require("express-validator/check");
 
-const Restaurant = require("../../../models/Restaurant");
+const Restaurant = require("../../../db/models/Restaurant");
 
 // @route    GET restaurants/
 // @desc     Get all restaurants
@@ -25,9 +20,12 @@ router.get("/", async (req, res) => {
         .json({ success: false, msg: "There is no entry for this restaurant" });
     }
 
+    Logger.info(`[IMPL] Fetched all restaurants`);
+
     res.json({ success: true, restaurants });
   } catch (err) {
-    console.error(err.message);
+    Logger.error(`[IMPL] Error occured while fetching all restaurants`);
+    Logger.error(err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -35,10 +33,9 @@ router.get("/", async (req, res) => {
 // @route    GET /restaurants/rest
 // @desc     To get the restaurant
 // @access   Private
+
 router.get("/rest", rest_auth, async (req, res) => {
   try {
-    // console.log("ID: ", req.restaurant._id);
-
     const restaurant = await Restaurant.findById(req.restaurant._id);
 
     if (!restaurant) {
@@ -47,9 +44,14 @@ router.get("/rest", rest_auth, async (req, res) => {
         .json({ success: false, msg: "There is no entry for this restaurant" });
     }
 
+    Logger.info(`Restaurant Fetched, _id: ${req.restaurant?._id}`);
+
     res.json({ success: true, restaurant });
   } catch (err) {
-    console.error(err.message);
+    Logger.error(
+      `[IMPL] Error while fetching restaurant. _id: ${req.restaurant._id}`
+    );
+    Logger.error(err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -66,13 +68,18 @@ router.get("/:id", async (req, res) => {
     );
     if (!restaurant) {
       return res
-        .status(400)
+        .status(404)
         .json({ success: false, msg: "There is no entry for this restaurant" });
     }
 
+    Logger.info(`Restaurant Fetched, id: ${req.params?._id}`);
+
     res.json({ success: true, restaurant });
   } catch (err) {
-    console.error(err.message);
+    Logger.error(
+      `[IMPL] Error while fetching restaurant. id: ${req.params?.id}`
+    );
+    Logger.error(err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -82,8 +89,6 @@ router.get("/:id", async (req, res) => {
 // @access   Private
 
 router.put("/rest/:categ", rest_auth, async (req, res) => {
-  // console.log(req.restaurant);
-
   const {
     rest_id,
     rest_psswd,
@@ -168,10 +173,15 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
       { $set: restaurantFields },
       { new: true, upsert: true }
     );
-    // delete restaurant.rest_psswd;
+
+    Logger.info(`Restaurant updated, _id: ${req.restaurant?._id}`);
+
     res.json({ success: true, restaurant: restaurant });
   } catch (err) {
-    console.error(err.message);
+    Logger.info(
+      `[IMPL] Error while updating the restaurant, _id: ${req.restaurant?._id}`
+    );
+    Logger.error(err);
     res
       .status(500)
       .json({ success: false, msg: "Cannot Update, Server Error" });

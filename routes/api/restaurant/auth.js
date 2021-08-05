@@ -3,12 +3,12 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
+const config = require("../../../config/app.config");
 const rest_auth = require("../../../middleware/rest_auth");
 const refresh_auth = require("../../../middleware/refresh_auth");
 const { check, validationResult } = require("express-validator/check");
-
-const Restaurant = require("../../../models/Restaurant");
+const Logger = require("../../../utils/logger");
+const Restaurant = require("../../../db/models/Restaurant");
 
 // @route    POST restaurants/register
 // @desc     Register restaurant
@@ -67,33 +67,30 @@ router.post(
       await restaurant.save();
 
       const payload = {
-        restaurant,
+        restaurant: {
+          _id: restaurant._id,
+        },
       };
-
-      // jwt.sign(
-      //   payload,
-      //   config.get("jwtSecret"),
-      //   { expiresIn: 360000 },
-      //   (err, token) => {
-      //     if (err) throw err;
-      //     res.json({ success: true, token, rest_name });
-      //   }
-      // );
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
               //.cookie should come before .json
+
+              Logger.info(
+                `[IMPL] Restaurant Successfully Registered, id : ${restaurant.rest_id}`
+              );
+
               res
                 .cookie("_refresh_token_", refresh_token, {
                   maxAge: 31536000000,
@@ -110,7 +107,10 @@ router.post(
         }
       );
     } catch (err) {
-      console.error(err.message);
+      Logger.error(
+        `[IMPL] Error occured while registering a restaurant, id: ${restaurant?.rest_id}`
+      );
+      Logger.error(err);
       res.status(500).json({ success: false, msg: "Server error" });
     }
   }
@@ -119,6 +119,7 @@ router.post(
 // @route    POST /restaurants/login
 // @desc     Login restaurant & get token
 // @access   Public
+
 router.post(
   "/login",
   [
@@ -162,17 +163,22 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
+
+              Logger.info(
+                `[IMPL] Restaurant login successful, id : ${restaurant.rest_id}`
+              );
+
               res
                 .cookie("_refresh_token_", refresh_token, {
                   maxAge: 31536000000,
@@ -189,7 +195,10 @@ router.post(
         }
       );
     } catch (err) {
-      console.error(err.message);
+      Logger.err(
+        `[IMPL] Error while logging in restaurant, id : ${restaurant.rest_id}`
+      );
+      Logger.error(err);
       res.status(500).json({ success: false, msg: "Server error" });
     }
   }
@@ -198,6 +207,7 @@ router.post(
 // @route    GET /restaurants/refresh-token
 // @desc     To Refresh the access token
 // @access   Private
+
 router.get("/refresh-token", refresh_auth, async (req, res) => {
   const payload = {
     restaurant: {
@@ -208,7 +218,7 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
   try {
     jwt.sign(
       payload,
-      config.get("jwtSecret"),
+      config.secret["jwtSecret"],
       { expiresIn: "5m" },
       (err, access_token) => {
         if (err) throw err;
@@ -219,29 +229,10 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
       }
     );
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ success: false, msg: "Server Error" });
-  }
-});
-
-// @route    GET /restaurants/rest
-// @desc     To get the restaurant
-// @access   Private
-router.get("/rest", rest_auth, async (req, res) => {
-  try {
-    // console.log("ID: ", req.restaurant._id);
-
-    const restaurant = await Restaurant.findById(req.restaurant._id);
-
-    if (!restaurant) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "There is no entry for this restaurant" });
-    }
-
-    res.json({ success: true, restaurant });
-  } catch (err) {
-    console.error(err.message);
+    Logger.error(
+      `[IMPL] Error while refrehing token for restaurant, payload: ${payload}`
+    );
+    Logger.error(err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -249,17 +240,22 @@ router.get("/rest", rest_auth, async (req, res) => {
 // @route    GET restaurants/logout
 // @desc     Logout Restaurant
 // @access   Public
-// TO-DO :
-// Add refresh_auth middileware after logout feature is completed in UI
-// Make it POST after that feature is added
+
 router.post("/logout", refresh_auth, async (req, res) => {
   try {
     res
       .clearCookie("_refresh_token_")
       .status(200)
       .json({ success: true, msg: "Restaurant Logged Out" });
+
+    Logger.info(
+      `[IMPL] Restaurant logged out successfully, _id: ${req.restaurant._id}`
+    );
   } catch (err) {
-    console.error(err.message);
+    Logger.error(
+      `[IMPL] Error while logging ouy restaurant, _id: ${req.restaurant._id}`
+    );
+    Logger.error(err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });

@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
+const config = require("../../config/app.config");
 const auth = require("../../middleware/auth");
 const { check, validationResult } = require("express-validator/check");
 const { OAuth2Client } = require("google-auth-library");
-const User = require("../../models/User");
+const User = require("../../db/models/User");
 
 // @route    POST users/register
 // @desc     Register user
@@ -14,14 +14,12 @@ const User = require("../../models/User");
 router.post(
   "/register",
   [
-    check("name", "Name is required")
-      .not()
-      .isEmpty(),
+    check("name", "Name is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
     check(
       "password",
       "Please enter a password with 6 or more characters"
-    ).isLength({ min: 6 })
+    ).isLength({ min: 6 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -29,7 +27,7 @@ router.post(
       return res.status(400).json({
         success: false,
         msg: "Validation errors",
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -48,7 +46,7 @@ router.post(
         name,
         email,
         phone,
-        password
+        password,
       });
 
       const salt = await bcrypt.genSalt(10);
@@ -58,12 +56,12 @@ router.post(
       await user.save();
 
       const payload = {
-        user: user
+        user: user,
       };
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "7d" },
         (err, token) => {
           if (err) throw err;
@@ -84,7 +82,7 @@ router.post(
   "/login",
   [
     check("email", "Please include a valid email").isEmail(),
-    check("password", "Password is required").exists()
+    check("password", "Password is required").exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -92,7 +90,7 @@ router.post(
       return res.status(400).json({
         success: false,
         msg: "Validation errors",
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -116,12 +114,12 @@ router.post(
       }
 
       const payload = {
-        user: user
+        user: user,
       };
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "7d" },
         (err, token) => {
           // Here
@@ -146,7 +144,7 @@ router.post("/google-login", async (req, res) => {
   try {
     const response = await client.verifyIdToken({
       idToken: token,
-      audience: config.get("googleClientId")
+      audience: config.get("googleClientId"),
     });
     const { email, name } = response.payload;
 
@@ -158,12 +156,12 @@ router.post("/google-login", async (req, res) => {
       } else {
         if (user) {
           const payload = {
-            user: user
+            user: user,
           };
 
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "7d" },
             (err, token) => {
               // Here
@@ -174,22 +172,22 @@ router.post("/google-login", async (req, res) => {
         } else {
           let newUser = new User({
             name,
-            email
+            email,
           });
 
           const salt = await bcrypt.genSalt(10);
-          let password = email + config.get("jwtSecret");
+          let password = email + config.secret["jwtSecret"];
           newUser.password = await bcrypt.hash(password, salt);
 
           await newUser.save();
 
           const payload = {
-            user: newUser
+            user: newUser,
           };
 
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "7d" },
             (err, token) => {
               if (err) throw err;

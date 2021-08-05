@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const config = require("config");
+const config = require("../../config/app.config");
 const rest_auth = require("../../middleware/rest_auth");
 const refresh_auth = require("../../middleware/refresh_auth");
 const { check, validationResult } = require("express-validator/check");
@@ -94,7 +94,7 @@ router.post(
 
       // jwt.sign(
       //   payload,
-      //   config.get("jwtSecret"),
+      //   config.secret["jwtSecret"],
       //   { expiresIn: 360000 },
       //   (err, token) => {
       //     if (err) throw err;
@@ -104,14 +104,14 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
@@ -184,14 +184,14 @@ router.post(
 
       jwt.sign(
         payload,
-        config.get("jwtSecret"),
+        config.secret["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.get("jwtSecret"),
+            config.secret["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
@@ -230,7 +230,7 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
   try {
     jwt.sign(
       payload,
-      config.get("jwtSecret"),
+      config.secret["jwtSecret"],
       { expiresIn: "5m" },
       (err, access_token) => {
         if (err) throw err;

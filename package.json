@@ -7,12 +7,14 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "amqplib": "^0.8.0",
     "bcryptjs": "*",
     "bluebird": "*",
     "body-parser": "*",
     "config": "^3.1.0",
     "cookie-parser": "^1.4.5",
     "cors": "*",
+    "dotenv": "^10.0.0",
     "express": "*",
     "express-validator": "^5.3.1",
     "google-auth-library": "^6.0.5",
@@ -21,7 +23,9 @@
     "passport": "*",
     "passport-jwt": "*",
     "ramda": "^0.27.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5"
   },
   "author": "Vinayak",
   "license": "ISC"

@@ -1,0 +1,21 @@
+{
+    "app": {
+        "logs": {
+            "dir": "./logs"
+        },
+        "messaging": {
+            "channelPreFetchCount" : 100,
+            "consumerPreFetchCount" : 50,
+            "maxConsumerCount" : 2
+        }
+    },
+    "db": {
+        "connection": {
+            "mongoURI":"mongodb+srv://tz_admin:tz_rest@cluster0.mggof.mongodb.net/tablezap?retryWrites=true&w=majority"
+        }
+    },
+    "secrets": {
+        "jwtSecret": "tz1561264hwgfd63",
+        "tableSessionJwtSecret": "tzwetkh8oi9873y378"
+    }
+}

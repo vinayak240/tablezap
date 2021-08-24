@@ -7,7 +7,9 @@ const Logger = require("../../utils/logger");
 
 const initTableRequestConsumer = async () => {
   try {
-    const conn = await amqp.connect(process.env.LOCAL_MQ_URL);
+    const conn = await amqp.connect(
+      config.app["messaging"]["mqUrl"] || process.env.LOCAL_MQ_URL
+    );
     const ch = await conn.createChannel();
     ch.prefetch(config.app["messaging"]["channelPreFetchCount"]);
     await ch.assertExchange(TABLE_REQUEST_EXCHANGE, "direct", {

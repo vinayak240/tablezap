@@ -14,5 +14,6 @@ module.exports = async () => {
     Logger.info(`[MQ] All MQ Consumer have been initialized Successfully`);
   } catch (err) {
     Logger.error(`[MQ] Error initializing MQ Consumers, ERR: ${err}`);
+    throw err;
   }
 };

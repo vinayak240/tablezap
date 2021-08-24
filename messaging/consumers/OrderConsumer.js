@@ -3,11 +3,14 @@ const config = require("../../config/app.config");
 const amqp = require("amqplib");
 const { ORDERS_EXCHANGE } = require("../constants/exchanges");
 const { ORDERSERV_TO_RESTSERV } = require("../constants/keys");
+const OrderWorkflow = require("../../workflows/order_workflow");
 const Logger = require("../../utils/logger");
 
 const initOrderConsumer = async () => {
   try {
-    const conn = await amqp.connect(process.env.LOCAL_MQ_URL);
+    const conn = await amqp.connect(
+      config.app["messaging"]["mqUrl"] || process.env.LOCAL_MQ_URL
+    );
     const ch = await conn.createChannel();
     ch.prefetch(config.app["messaging"]["channelPreFetchCount"]);
     await ch.assertExchange(ORDERS_EXCHANGE, "direct", {
@@ -30,6 +33,8 @@ const initOrderConsumer = async () => {
         Logger.info(
           `[MQ] Order Message received from Order Service, MSG: ${msg.content.toString()}`
         );
+        const qm = JSON.parse(msg.content.toString());
+        OrderWorkflow.push(qm);
       },
       {
         noAck: true,

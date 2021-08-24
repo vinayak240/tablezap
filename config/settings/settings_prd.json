@@ -5,6 +5,7 @@
             "dir": "./logs"
         },
         "messaging": {
+            "mqUrl": "amqp://localhost",
             "channelPreFetchCount" : 100,
             "consumerPreFetchCount" : 50,
             "maxConsumerCount" : 2

@@ -37,6 +37,15 @@ const consoleLogFormat = printf(({ level, message, timestamp, stack }) => {
   return `${timestamp} [${level}] : ${stack || message}`;
 });
 
+/**
+ * LOG SUB TYPES:
+ * - IMPL : Logs related to Implementation
+ * - MQ : Logs related to MQ operations
+ * - DB : Logs related to Database operations
+ * - SKT : Logs related to Socket operations
+ * - SERVICE : Logs related to Services
+ * - API : Logs related to API Calls
+ */
 module.exports = createLogger({
   transports: [
     new transports.Console({

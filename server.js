@@ -19,7 +19,7 @@ const io = sio(server);
 
 require("./db");
 
-initMQConsumers().catch((err) => Logger.error(err));
+initMQConsumers();
 
 InitSktListeners.init(io);
 
@@ -28,7 +28,7 @@ InitSktEmitters.init(io);
 const PORT = process.env.PORT || 5000;
 
 process.on("exit", () => {
-  Logger.info("[SERVICE] [PID: ${process.pid}] STOPPING Restaurant Service...");
+  Logger.info(`[SERVICE] [PID: ${process.pid}] STOPPING Restaurant Service...`);
 });
 
 server.listen(PORT, () => {

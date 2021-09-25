@@ -12,7 +12,7 @@ router.post("/accepted/", validateTableResponse, async (req, res) => {
   const tableReq = req.body;
 
   if (tableReq.status !== TABLE_STATUS.TABLE_ACCEPTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Table Response",
     });
@@ -21,8 +21,8 @@ router.post("/accepted/", validateTableResponse, async (req, res) => {
   try {
     const result = await TableWorkflow?.push(tableReq);
     if (Boolean(result)) {
-      Logger.info(`[IMPL] Table request accepted successfully`);
-      res.status(200).json({
+      Logger.info(`[API] Table request accepted successfully`);
+      return res.status(200).json({
         success: true,
         msg: "Table request has been accepted...",
         request: { ...result },
@@ -31,7 +31,8 @@ router.post("/accepted/", validateTableResponse, async (req, res) => {
 
     throw new Error("Workflow result empty");
   } catch (err) {
-    Logger.error(`[IMPL] Error on accepting table request, ERR : ${err}`);
+    Logger.error(`[API] (500) Cannot accept table request, ERR : ${err}`);
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot accept the request",
@@ -47,7 +48,7 @@ router.delete("/rejected/", validateTableResponse, async (req, res) => {
   const tableReq = req.body;
 
   if (tableReq.status !== TABLE_STATUS.TABLE_REJECTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Table Response",
     });
@@ -55,9 +56,10 @@ router.delete("/rejected/", validateTableResponse, async (req, res) => {
 
   try {
     const result = await TableWorkflow?.push(tableReq);
+
     if (Boolean(result)) {
-      Logger.info(`[IMPL] Table request rejected successfully`);
-      res.status(200).json({
+      Logger.info(`[API] Table request rejected successfully`);
+      return res.status(200).json({
         success: true,
         msg: "Table request has been rejected...",
         request: { ...result },
@@ -66,7 +68,8 @@ router.delete("/rejected/", validateTableResponse, async (req, res) => {
 
     throw new Error("Workflow result empty");
   } catch (err) {
-    Logger.error(`[IMPL] Error on rejecting table request, ERR : ${err}`);
+    Logger.error(`[API] (500) Cannot reject table  request, ERR : ${err}`);
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot reject the request",
@@ -75,3 +78,5 @@ router.delete("/rejected/", validateTableResponse, async (req, res) => {
 });
 
 //#endregion Reject Responses
+
+module.exports = router;

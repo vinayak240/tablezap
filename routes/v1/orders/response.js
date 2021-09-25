@@ -12,7 +12,7 @@ router.post("/order-accepted/", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order.status !== ORDER_STATUS.ORDER_ACCEPTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -21,17 +21,18 @@ router.post("/order-accepted/", validateResponse, async (req, res) => {
   try {
     const result = await OrderWorkflow?.push(order);
     if (Boolean(result)) {
-      Logger.info(`[IMPL] Order request accepted successfully`);
-      res.status(200).json({
+      Logger.info(`[API] Order request accepted successfully`);
+      return res.status(200).json({
         success: true,
         msg: "Order has been accepted...",
-        order: { ...result },
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+
+    throw new Error("Workflow result empty");
   } catch (err) {
-    Logger.error(`[IMPL] Error on accepting Order, ERR : ${err}`);
+    Logger.error(`[API] (500) Cannot accept the Order, ERR: ${err}`);
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot accept the order",
@@ -43,7 +44,7 @@ router.put("/update-accepted", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order?.updated_order?.status !== ORDER_STATUS.UPDATE_ACCEPTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -56,19 +57,21 @@ router.put("/update-accepted", validateResponse, async (req, res) => {
     );
     if (Boolean(result)) {
       Logger.info(
-        `[IMPL] Order update accepted successfully, id : ${result._id}`
+        `[API] Order update accepted successfully, id : ${result._id}`
       );
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         msg: "Order update accepted",
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+
+    throw new Error("Workflow result empty");
   } catch (err) {
     Logger.error(
-      `[IMPL] Error on Accepting Order Update Request, id : ${order._id} ERR: ${err}`
+      `[API] (500) Cannot accept the update order request, id : ${order._id}, ERR: ${err}`
     );
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot update the order",
@@ -80,7 +83,7 @@ router.delete("/cancel-accepted", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order?.updated_order?.status !== ORDER_STATUS.CANCEL_ACCEPTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -93,19 +96,21 @@ router.delete("/cancel-accepted", validateResponse, async (req, res) => {
     );
     if (Boolean(result)) {
       Logger.info(
-        `[IMPL] Order cancel accepted successfully, id : ${result._id}`
+        `[API] Order cancel accepted successfully, id : ${result._id}`
       );
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         msg: "Order cancel accepted",
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+
+    throw new Error("Workflow result empty");
   } catch (err) {
     Logger.error(
-      `[IMPL] Error on Accepting Order Cancel Request, id : ${order._id}, ERR: ${err}`
+      `[API] (500) Cannot accept the cancel order request, id : ${order._id}, ERR: ${err}`
     );
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot cancel the order",
@@ -121,7 +126,7 @@ router.post("/order-rejected/", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order?.updated_order?.status !== ORDER_STATUS.ORDER_REJECTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -133,17 +138,18 @@ router.post("/order-rejected/", validateResponse, async (req, res) => {
       ORDER_STATUS.ORDER_REJECTED
     );
     if (Boolean(result)) {
-      Logger.info(`[IMPL] Order request rejected successfully`);
-      res.status(200).json({
+      Logger.info(`[API] Order request rejected successfully`);
+      return res.status(200).json({
         success: true,
         msg: "Order has been rejected...",
-        order: { ...result },
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+
+    throw new Error("Workflow result empty");
   } catch (err) {
-    Logger.error(`[IMPL] Error on rejecting Order, ERR : ${err}`);
+    Logger.error(`[API] Cannot reject the order, ERR : ${err}`);
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot accept the order",
@@ -155,7 +161,7 @@ router.put("/update-rejected/", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order?.updated_order?.status !== ORDER_STATUS.UPDATE_REJECTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -168,19 +174,20 @@ router.put("/update-rejected/", validateResponse, async (req, res) => {
     );
     if (Boolean(result)) {
       Logger.info(
-        `[IMPL] Order update rejected successfully, id : ${result._id}`
+        `[API] Order update rejected successfully, id : ${result._id}`
       );
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         msg: "Order update accepted",
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+    throw new Error("Workflow result empty");
   } catch (err) {
     Logger.error(
-      `[IMPL] Error on Rejecting Order Update Request, id : ${order._id} ERR: ${err}`
+      `[API] Cannot reject the update order request, id : ${order._id} ERR: ${err}`
     );
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot reject the order update",
@@ -192,7 +199,7 @@ router.delete("/cancel-rejected/", validateResponse, async (req, res) => {
   const order = req.body;
 
   if (order?.updated_order?.status !== ORDER_STATUS.CANCEL_REJECTED) {
-    res.status(400).json({
+    return res.status(400).json({
       success: false,
       msg: "Invalid Order Response",
     });
@@ -205,19 +212,21 @@ router.delete("/cancel-rejected/", validateResponse, async (req, res) => {
     );
     if (Boolean(result)) {
       Logger.info(
-        `[IMPL] Order cancel rejected successfully, id : ${result._id}`
+        `[API] Order cancel rejected successfully, id : ${result._id}`
       );
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         msg: "Order cancel accepted",
+        order: result,
       });
-    } else {
-      throw new Error("Workflow result empty");
     }
+
+    throw new Error("Workflow result empty");
   } catch (err) {
     Logger.error(
-      `[IMPL] Error on Rejecting Order Cancel Request, id : ${order._id}, ERR: ${err}`
+      `[API] (500) Cannot rejec the cancel order request, id : ${order._id}, ERR: ${err}`
     );
+    Logger.error("[API] ", err);
     res.status(500).json({
       success: false,
       msg: "Cannot reject the order cancel request",

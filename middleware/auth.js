@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/app.config");
+const logger = require("../utils/logger");
 
 module.exports = async function (req, res, next) {
   // Get token from header
@@ -23,7 +24,8 @@ module.exports = async function (req, res, next) {
       }
     });
   } catch (err) {
-    console.error("something wrong with auth middleware");
+    logger.error("[IMPL] Error while verifying the user token");
+    logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 };

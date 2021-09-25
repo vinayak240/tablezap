@@ -17,6 +17,10 @@ const SKT_EVENT = {
    */
   ODR_RES: "order-response-rs",
   /**
+   * Event used to send order error messages to - from [mostly used at OrderServ]
+   */
+  ODR_ERR: "order-error-rs",
+  /**
    * Event used to send table request to - from
    */
   TAB_REQ: "table-request-rs",
@@ -24,6 +28,10 @@ const SKT_EVENT = {
    * Event used to send table response to - from [mostly used at OrderServ]
    */
   TAB_RES: "table-response-rs",
+  /**
+   * Event used to receive table error messages from OdrServ[mostly used at OrderServ]
+   */
+  TAB_ERR: "table-error-rs",
 };
 
 module.exports = SKT_EVENT;

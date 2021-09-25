@@ -110,7 +110,7 @@ router.post(
       Logger.error(
         `[IMPL] Error occured while registering a restaurant, id: ${restaurant?.rest_id}`
       );
-      Logger.error(err);
+      Logger.error("", err);
       res.status(500).json({ success: false, msg: "Server error" });
     }
   }
@@ -195,10 +195,10 @@ router.post(
         }
       );
     } catch (err) {
-      Logger.err(
+      Logger.error(
         `[IMPL] Error while logging in restaurant, id : ${restaurant.rest_id}`
       );
-      Logger.error(err);
+      Logger.error("", err);
       res.status(500).json({ success: false, msg: "Server error" });
     }
   }
@@ -232,7 +232,7 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
     Logger.error(
       `[IMPL] Error while refrehing token for restaurant, payload: ${payload}`
     );
-    Logger.error(err);
+    Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -255,7 +255,7 @@ router.post("/logout", refresh_auth, async (req, res) => {
     Logger.error(
       `[IMPL] Error while logging ouy restaurant, _id: ${req.restaurant._id}`
     );
-    Logger.error(err);
+    Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });

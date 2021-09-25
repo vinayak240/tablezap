@@ -46,9 +46,11 @@ const saveTableRequestForRestId = async (request) => {
     const payload = { orientation: { ...restaurant.orientation } };
 
     await Restaurant.findOneAndUpdate(
-      { _id: restaurant.rest_id },
+      { _id: restaurant._id },
       { $set: payload }
     );
+
+    return request;
   } catch (err) {
     logger.error(`[DB] Error retrieving Restaurant Tables, ERR: ${err}`);
     throw err;

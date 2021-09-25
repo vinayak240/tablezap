@@ -10,7 +10,7 @@ const validate = async (
   try {
     Logger.info(`[IMPL] Received a Order : ${JSON.stringify(order)}`);
     const { error, value } = await Joi.object()
-      .keys(build(isResponse, validateMetaInfo))
+      .keys(build(order.status, isResponse, validateMetaInfo))
       .validateAsync(order);
 
     if (Boolean(error)) {
@@ -26,7 +26,7 @@ const validate = async (
 
 //#region Schema Builder
 
-const build = (isResponse, validateMetaInfo) => {
+const build = (status, isResponse, validateMetaInfo) => {
   let keys = {
     _id: Joi.string(),
 
@@ -36,11 +36,17 @@ const build = (isResponse, validateMetaInfo) => {
 
     items: Joi.array().min(1).required(),
 
+    rejected_items: Joi.array(),
+
     total_price: Joi.string().required(),
 
     offers: Joi.array(),
 
     is_update: Joi.boolean().required(),
+
+    updated_order: Joi.any(),
+
+    audit: Joi.array(),
 
     session_id: Joi.string(),
 
@@ -53,14 +59,23 @@ const build = (isResponse, validateMetaInfo) => {
   };
 
   if (validateMetaInfo) {
-    keys.updated_order = Joi.object().keys({
-      status: Joi.string().required(),
-      items: Joi.array(),
-      offers: Joi.array(),
-      total_price: Joi.string(),
-    });
-  } else {
-    keys.updated_order = Joi.any();
+    if (status === ORDER_STATUS.UPDATE) {
+      keys.updated_order = Joi.object().keys({
+        status: Joi.string().required(),
+        items: Joi.array().required(),
+        offers: Joi.array(),
+        total_price: Joi.string().required(),
+        date: Joi.date(),
+      });
+    } else {
+      keys.updated_order = Joi.object().keys({
+        status: Joi.string().required(),
+        items: Joi.array(),
+        offers: Joi.array(),
+        total_price: Joi.string(),
+        date: Joi.date(),
+      });
+    }
   }
 
   return keys;

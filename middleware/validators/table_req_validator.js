@@ -3,7 +3,6 @@ const TABLE_STATUS = require("../../constants/table_status");
 const Logger = require("../../utils/logger");
 
 const validate = async (tableRequest, isResponse = false) => {
-  const tableRequest = req.body;
   try {
     const { error, value } = await build(isResponse).validateAsync(
       tableRequest
@@ -11,16 +10,11 @@ const validate = async (tableRequest, isResponse = false) => {
     if (Boolean(error)) {
       throw new Error(JSON.stringify(error));
     }
-    next();
   } catch (err) {
     Logger.error(
       `[IMPL] Error validating the Table Request from ${tableRequest?.rest_id} | ${tableRequest?.table_id} : ${err.message}`
     );
-
-    res.status(400).json({
-      success: false,
-      msg: "Invalid table request",
-    });
+    throw err;
   }
 };
 
@@ -33,6 +27,8 @@ const build = (isResponse) => {
     table_id: Joi.string().required(),
 
     session_id: Joi.string().required(),
+
+    socket_id: Joi.string(),
 
     meta_info: Joi.object().keys({
       cust_name: Joi.string().required(),

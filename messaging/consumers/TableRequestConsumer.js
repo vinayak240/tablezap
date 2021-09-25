@@ -3,6 +3,7 @@ const config = require("../../config/app.config");
 const amqp = require("amqplib");
 const { TABLE_REQUEST_EXCHANGE } = require("../constants/exchanges");
 const { ORDERSERV_TO_RESTSERV_TAB_REQ } = require("../constants/keys");
+const TableRequestHandler = require("./handlers/table_req_handler");
 const Logger = require("../../utils/logger");
 
 const initTableRequestConsumer = async () => {
@@ -26,17 +27,9 @@ const initTableRequestConsumer = async () => {
       ORDERSERV_TO_RESTSERV_TAB_REQ
     );
 
-    await ch.consume(
-      RESTSERV_TAB_REQ_QUEUE,
-      (msg) => {
-        Logger.info(
-          `[MQ] Table Request Message received from Order Service MSG: ${msg.content.toString()}`
-        );
-      },
-      {
-        noAck: true,
-      }
-    );
+    await ch.consume(RESTSERV_TAB_REQ_QUEUE, TableRequestHandler, {
+      noAck: true,
+    });
   } catch (err) {
     Logger.error(
       `[MQ] Error initializing Table Request MQ Consumer at QUEUE: ${RESTSERV_TAB_REQ_QUEUE}, ERR: ${err}`

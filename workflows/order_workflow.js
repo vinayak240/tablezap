@@ -1,14 +1,3 @@
-const {
-  ORDER_ACCEPTED,
-  UPDATE_ACCEPTED,
-  CANCEL_ACCEPTED,
-  ORDER_REJECTED,
-  UPDATE_REJECTED,
-  CANCEL_REJECTED,
-  PLACED,
-  UPDATE,
-  CANCEL,
-} = require("../constants/order_status");
 const OrderReqEmitter = require("../sockets/emitters/OrderReqEmitter");
 const performActionRelatedToOrderAcceptedStatus = require("./actions/order/action_order_accepted");
 const performActionRelatedToUpdateAcceptedStatus = require("./actions/order/action_update_accepted");
@@ -16,40 +5,38 @@ const performActionRelatedToCancelAcceptedStatus = require("./actions/order/acti
 const performActionRelatedToRejectedStatus = require("./actions/order/action_rejected");
 const Logger = require("../utils/logger");
 const { validateOrder } = require("../middleware/validators/order_validators");
+const ORDER_STATUS = require("../constants/order_status");
 
-const push = async (payload, metaStatus) => {
+const push = async (order, updatedStatus) => {
   let actionResult = undefined;
   try {
-    switch (metaStatus || payload.status) {
-      case PLACED:
-      case UPDATE:
-      case CANCEL:
-        actionResult = await validateOrder(payload, false);
-        OrderReqEmitter.emit(payload);
+    switch (updatedStatus || order.status) {
+      case ORDER_STATUS.PLACED:
+      case ORDER_STATUS.UPDATE:
+      case ORDER_STATUS.CANCEL:
+        // throw new Error("Random error to test Order Error Emitter");
+        actionResult = await validateOrder(order, false);
+        OrderReqEmitter.emit(order, "New order request");
         return actionResult;
 
-      case ORDER_ACCEPTED:
-        actionResult = await performActionRelatedToOrderAcceptedStatus(payload);
+      case ORDER_STATUS.ORDER_ACCEPTED:
+        actionResult = await performActionRelatedToOrderAcceptedStatus(order);
         return actionResult;
 
-      case UPDATE_ACCEPTED:
-        actionResult = await performActionRelatedToUpdateAcceptedStatus(
-          payload
-        );
+      case ORDER_STATUS.UPDATE_ACCEPTED:
+        actionResult = await performActionRelatedToUpdateAcceptedStatus(order);
         return actionResult;
 
-      case CANCEL_ACCEPTED:
-        actionResult = await performActionRelatedToCancelAcceptedStatus(
-          payload
-        );
+      case ORDER_STATUS.CANCEL_ACCEPTED:
+        actionResult = await performActionRelatedToCancelAcceptedStatus(order);
         return actionResult;
 
-      case ORDER_REJECTED:
-      case UPDATE_REJECTED:
-      case CANCEL_REJECTED:
+      case ORDER_STATUS.ORDER_REJECTED:
+      case ORDER_STATUS.UPDATE_REJECTED:
+      case ORDER_STATUS.CANCEL_REJECTED:
         actionResult = await performActionRelatedToRejectedStatus(
-          payload,
-          metaStatus || payload.status
+          order,
+          updatedStatus || order.status
         );
         return actionResult;
 
@@ -58,7 +45,7 @@ const push = async (payload, metaStatus) => {
     }
   } catch (err) {
     Logger.error(
-      `Error while executing Order Workflow, STATUS: ${payload.status} : ${err.message}`
+      `Error while executing Order Workflow, STATUS: ${order.status}`
     );
     throw err;
   }

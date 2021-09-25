@@ -1,3 +1,4 @@
+const { END_PTS } = require("../../constants/messages");
 const Logger = require("../../utils/logger");
 const { TABLE_REQUEST_EXCHANGE } = require("../constants/exchanges");
 const { RESTSERV_TO_ORDERSERV_TAB_REQ } = require("../constants/keys");
@@ -12,6 +13,7 @@ const publishTableRequest = async (msg) => {
     Logger.info(
       `[MQ] Publishing table request message : ${JSON.stringify(msg)}`
     );
+    msg = { ...msg, from: END_PTS.REST_SERV, to: END_PTS.ORDER_SERV };
     await publisher.publish_exchange(
       TABLE_REQUEST_EXCHANGE,
       ORDERSERV_TAB_REQ_QUEUE,

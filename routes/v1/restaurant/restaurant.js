@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
     res.json({ success: true, restaurants });
   } catch (err) {
     Logger.error(`[IMPL] Error occured while fetching all restaurants`);
-    Logger.error(err);
+    Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -51,7 +51,7 @@ router.get("/rest", rest_auth, async (req, res) => {
     Logger.error(
       `[IMPL] Error while fetching restaurant. _id: ${req.restaurant._id}`
     );
-    Logger.error(err);
+    Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -79,7 +79,7 @@ router.get("/:id", async (req, res) => {
     Logger.error(
       `[IMPL] Error while fetching restaurant. id: ${req.params?.id}`
     );
-    Logger.error(err);
+    Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });
   }
 });
@@ -178,10 +178,10 @@ router.put("/rest/:categ", rest_auth, async (req, res) => {
 
     res.json({ success: true, restaurant: restaurant });
   } catch (err) {
-    Logger.info(
+    Logger.error(
       `[IMPL] Error while updating the restaurant, _id: ${req.restaurant?._id}`
     );
-    Logger.error(err);
+    Logger.error("", err);
     res
       .status(500)
       .json({ success: false, msg: "Cannot Update, Server Error" });

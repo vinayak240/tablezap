@@ -1,174 +1,148 @@
 const mongoose = require("mongoose");
 const Menu = require("./Menu");
-// console.log("Schema : ", Menu);
 
 const imgSchema = new mongoose.Schema({
   name: {
-    type: String
-    // required: true
+    type: String,
   },
   imgURL: {
-    type: String
-    // required: true
-  }
+    type: String,
+  },
 });
 
 const restSchema = new mongoose.Schema({
+  /**
+   * Restaurant's Id
+   */
   rest_id: {
     type: String,
     required: true,
     unique: true,
-    sparse: true
+    sparse: true,
   },
+  /**
+   * Restaurant's name
+   */
   rest_name: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's email
+   */
   rest_email: {
     type: String,
     required: true,
     unique: true,
-    sparse: true
+    sparse: true,
   },
+  /**
+   * Restaurant's password - encrypted hash salt
+   */
   rest_psswd: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's display (Do not use)
+   */
   display_images: [imgSchema],
+
+  /**
+   * Restaurant's address
+   */
   rest_addr: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's phone/telephone number
+   */
   rest_no: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant type (self service/service to table etc.)
+   */
   rest_type: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's start timing
+   */
   rest_timing_start: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's end timing
+   */
   rest_timing_end: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's display tags
+   */
   rest_tags: [
     {
-      type: String
-    }
+      type: String,
+    },
   ],
+  /**
+   * Restaurant's dine type (buffet/alacarte etc.)
+   */
   dine_type: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Flag to determine whether restaurants serves alcohol
+   */
   is_alcohol: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's owner name
+   */
   owner_name: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's owner email
+   */
   owner_email: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's owner phone number
+   */
   owner_no: {
     type: String,
-    required: true
+    required: true,
   },
+  /**
+   * Restaurant's registration date
+   */
   date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
+  /**
+   * Restaurant's menu (food/alcohol/buffet etc.)
+   */
   menu: {
-    type: Menu
+    type: Menu,
   },
-  orientation: {}
+  /**
+   * Restaurant's table orientation
+   */
+  orientation: {},
 });
 
-// const packageSchema = new mongoose.Schema({
-//   package_name: {
-//     type: String,
-//     // required: true
-//   },
-//   package_price: {
-//     type: String,
-//     // required: true
-//   },
-//   package_desc: {
-//     type: String,
-//     // required: true
-//   },
-//   items: [
-
-//   ],
-//   custumization_arr: [
-
-//   ]
-
-// })
-
-// const itemSchema = new mongoose.Schema({
-//   item_name: {
-//     type: String,
-//     // required: true
-//   },
-//   item_price: {
-//     type: String,
-//     // required: true
-//   },
-//   currency: {
-//     type: String,
-//     // required: true
-//   },
-//   item_desc: {
-//     type: String,
-//     // required: true
-//   },
-//   food_type: {
-//     type: String,
-//     // required: true
-//   },
-//   custumization_arr: [
-
-//   ]
-// })
-
-// const custumizationSchema = new mongoose.Schema({
-//   custumization_name: {
-//     type: String,
-//     // required: true
-//   },
-//   custum_type: {
-//     type: String,
-//     // required: true
-//   },
-//   options: [
-
-//   ]
-// })
-
-// const optionSchema = new mongoose.Schema({
-//   option: {
-//     // This is option namr
-//     type: String,
-//     // required: true
-//   },
-//   option_price: {
-//     type: String,
-//     // required: true
-//   },
-//   option_type: {
-//     type: String,
-//     // required: true
-//   },
-// })
-
 module.exports = Restaurant = mongoose.model("restaurant", restSchema);
-
-// menu: {food: Array(1), bar: Array(1), buffet: Array(1)}
-// orientation: {service_type: "3", n_tables: 2, tables: Array(2)}

@@ -2,11 +2,13 @@ const Logger = require("../../utils/logger");
 const { ORDERS_EXCHANGE } = require("../constants/exchanges");
 const { RESTSERV_TO_ORDERSERV } = require("../constants/keys");
 const { ORDERSERV_ORDERS_QUEUE } = require("../constants/queues");
+const { END_PTS } = require("../../constants/messages");
 const publisher = require("./publish");
 
 const publishOrder = async (msg) => {
   try {
     Logger.info(`[MQ] Publishing order message : ${JSON.stringify(msg)}`);
+    msg = { ...msg, from: END_PTS.REST_SERV, to: END_PTS.ORDER_SERV };
     await publisher.publish_exchange(
       ORDERS_EXCHANGE,
       ORDERSERV_ORDERS_QUEUE,

@@ -3,7 +3,7 @@ const config = require("../../config/app.config");
 const amqp = require("amqplib");
 const { ORDERS_EXCHANGE } = require("../constants/exchanges");
 const { ORDERSERV_TO_RESTSERV } = require("../constants/keys");
-const OrderWorkflow = require("../../workflows/order_workflow");
+const OrderHandler = require("./handlers/order_handler");
 const Logger = require("../../utils/logger");
 
 const initOrderConsumer = async () => {
@@ -27,19 +27,9 @@ const initOrderConsumer = async () => {
       ORDERSERV_TO_RESTSERV
     );
 
-    await ch.consume(
-      RESTSERV_ORDERS_QUEUE,
-      (msg) => {
-        Logger.info(
-          `[MQ] Order Message received from Order Service, MSG: ${msg.content.toString()}`
-        );
-        const qm = JSON.parse(msg.content.toString());
-        OrderWorkflow.push(qm);
-      },
-      {
-        noAck: true,
-      }
-    );
+    await ch.consume(RESTSERV_ORDERS_QUEUE, OrderHandler, {
+      noAck: true,
+    });
   } catch (err) {
     Logger.error(
       `[MQ] Error initializing Order MQ Consumer at QUEUE: ${RESTSERV_ORDERS_QUEUE}, ERR: ${err}`

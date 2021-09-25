@@ -7,21 +7,22 @@ const {
 const TableReqEmitter = require("../sockets/emitters/TableReqEmitter");
 const Logger = require("../utils/logger");
 
-const push = async (payload) => {
+const push = async (tableReq) => {
   let actionResult = undefined;
   try {
-    switch (payload.status) {
+    switch (tableReq.status) {
       case TABLE_STATUS.TABLE_REQUESTED:
-        actionResult = await validateTableRequest(payload);
-        TableReqEmitter.emit(payload);
+        // throw new Error("[TEST] Random error to test the error handlers");
+        actionResult = await validateTableRequest(tableReq);
+        await TableReqEmitter.emit(tableReq, false, "Table requested");
         return actionResult;
 
       case TABLE_STATUS.TABLE_ACCEPTED:
-        actionResult = await performActionRelatedToAcceptStatus(payload);
+        actionResult = await performActionRelatedToAcceptStatus(tableReq);
         return actionResult;
 
       case TABLE_STATUS.TABLE_REJECTED:
-        actionResult = await performActionRelatedToRejectStatus(payload);
+        actionResult = await performActionRelatedToRejectStatus(tableReq);
         return actionResult;
 
       case TABLE_STATUS.TABLE_FREE: // Triggered From restaurant
@@ -33,8 +34,9 @@ const push = async (payload) => {
     }
   } catch (err) {
     Logger.error(
-      `Error while executing Table Workflow STATUS: ${payload.status} : ${err}`
+      `Error while executing Table Workflow STATUS: ${tableReq.status}`
     );
+
     throw err;
   }
 };

@@ -1,5 +1,7 @@
 const { clone } = require("ramda");
 const Logger = require("../.../../../../utils/logger");
+const ITEM_STATUS = require("../../../constants/item_status");
+const ORDER_STATUS = require("../../../constants/order_status");
 const Order = require("../../../db/models/Order");
 
 const getOrderByOrderId = async (order) => {
@@ -38,6 +40,10 @@ const updateOrderByOrderId = async (payload) => {
   }
 };
 
+const isOrderPartiallyAccepted = (order) => {
+  return order.items.findIndex((item) => !item.accepted) !== -1;
+};
+
 const cloneUpdatedOrder = (acceptedOrder) => {
   try {
     if (!acceptedOrder.is_update) {
@@ -50,21 +56,25 @@ const cloneUpdatedOrder = (acceptedOrder) => {
       );
     }
 
-    let updatedOrder = { ...acceptedOrder.updatedOrder };
+    let updatedOrder = { ...acceptedOrder.updated_order };
 
     if (Boolean(updatedOrder.status)) {
       acceptedOrder.status = updatedOrder.status;
     }
 
     if (updatedOrder.items.length > 0) {
-      acceptedOrder.items = updatedOrder.items;
+      acceptedOrder.items = cloneAcceptedItems(
+        acceptedOrder.status,
+        acceptedOrder.items,
+        updatedOrder.items
+      );
     }
 
     if (Boolean(updatedOrder.total_price)) {
       acceptedOrder.total_price = updatedOrder.total_price;
     }
 
-    if (updatedOrder.offers.length > 0) {
+    if (Boolean(updatedOrder?.offers) && updatedOrder.offers.length > 0) {
       acceptedOrder.offers = updatedOrder.offers;
     }
 
@@ -72,13 +82,82 @@ const cloneUpdatedOrder = (acceptedOrder) => {
       acceptedOrder.date = updatedOrder.date;
     }
 
+    acceptedOrder.rejected_items = updatedOrder.items
+      .filter((item) => !item.accepted)
+      .map((item) => {
+        return { ...item, new: true };
+      });
+
     acceptedOrder.is_update = false;
+
     acceptedOrder.updated_order = {};
 
     return clone(acceptedOrder);
   } catch (err) {
     throw err;
   }
+};
+
+const cloneAcceptedItems = (status, items, updated_items) => {
+  if (!updated_items && updated_items.length === 0) {
+    throw Error("[IMPL] No updated items present");
+  }
+
+  let acceptedItems = updated_items.filter((item) => item.accepted);
+
+  if (
+    [ORDER_STATUS.UPDATE_ACCEPTED, ORDER_STATUS.UPDATED_PARTIALLY].includes(
+      status
+    )
+  ) {
+    items = items.map((item) => {
+      let idx = acceptedItems.findIndex((up_item) => up_item.id === item.id);
+      if (idx !== -1) {
+        let status =
+          item.status === ITEM_STATUS.CANCEL
+            ? ITEM_STATUS.CANCELLED
+            : ITEM_STATUS.PREPARING;
+        let quantity =
+          item.status === ITEM_STATUS.CANCEL
+            ? item.quantity
+            : Number(item.quantity || 1) +
+              Number(acceptedItems[idx].quantity || 1);
+        item = { ...acceptedItems[idx], status, quantity };
+        acceptedItems.splice(idx, 1);
+      }
+
+      return item;
+    });
+    return [...items, ...acceptedItems];
+  } else {
+    return items.map((item) => {
+      let idx = acceptedItems.findIndex((up_item) => up_item.id === item.id);
+      if (idx !== -1) {
+        item = acceptedItems[idx];
+        item.status = ITEM_STATUS.CANCELLED;
+      }
+
+      return item;
+    });
+  }
+};
+
+const updateAllItemsStatus = (items, status) => {
+  return items.map((item) => {
+    item.status = status;
+    return item;
+  });
+};
+
+const updateItemsStatusSelectively = (items, updated_items) => {
+  return items.map((item) => {
+    let idx = updated_items.findIndex((up_item) => up_item.id === item.id);
+    if (idx !== -1) {
+      return updated_items[idx];
+    }
+
+    return items[idx];
+  });
 };
 
 const isObjEmpty = (obj) => {
@@ -95,5 +174,8 @@ module.exports = {
   getOrderByOrderId,
   updateOrderByOrderId,
   cloneUpdatedOrder,
+  updateAllItemsStatus,
+  updateItemsStatusSelectively,
+  isOrderPartiallyAccepted,
   isObjEmpty,
 };

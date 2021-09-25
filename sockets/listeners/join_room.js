@@ -12,9 +12,7 @@ const listen = (socket) => {
       socket.join(sktUser.rest_room || data.rest_id);
 
       Logger.debug(
-        `[SKT] User has successfully joined the room: ${JSON.stringify(
-          sktUser
-        )}, id: ${sktUser.socket_id}`
+        `[SKT] User has successfully joined the room: ${sktUser.rest_room}, id: ${sktUser.socket_id}`
       );
     } catch (err) {
       Logger.error(

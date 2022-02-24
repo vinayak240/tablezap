@@ -211,7 +211,8 @@ const CustumizationEditForm = (props) => {
     custum_type: props.custumization?.custum_type || "",
     option: "",
     options: clone(props.custumization?.options || []),
-    option_type: "",
+    option_type: "total",
+    option_food_type: "veg",
     option_price: "",
     custum_show: false,
     show_options_form: false,
@@ -240,7 +241,8 @@ const CustumizationEditForm = (props) => {
       show_options_form: true,
       show_options: true,
       option: "",
-      option_type: "",
+      option_type: "total",
+      option_food_type: "veg",
       option_price: "",
       cur_edit_opt: undefined,
     });
@@ -254,6 +256,7 @@ const CustumizationEditForm = (props) => {
       show_options: true,
       is_opt_edit: false,
       option: "",
+      option_food_type: "",
       option_type: "",
       option_price: "",
       cur_edit_opt: undefined,
@@ -261,10 +264,15 @@ const CustumizationEditForm = (props) => {
   };
 
   const addOption = () => {
-    const { option, option_type, option_price } = state;
+    const {
+      option,
+      option_type,
+      option_food_type: food_type,
+      option_price,
+    } = state;
 
-    if (option !== "" && option_type !== "" && option_price !== "") {
-      const newOpt = { option, option_type, option_price };
+    if (option !== "" && option_price !== "") {
+      const newOpt = { option, option_type, food_type, option_price }; //here
       let arr = clone(state.options);
       arr = [...arr, newOpt];
       setState({
@@ -279,9 +287,14 @@ const CustumizationEditForm = (props) => {
   };
 
   const editOption = (optIdx) => {
-    const { option, option_type, option_price } = state;
+    const {
+      option,
+      option_type,
+      option_food_type: food_type,
+      option_price,
+    } = state;
     if (optIdx >= 0) {
-      const newOpt = { option, option_type, option_price };
+      const newOpt = { option, option_type, food_type, option_price }; //here
       let newOptArr = state.options.map((opt, idx) => {
         if (optIdx === idx) return newOpt;
         return opt;
@@ -328,6 +341,7 @@ const CustumizationEditForm = (props) => {
       show_options_form: true,
       show_options: true,
       option: state.options[optIdx]?.option || "",
+      option_food_type: state.options[optIdx]?.food_type || "",
       option_type: state.options[optIdx]?.option_type || "",
       option_price: state.options[optIdx]?.option_price || "",
     });
@@ -335,10 +349,7 @@ const CustumizationEditForm = (props) => {
 
   return (
     <div>
-      <DialogTitle
-        // style={{ cursor: "move" }}
-        id="draggable-dialog-title"
-      >
+      <DialogTitle id="draggable-dialog-title">
         <span className={classes.cardTitle}>
           <i style={{ margin: "8px" }} className="fas fa-edit"></i>
           {props.isEdit ? "Edit Custumization" : "Add Custumization"}
@@ -488,39 +499,42 @@ const CustumizationEditForm = (props) => {
                   className={classes.textField}
                   placeholder="Option cost"
                 />
+                <select
+                  id="option_type"
+                  value={state.option_type}
+                  onChange={handleChange}
+                  className={classes.textField}
+                  placeholder="Option Type"
+                >
+                  <option value="minus">Deduct from total</option>
+                  <option value="add">Add to total</option>
+                  <option value="total">Option cost becomes total.</option>
+                </select>
                 <RadioGroup
                   aria-label="position"
-                  value={state.option_type}
+                  value={state.option_food_type}
                   onChange={handleChange}
                   row
                 >
                   <FormControlLabel
-                    value={"minus"}
-                    control={<Radio id="option_type" color="primary" />}
-                    label={
-                      <span style={{ fontWeight: "bold" }}>
-                        Deduct from total
-                      </span>
-                    }
+                    value={"veg"}
+                    control={<Radio id="option_food_type" color="primary" />}
+                    label={<span style={{ fontWeight: "bold" }}>Veg</span>}
                     labelPlacement="end"
                   />
 
                   <FormControlLabel
-                    value={"add"}
-                    control={<Radio id="option_type" color="primary" />}
-                    label={
-                      <span style={{ fontWeight: "bold" }}>Add to total</span>
-                    }
+                    value={"non_veg"}
+                    control={<Radio id="option_food_type" color="primary" />}
+                    label={<span style={{ fontWeight: "bold" }}>Non Veg</span>}
                     labelPlacement="end"
                   />
 
                   <FormControlLabel
-                    value={"total"}
-                    control={<Radio id="option_type" color="primary" />}
+                    value={"egg_only"}
+                    control={<Radio id="option_food_type" color="primary" />}
                     label={
-                      <span style={{ fontWeight: "bold" }}>
-                        Option cost becomes total.
-                      </span>
+                      <span style={{ fontWeight: "bold" }}>Contains Egg</span>
                     }
                     labelPlacement="end"
                   />
@@ -552,7 +566,11 @@ const CustumizationEditForm = (props) => {
                       borderRadius: "3px",
                       marginLeft: "20px",
                     }}
-                  >{`${"Rs"}. ${opt.option_price}`}</span>
+                  >
+                    {" "}
+                    <span style={{ marginRight: "2px" }}>&#8377;</span>
+                    {opt.option_price}
+                  </span>
 
                   <Tooltip title="Delete option" arrow>
                     <Button

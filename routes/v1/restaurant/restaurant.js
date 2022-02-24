@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const rest_auth = require("../../../middleware/rest_auth");
-
+const Logger = require("../../../utils/logger");
 const Restaurant = require("../../../db/models/Restaurant");
 
 // @route    GET restaurants/

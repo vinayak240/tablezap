@@ -10,6 +10,7 @@ const ORDER_STATUS = require("../constants/order_status");
 const push = async (order, updatedStatus) => {
   let actionResult = undefined;
   try {
+    // Add Update Order flow to update each item status
     switch (updatedStatus || order.status) {
       case ORDER_STATUS.PLACED:
       case ORDER_STATUS.UPDATE:

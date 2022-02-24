@@ -74,14 +74,14 @@ router.post(
 
       jwt.sign(
         payload,
-        config.secret["jwtSecret"],
+        config.secrets["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.secret["jwtSecret"],
+            config.secrets["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
@@ -108,7 +108,7 @@ router.post(
       );
     } catch (err) {
       Logger.error(
-        `[IMPL] Error occured while registering a restaurant, id: ${restaurant?.rest_id}`
+        `[IMPL] Error occured while registering a restaurant, id: ${req.restaurant?.rest_id}`
       );
       Logger.error("", err);
       res.status(500).json({ success: false, msg: "Server error" });
@@ -163,14 +163,14 @@ router.post(
 
       jwt.sign(
         payload,
-        config.secret["jwtSecret"],
+        config.secrets["jwtSecret"],
         { expiresIn: "1y" },
         (err, refresh_token) => {
           // Here
           if (err) throw err;
           jwt.sign(
             payload,
-            config.secret["jwtSecret"],
+            config.secrets["jwtSecret"],
             { expiresIn: "5m" },
             (err, access_token) => {
               if (err) throw err;
@@ -196,7 +196,7 @@ router.post(
       );
     } catch (err) {
       Logger.error(
-        `[IMPL] Error while logging in restaurant, id : ${restaurant.rest_id}`
+        `[IMPL] Error while logging in restaurant, id : ${req.restaurant?.rest_id}`
       );
       Logger.error("", err);
       res.status(500).json({ success: false, msg: "Server error" });
@@ -218,7 +218,7 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
   try {
     jwt.sign(
       payload,
-      config.secret["jwtSecret"],
+      config.secrets["jwtSecret"],
       { expiresIn: "5m" },
       (err, access_token) => {
         if (err) throw err;
@@ -230,7 +230,7 @@ router.get("/refresh-token", refresh_auth, async (req, res) => {
     );
   } catch (err) {
     Logger.error(
-      `[IMPL] Error while refrehing token for restaurant, payload: ${payload}`
+      `[IMPL] Error while refrehing token for restaurant, _id: ${payload._id}`
     );
     Logger.error("", err);
     res.status(500).json({ success: false, msg: "Server Error" });

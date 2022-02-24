@@ -12,7 +12,7 @@ const Profile = (props) => {
       style={{
         background: "white",
         width: "100%",
-        padding: "0px 0px 22px 0px",
+        padding: "0px",
       }}
     >
       <div
@@ -26,46 +26,30 @@ const Profile = (props) => {
           borderBottomRightRadius: "0px",
           height: "30px",
         }}
-      >
-        {/* <div style={{ width: "95%", margin: "auto", maxHeight: "500px" }}> */}
-        {/* <ImageSlider imgList={props.restaurant.display_images} /> */}
-        {/* </div> */}
-      </div>
+      ></div>
 
       <div>
         <Grid
-          // className={classes.section}
-          style={{ marginTop: "7px", padding: "15px 10px" }}
+          style={{ padding: "15px 22px" }}
           container
-          // spacing={1}
           direction="row"
           alignItems="center"
           justify="flex-start"
         >
-          <Grid style={{ paddingRight: "8px" }} item xs={3} sm={2} md={1}>
-            <RestLogo height="35px" width="35px" />
-          </Grid>
-
-          <Grid style={{ paddingRight: "8px" }} item xs={9} sm={10} md={11}>
+          <Grid style={{ paddingRight: "8px" }} item xs={12}>
             <Typography
               style={{
                 fontWeight: "bolder",
                 fontSize: "15px",
-                // textDecoration: "underline"
               }}
-              // align={"center"}
             >
               {props.restaurant ? props.restaurant.rest_name : "Restaurant"}
             </Typography>
             <Typography>
               <span
                 style={{
-                  borderRadius: "6px",
-                  padding: "3px",
-                  backgroundColor: "#cdefc9",
                   textDecoration: "underline",
-                  color: "green",
-                  marginTop: "10x",
+                  marginTop: "12x",
                   fontSize: "13px",
                   fontWeight: "bold",
                 }}
@@ -75,7 +59,6 @@ const Profile = (props) => {
                     width: "13px",
                     verticalAlign: "middle",
                     margin: "3px",
-                    // float: "left"
                   }}
                   src="https://img.icons8.com/fluent/48/000000/verified-account.png"
                   alt="ID"

@@ -15,18 +15,8 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import CloseRounded from "@material-ui/icons/CloseRounded";
 import CustumizationEditForm from "../forms/CustumizationEditForm";
-
 import useStyles, { useFirebaseBtnStyles } from "../styles/main";
 import PaperComponent from "../components/PaperComponent";
-// import PurpleSwitch from "../components/PurpleSwitch";
-// import AntTab from "../components/AntTab";
-// import AntTabs from "../components/AntTabs";
-// import Category from "../components/Category";
-// import Item from "../components/Item";
-// import Package from "../components/Package";
-
-// import ItemForm from "../forms/ItemForm";
-// import PackageForm from "../forms/PackageForm";
 
 const PackageForm = (props) => {
   const classes = useStyles();
@@ -48,6 +38,7 @@ const PackageForm = (props) => {
     package_name: (props.package && props.package.package_name) || "",
     package_price: (props.package && props.package.package_price) || "",
     package_desc: (props.package && props.package.package_desc) || "",
+    type: (props.package && props.package.type) || "package",
     // custum_type: "", //Is the no of options that can be selected in the custumization number is oly correct bcpz item choosing also has a limit
     custumization_arr: clone(cust_arr),
     option: "",
@@ -100,26 +91,6 @@ const PackageForm = (props) => {
     }));
   };
 
-  // const handleCustumEdit = evt => {
-  //   evt.stopPropagation();
-  //   setState(prevState => ({
-  //     ...prevState,
-  //     custum_edit: true,
-  //     custum_show: true
-  //   }));
-  // };
-
-  // const handleCustumUndo = evt => {
-  //   evt.stopPropagation();
-  //   const arr = [...cust_arr];
-  //   setState(prevState => ({
-  //     ...prevState,
-  //     custum_edit: false,
-  //     // custum_show: true,
-  //     custumization_arr: clone(arr)
-  //   }));
-  // };
-
   const handleCustomChange = (value, custum_key, idx) => {
     let arr = [...state.custumization_arr];
     arr[idx][custum_key] = value;
@@ -148,7 +119,6 @@ const PackageForm = (props) => {
         );
     const arr = state.custumization_arr;
     const newArr = arr.filter((ele, idx) => idx !== custIdx);
-    // console.log("Clicked");
 
     setState((prevState) => ({
       ...prevState,
@@ -173,9 +143,8 @@ const PackageForm = (props) => {
     arr[custIdx].options = arr[custIdx].options.filter(
       (ele, idx) => idx !== optIdx
     );
-    // arr[custIdx].options = [...newOptArr];
+
     const newArr = [...arr];
-    // console.log("Clicked");
 
     setState((prevState) => ({
       ...prevState,
@@ -185,12 +154,6 @@ const PackageForm = (props) => {
 
   const handleCustumAdd = (evt) => {
     evt.stopPropagation();
-    // setState({
-    //   ...state,
-    //   custum_show: true,
-    //   custum_add: true,
-    //   custum_edit: false,
-    // });
 
     setState({
       ...state,
@@ -201,12 +164,6 @@ const PackageForm = (props) => {
 
   const handleCustumEdit = (evt, idx) => {
     evt.stopPropagation();
-    // setState((prevState) => ({
-    //   ...prevState,
-    //   custum_edit: true,
-    //   custum_show: true,
-    //   custum_add: false,
-    // }));
 
     setState({
       ...state,
@@ -290,7 +247,7 @@ const PackageForm = (props) => {
   };
 
   const updatePack = () => {
-    const { package_name, package_desc, package_price } = state;
+    const { package_name, package_desc, type, package_price } = state;
     let custumization_arr = clone(state.custumization_arr);
     let items = [];
     if (Boolean(props.package.items)) {
@@ -300,6 +257,7 @@ const PackageForm = (props) => {
       package_name,
       package_desc,
       package_price,
+      type,
       custumization_arr,
       items,
     };
@@ -352,10 +310,7 @@ const PackageForm = (props) => {
         </Dialog>
       </div>
       <div>
-        <DialogTitle
-          // style={{ cursor: "move" }}
-          id="draggable-dialog-title"
-        >
+        <DialogTitle id="draggable-dialog-title">
           <span className={classes.cardTitle}>
             <i style={{ margin: "8px" }} className="fas fa-edit"></i>
             {props.isEdit ? " Edit Package" : "Add Package"}
@@ -402,6 +357,22 @@ const PackageForm = (props) => {
                     className={classes.textField}
                     placeholder="Package price"
                   />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Grid container justify="flex-start" spacing={3}>
+                <Grid item xs={6}>
+                  <select
+                    id="type"
+                    value={state.type}
+                    onChange={handleChange}
+                    className={classes.textField}
+                    placeholder="Type"
+                  >
+                    <option value="package">Package</option>
+                  </select>
                 </Grid>
               </Grid>
             </Grid>

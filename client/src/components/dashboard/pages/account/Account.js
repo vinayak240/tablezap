@@ -152,7 +152,7 @@ const Account = (props) => {
       </div>
 
       {props.restaurant && (
-        <div className="content">
+        <div style={{ padding: "10px" }} className="content">
           <Profile restaurant={props.restaurant} />
           <Credentials
             rest_id={props.restaurant.rest_id}

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@material-ui/core/styles";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { useDispatch } from "react-redux";
 import { refreshToken } from "./redux/actions/restaurant/auth";
+import { REFRESH_TOKEN_TIMEOUT } from "./constants/api-constants";
 import Routes from "./components/routing/Routes";
 import { LOGOUT } from "./redux/actions/types";
 const theme = createMuiTheme({
@@ -14,13 +15,10 @@ const theme = createMuiTheme({
 });
 
 const App = () => {
-  const [state, setState] = React.useState({
-    islogged: false,
-  });
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(refreshToken(5 * 60 * 1000, true));
+    dispatch(refreshToken(REFRESH_TOKEN_TIMEOUT, true));
     window.addEventListener("storage", () => {
       if (!localStorage.rest_token) dispatch({ type: LOGOUT });
     });

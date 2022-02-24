@@ -92,6 +92,18 @@ const restSchema = new mongoose.Schema({
     },
   ],
   /**
+   * Restaurant's cost for two
+   */
+  cost_for_two: {
+    type: String,
+  },
+  /**
+   * Restaurant's estimated serve time
+   */
+  serve_time: {
+    type: String,
+  },
+  /**
    * Restaurant's dine type (buffet/alacarte etc.)
    */
   dine_type: {

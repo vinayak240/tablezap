@@ -1,7 +1,7 @@
 import React, { useState, forwardRef, useEffect } from "react";
 import { connect } from "react-redux";
 import Typography from "@material-ui/core/Typography";
-import { Card, useMediaQuery, Button } from "@material-ui/core";
+import { Card, useMediaQuery, Button, Fab } from "@material-ui/core";
 import { useMinimalSelectStyles } from "@mui-treasury/styles/select/minimal";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -9,9 +9,6 @@ import FormControl from "@material-ui/core/FormControl";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { deepPurple } from "@material-ui/core/colors";
 import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import { usePushingGutterStyles } from "@mui-treasury/styles/gutter/pushing";
 import FlipMove from "react-flip-move";
 import FbSpinner from "../../../layout/FbSpinner";
@@ -22,16 +19,18 @@ import AntTabs from "./components/AntTabs";
 import Category from "./components/Category";
 import Item from "./components/Item";
 import Package from "./components/Package";
-
+import clsx from "clsx";
 import ItemForm from "./forms/ItemForm";
 import PackageForm from "./forms/PackageForm";
+import CategoryForm from "./forms/CategoryForm";
+import AddIcon from "@material-ui/icons/Add";
 
 const Menu = (props) => {
   const classes = useStyles();
   // const theme = useTheme();
   const styles = useFirebaseBtnStyles();
   const gutterStyles = usePushingGutterStyles();
-  const matches = useMediaQuery("(min-width:440px)");
+  const matches = useMediaQuery((theme) => theme.breakpoints.up("xs"));
   const matchesSm = useMediaQuery((theme) => theme.breakpoints.up("sm"));
   const matchesSmDw = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const minimalSelectClasses = useMinimalSelectStyles();
@@ -39,7 +38,6 @@ const Menu = (props) => {
   const [state, setState] = useState({
     select_cat: [0, 0, 0],
     tab: 0,
-    category_name: "",
     dialog_open: false,
     dialog2_open: false,
     dialog3_open: false,
@@ -117,8 +115,8 @@ const Menu = (props) => {
     props.updateItem(item, itemId, catId, tabMap[state.tab], itemName, name);
   };
 
-  const updateCat = (catName, catId, oldCatName) => {
-    props.updateCat(catName, catId, tabMap[state.tab], oldCatName);
+  const updateCat = (catName, type, catId, oldCatName) => {
+    props.updateCat(catName, type, catId, tabMap[state.tab], oldCatName);
   };
 
   const updatePack = (pack, packId, packName) => {
@@ -148,16 +146,35 @@ const Menu = (props) => {
     props.addItem(item, catId, tabMap[state.tab], name);
   };
 
-  const addCat2 = () => {
-    if (state.category_name !== "") {
-      setState({
-        ...state,
-        category_name: "",
-        dialog2_open: false,
-      });
-      // console.log(state.category_name);
-      props.addCat(state.category_name, tabMap[state.tab]);
-    }
+  const addCat2 = (name, type) => {
+    setState({
+      ...state,
+      dialog2_open: false,
+    });
+
+    props.addCat(name, type, tabMap[state.tab]);
+  };
+
+  const addNestedCat = (name, type) => {
+    let newCat = {
+      category_name: name,
+      type,
+      items: [],
+    };
+
+    setState({
+      ...state,
+      dialog2_open: false,
+    });
+
+    let cat =
+      props.restaurant.menu[tabMap[state.tab]][
+        state.select_cat[state.tab] >= 2
+          ? state.select_cat[state.tab] - 2
+          : state.select_cat[state.tab]
+      ];
+
+    addItem(newCat, cat._id, cat.category_name);
   };
 
   const addPack2 = (pack) => {
@@ -170,7 +187,6 @@ const Menu = (props) => {
         ...state,
         dialog3_open: false,
       });
-      // console.log(state.category_name);
       props.addPack(pack, tabMap[state.tab]);
     }
   };
@@ -314,23 +330,37 @@ const Menu = (props) => {
         const catId = props.restaurant.menu[tabMap[state.tab]][catIdx]._id;
         const catName =
           props.restaurant.menu[tabMap[state.tab]][catIdx].category_name;
+        const type =
+          props.restaurant.menu[tabMap[state.tab]][catIdx].type || "category";
         return (
           <div>
             <FlipMove>
               {props.restaurant ? (
                 props.restaurant.menu[tabMap[state.tab]][catIdx].items.map(
-                  (item, idx) => (
-                    <Item
-                      catId={catId}
-                      key={"item" + idx}
-                      isPackage={false}
-                      name={catName}
-                      item={item}
-                      addItem={addItem}
-                      updateItem={updateItem}
-                      deleteItem={deleteItem}
-                    />
-                  )
+                  (item, idx) =>
+                    type === "sub_menu" ? (
+                      <Category
+                        catId={item._id}
+                        key={idx}
+                        category={item}
+                        addItem={addItem}
+                        updateItem={updateItem}
+                        deleteItem={deleteItem}
+                        updateCat={updateCat}
+                        deleteCatOrPack={deleteCatOrPack}
+                      />
+                    ) : (
+                      <Item
+                        catId={catId}
+                        key={"item" + idx}
+                        isPackage={false}
+                        name={catName}
+                        item={item}
+                        addItem={addItem}
+                        updateItem={updateItem}
+                        deleteItem={deleteItem}
+                      />
+                    )
                 )
               ) : (
                 <div style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -375,51 +405,27 @@ const Menu = (props) => {
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
           open={state.dialog2_open}
           fullWidth={true}
+          fullScreen={matchesSmDw}
           maxWidth={"sm"}
           scroll="body"
           onClose={() => handleDialogClose("dialog2_open")}
           PaperComponent={PaperComponent}
           aria-labelledby="draggable-dialog-title"
         >
-          <DialogTitle>
-            <Typography className={classes.cardDesc} style={{ margin: "12px" }}>
-              Edit category name
-            </Typography>
-          </DialogTitle>
-          <DialogContent>
-            <div>
-              <input
-                id="category_name"
-                value={state.category_name}
-                onChange={handleChange}
-                type="text"
-                style={{ marginBottom: "10px" }}
-                className={classes.textField}
-                placeholder="Category name"
-              />
-            </div>
-          </DialogContent>
-          <DialogActions>
-            <div className={gutterStyles.parent}>
-              <Button
-                variant="default"
-                color="primary"
-                onClick={() => handleDialogClose("dialog2_open")}
-              >
-                <span style={{ fontWeight: "bold" }}>Cancel</span>
-              </Button>
-              <Button
-                style={{ margin: "10px", fontWeight: "bold" }}
-                classes={styles}
-                variant={"contained"}
-                color={"primary"}
-                onClick={addCat2}
-              >
-                <i style={{ margin: "6px" }} className="fas fa-save"></i>
-                Save Changes
-              </Button>
-            </div>
-          </DialogActions>
+          <CategoryForm
+            handleClose={() => handleDialogClose("dialog2_open")}
+            addCat={
+              state.select_cat[state.tab] === 1
+                ? addCat2
+                : props.restaurant.menu[tabMap[state.tab]][
+                    state.select_cat[state.tab] >= 2
+                      ? state.select_cat[state.tab] - 2
+                      : state.select_cat[state.tab]
+                  ]?.type === "sub_menu"
+                ? addNestedCat
+                : addCat2
+            }
+          />
         </Dialog>
         <Dialog
           // Please Keep Dialogs Code outside any other modal like MenuItem, Menu, Another dialog etc.
@@ -519,31 +525,25 @@ const Menu = (props) => {
         </div>
       </div>
       <Card
-        className={classes.section}
+        className={clsx(classes.section, classes.menuCardResp)}
         style={{
-          // height: "650px",
-          // maxHeight: "560px",
           minWidth: "350px",
           marginTop: "10px",
           paddingBottom: "25px",
-          borderRadius: "8px",
         }}
       >
         <div>
           <AntTabs
             value={state.tab}
+            className={classes.menuTabContainer}
             indicatorColor="primary"
             textColor="primary"
             onChange={handleTab}
-            // variant={!matches && "scrollable"}
-            // scrollButtons={!matches && "auto"}
             aria-label="tabs"
             centered={matches}
           >
             <AntTab label={`Food Menu`} />
-
             <AntTab label={`Bar menu`} />
-
             <AntTab label={`Buffet menu`} />
           </AntTabs>
         </div>
@@ -555,8 +555,6 @@ const Menu = (props) => {
               classes={{ root: classes.select }}
               style={{
                 color: deepPurple[500],
-                // border: "1px solid lightgray"
-                // borderRadius: 5
               }}
               MenuProps={menuProps}
               IconComponent={iconComponent}
@@ -579,7 +577,6 @@ const Menu = (props) => {
                 !(state.tab === 2 && state.select_cat[state.tab] > 1) && (
                   <MenuItem
                     style={{
-                      // borderTop: "1px solid lightgray",
                       display: "flex",
                       justifyContent: "center",
                       backgroundColor: deepPurple[50],
@@ -593,7 +590,12 @@ const Menu = (props) => {
                           evt,
                           state.tab === 2
                             ? "dialog3_open"
-                            : state.select_cat[state.tab] === 1
+                            : state.select_cat[state.tab] === 1 ||
+                              props.restaurant.menu[tabMap[state.tab]][
+                                state.select_cat[state.tab] >= 2
+                                  ? state.select_cat[state.tab] - 2
+                                  : state.select_cat[state.tab]
+                              ].type === "sub_menu"
                             ? "dialog2_open"
                             : "dialog_open"
                         )
@@ -608,7 +610,12 @@ const Menu = (props) => {
                         Add a{" "}
                         {state.tab === 2
                           ? "Package to Menu"
-                          : state.select_cat[state.tab] === 1
+                          : state.select_cat[state.tab] === 1 ||
+                            props.restaurant.menu[tabMap[state.tab]][
+                              state.select_cat[state.tab] >= 2
+                                ? state.select_cat[state.tab] - 2
+                                : state.select_cat[state.tab]
+                            ].type === "sub_menu"
                           ? "Category to Menu"
                           : "Item in Selected Category"}
                         <i
@@ -622,20 +629,39 @@ const Menu = (props) => {
             </Select>
           </FormControl>
 
-          <div className={classes.itemList}>
-            {/* Restaurant value at first is NULL because the app has not yet fetch the value of restaurant from server
-          so to solve the problem use the restaurant value in if..else construct like below...
-          */}
-
-            {/* {props.restaurant ? (
-              props.restaurant.menu[tabMap[state.tab]].map(cat => (
-                <Item item={cat.items[0]} />
-              ))
-            ) : (
-              <>No Items Available...</>
-            )} */}
-            {getList(state.select_cat)}
-          </div>
+          <div className={classes.itemList}>{getList(state.select_cat)}</div>
+          {state.select_cat[state.tab] !== 0 &&
+            !(state.tab === 2 && state.select_cat[state.tab] > 1) && (
+              <Fab
+                size="medium"
+                style={{
+                  position: "fixed",
+                  bottom: "1.1rem",
+                  right: "1.2rem",
+                  zIndex: 3,
+                  background: "rgb(33, 36, 43)",
+                }}
+                color="primary"
+                aria-label="add"
+                onClick={(evt) =>
+                  handleDialogOpen(
+                    evt,
+                    state.tab === 2
+                      ? "dialog3_open"
+                      : state.select_cat[state.tab] === 1 ||
+                        props.restaurant.menu[tabMap[state.tab]][
+                          state.select_cat[state.tab] >= 2
+                            ? state.select_cat[state.tab] - 2
+                            : state.select_cat[state.tab]
+                        ].type === "sub_menu"
+                      ? "dialog2_open"
+                      : "dialog_open"
+                  )
+                }
+              >
+                <AddIcon />
+              </Fab>
+            )}
         </div>
       </Card>
     </div>
@@ -643,10 +669,7 @@ const Menu = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  // isAuthenticated: state.rest_auth.isAuthenticated,
   isUpdated: state.rest_auth.isUpdated,
 });
 
 export default connect(mapStateToProps)(Menu);
-
-// export default Menu;

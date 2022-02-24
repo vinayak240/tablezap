@@ -4,5 +4,5 @@ import rest_auth from "./restaurant/auth";
 
 export default combineReducers({
   alert,
-  rest_auth
+  rest_auth,
 });

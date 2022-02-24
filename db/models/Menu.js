@@ -8,6 +8,12 @@ const optionSchema = new mongoose.Schema({
     type: String,
   },
   /**
+   * Custumoization's option food type
+   */
+  food_type: {
+    type: String,
+  },
+  /**
    * Custumoization's option price
    */
   option_price: {
@@ -42,56 +48,25 @@ const custumizationSchema = new mongoose.Schema({
   options: [optionSchema],
 });
 
-const itemSchema = new mongoose.Schema({
-  /**
-   * Menu item's name
-   */
-  item_name: {
-    type: String,
-    // required: true
-  },
-  /**
-   * Menu item's image URL
-   */
-  item_img: {},
-  /**
-   * Menu item's price
-   */
-  item_price: {
-    type: String,
-  },
-  /**
-   * Menu item's price currency
-   */
-  currency: {
-    type: String,
-    default: "Rs",
-  },
-  /**
-   * Menu item's description
-   */
-  item_desc: {
-    type: String,
-  },
-  /**
-   * Menu item's food type
-   */
-  food_type: {
-    type: String,
-  },
-  /**
-   * Menu item's custumizations
-   */
-  custumization_arr: [custumizationSchema],
-});
+const itemSchema = new mongoose.Schema(
+  { type: mongoose.Schema.Types.Mixed },
+  { strict: false }
+);
 
 const categorySchema = new mongoose.Schema({
   /**
-   * Menu's category
+   * Menu's category name
    */
   category_name: {
     type: String,
     required: true,
+  },
+  /**
+   * Menu's category type [sub_menu/category]
+   * Hierarchy - menu has sub_menu[Has only category] / Categories
+   */
+  type: {
+    type: String,
   },
   /**
    * Menu category's items
@@ -104,6 +79,13 @@ const packageSchema = new mongoose.Schema({
    * Buffet package's name
    */
   package_name: {
+    type: String,
+  },
+  /**
+   * Menu's package type [sub_menu/package]
+   * Hierarchy - menu has sub_menu[Has only Packages] / Packages
+   */
+  type: {
     type: String,
   },
   /**

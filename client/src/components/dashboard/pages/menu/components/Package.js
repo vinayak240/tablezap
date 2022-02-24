@@ -210,6 +210,7 @@ const Package = forwardRef((props, ref) => {
         <Dialog
           open={state.dialog3_open}
           fullWidth={true}
+          fullScreen={matchesSmDw}
           maxWidth={"md"}
           scroll="body"
           onClose={() => handleDialogClose("dialog3_open")}
@@ -289,8 +290,6 @@ const Package = forwardRef((props, ref) => {
                 ></i>
                 <MaterialMenu
                   id="simple-menu"
-                  // className={classes.materialMenu}
-                  // style={{ backgroundColor: "white" }}
                   anchorEl={state.anchorEl}
                   getContentAnchorEl={null}
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -351,7 +350,8 @@ const Package = forwardRef((props, ref) => {
             </Grid>
             <Grid item xs={12}>
               <Typography className={classes.cardSub}>
-                Rs. {package_price}
+                <span style={{ marginRight: "2px" }}>&#8377;</span>{" "}
+                {package_price}
               </Typography>
             </Grid>
             <Grid item xs={12}></Grid>
@@ -535,7 +535,11 @@ const Package = forwardRef((props, ref) => {
                           borderRadius: "3px",
                           marginLeft: "20px",
                         }}
-                      >{`${"Rs."} ${opt.option_price}`}</span>
+                      >
+                        {" "}
+                        <span style={{ marginRight: "2px" }}>&#8377;</span>
+                        {`${opt.option_price}`}
+                      </span>
                     </span>
                   ))}
                 </Collapse>

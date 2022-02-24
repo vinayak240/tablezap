@@ -11,7 +11,7 @@ module.exports = async () => {
     await OrderConsumer.init();
     await TableRequestConsumer.init();
 
-    Logger.info(`[MQ] All MQ Consumer have been initialized Successfully`);
+    Logger.info(`[MQ] All MQ Consumers have been initialized Successfully`);
   } catch (err) {
     Logger.error(`[MQ] Error initializing MQ Consumers`);
     Logger.error("", err);

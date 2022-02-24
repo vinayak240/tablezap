@@ -42,7 +42,7 @@ const Item = forwardRef((props, ref) => {
   const gutterStyles = usePushingGutterStyles();
 
   const show_arr = Array.from(
-    { length: custumization_arr.length },
+    { length: custumization_arr?.length || 0 },
     (ele) => false
   );
 
@@ -260,8 +260,6 @@ const Item = forwardRef((props, ref) => {
 
           <MaterialMenu
             id="simple-menu"
-            // className={classes.materialMenu}
-            // style={{ backgroundColor: "white" }}
             anchorEl={state.anchorEl}
             getContentAnchorEl={null}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
@@ -270,10 +268,7 @@ const Item = forwardRef((props, ref) => {
             open={Boolean(state.anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem
-              className={classes.menuItem}
-              // onClick={handleClose}
-            >
+            <MenuItem className={classes.menuItem}>
               <FormControlLabel
                 style={{ fontWeight: "bold" }}
                 control={
@@ -331,7 +326,7 @@ const Item = forwardRef((props, ref) => {
         {!isObjEmpty(props.item.item_img) && (
           <Grid
             style={{
-              paddingLeft: "25px",
+              paddingRight: "25px",
             }}
             className={classes.itemImgGrid}
             item
@@ -383,7 +378,8 @@ const Item = forwardRef((props, ref) => {
             {props.item.item_price && (
               <Grid item xs={12} sm={12} md={12}>
                 <Typography className={classes.cardSub}>
-                  Rs. {props.item.item_price}
+                  <span style={{ marginRight: "2px" }}>&#8377;</span>
+                  {props.item.item_price}
                 </Typography>
               </Grid>
             )}

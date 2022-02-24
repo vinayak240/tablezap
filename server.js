@@ -33,6 +33,6 @@ process.on("exit", () => {
 
 server.listen(PORT, () => {
   Logger.info(
-    `[SERVICE] [PID: ${process.pid}] STARTED Order Service at PORT : ${PORT} in MODE: ${appConfig.currentEnviroment}`
+    `[SERVICE] [PID: ${process.pid}] STARTED Restaurant Service at PORT : ${PORT} in MODE: ${appConfig.currentEnviroment}`
   );
 });

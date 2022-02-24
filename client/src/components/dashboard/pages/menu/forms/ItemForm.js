@@ -55,6 +55,7 @@ const ItemForm = (props) => {
     option_add: false,
     option: "",
     option_type: "",
+    option_food_type: "",
     option_price: "",
     curr_cust_edit_idx: undefined,
     cust_dialog_open: false,
@@ -430,7 +431,6 @@ const ItemForm = (props) => {
                     >
                       <option>- -</option>
                       <option value="RS">RS</option>
-                      <option value="$">$</option>
                     </select>
                   </Grid>
 

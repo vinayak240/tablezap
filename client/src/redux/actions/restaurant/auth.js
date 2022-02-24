@@ -12,6 +12,7 @@ import {
 } from "../types";
 import { setAlert } from "../alert";
 import uploadRestImages from "../../../firebase/upload_lib";
+import { REFRESH_TOKEN_TIMEOUT } from "../../../constants/api-constants";
 
 export const loadRest = (token) => async (dispatch) => {
   try {
@@ -142,7 +143,7 @@ export const logout = () => async (dispatch) => {
 };
 
 export const refreshToken =
-  (timeout, isStartUp = false) =>
+  (timeout = 5 * 60_000, isStartUp = false) =>
   async (dispatch) => {
     try {
       const res = await apiClient().get("/auth/refresh-token/");
@@ -150,7 +151,7 @@ export const refreshToken =
 
       if (Boolean(res.data) && res.data.success) {
         setTimeout(() => {
-          dispatch(refreshToken(5 * 60 * 1000)); // use this convention bcoz refreshToken() just return action creator to reduce it we use dispatch
+          dispatch(refreshToken(REFRESH_TOKEN_TIMEOUT)); // use this convention bcoz refreshToken() just return action creator to reduce it we use dispatch
         }, timeout - 500); // After every 5mins do a silent refresh of token
 
         // See the returned JSON properly

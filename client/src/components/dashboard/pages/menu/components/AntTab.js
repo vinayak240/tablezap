@@ -21,6 +21,9 @@ const AntTab = withStyles((theme) => ({
     "&:focus": {
       color: "#40a9ff",
     },
+    [theme.breakpoints.down("xs")]: {
+      marginRight: "0px",
+    },
   },
   selected: {},
 }))((props) => <Tab disableRipple {...props} />);

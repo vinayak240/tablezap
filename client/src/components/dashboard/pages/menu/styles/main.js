@@ -77,16 +77,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   cardDesc: {
-    // backgroundColor: "#EBEDE8",
-    // border: "2px solid #E7EDF3",
-    // borderRadius: 5,
-    // padding: "12px"
-    // padding: "5px 20px ",
-    // backgroundColor: "#b8f2ab",
     fontSize: "13px",
     color: "#756e6e",
-    // borderRadius: "5px",
-    // border: "1px solid lightgray",
     marginBottom: "5px",
     [theme.breakpoints.down("sm")]: {
       fontSize: "13px",
@@ -230,6 +222,19 @@ const useStyles = makeStyles((theme) => ({
       // eslint-disable-line no-useless-computed-key
       maxWidth: "100%",
       flexBasis: "100%",
+    },
+  },
+  menuCardResp: {
+    borderRadius: "8px",
+    [theme.breakpoints.down("xs")]: {
+      borderRadius: "0px",
+    },
+  },
+  menuTabContainer: {
+    [theme.breakpoints.down("xs")]: {
+      display: "flex",
+      justifyContent: "space-around",
+      alignItems: "center",
     },
   },
 }));

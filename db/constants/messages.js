@@ -1,0 +1,17 @@
+/**
+ * @summary All the defined message types
+ */
+const MESSAGE_TYPE = {
+  REQUEST_MESSAGE: "REQUEST_MESSAGE",
+  ERROR_MESSAGE: "ERROR_MESSAGE",
+  RESPONSE_MESSAGE: "RESPONSE_MESSAGE",
+};
+
+const END_PTS = {
+  REST_SERV: "REST_SERV",
+  ORDER_SERV: "ORDER_SERV",
+  RESTAURANT: "RESTAURANT",
+  CLIENT: "CLIENT",
+};
+
+module.exports = { MESSAGE_TYPE, END_PTS };

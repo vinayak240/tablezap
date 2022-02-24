@@ -22,7 +22,7 @@ import Menu from "./pages/menu/Menu";
 // import Axios from "axios";
 import { loadRest, logout } from "../../redux/actions/restaurant/auth";
 import Orientation from "./pages/orientation/Orientation";
-import { Grid, Badge } from "@material-ui/core";
+import { Grid, Badge, useMediaQuery } from "@material-ui/core";
 import { deepPurple } from "@material-ui/core/colors";
 import Account from "./pages/account/Account";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -76,8 +76,8 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
-    [theme.breakpoints.down("sm")]: {
-      padding: "14px",
+    [theme.breakpoints.down("xs")]: {
+      padding: "0px",
     },
   },
   section: {
@@ -116,6 +116,8 @@ function Dashboard(props) {
   const { window } = props;
   const classes = useStyles();
   const theme = useTheme();
+  const matches = useMediaQuery((theme) => theme.breakpoints.down("xs"));
+  const matchesSmDw = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const dispatch = useDispatch();
   const pageMap = {
     home: 0,
@@ -126,21 +128,6 @@ function Dashboard(props) {
     account: 5,
     settings: 6,
   };
-  // const dispatch = useDispatch();
-  // const [mobileOpen, setMobileOpen] = React.useState(false);
-  // let restaurant = {};
-  // let menu = {};
-  // let orientation = {};
-  // if (props.restaurant) {
-  //   restaurant = { ...props.restaurant };
-  //   delete restaurant.menu;
-  //   delete restaurant.orientation;
-  //   menu = clone(props.restaurant.menu);
-  //   orientation = clone(props.restaurant.orientation);
-  // }
-
-  // const restaurant = clone(props.restaurant);
-  // console.log("Clone again : ", restaurant);
 
   const [state, setState] = React.useState({
     restaurant: clone(props.restaurant),
@@ -160,9 +147,7 @@ function Dashboard(props) {
       restaurant: clone(props.restaurant),
     }));
   }, [props.restaurant]);
-  // const didMountRef = useRef(false);
   useEffect(() => {
-    // if (didMountRef.current) {
     if (state.is_edited[pageMap[state.page]]) {
       setState((prevState) => ({
         ...prevState,
@@ -219,44 +204,95 @@ function Dashboard(props) {
   const getCatIdx = (catId, menuType, name) => {
     let restaurant = clone(state.restaurant);
     let catIdx = -1;
+    let parentIdx = -1;
+
     if (Boolean(catId)) {
       catIdx = restaurant.menu[menuType].findIndex((ele) => ele._id === catId);
+      if (catIdx === -1) {
+        let allSubMenus = restaurant.menu[menuType].filter(
+          (ele) => ele.type === "sub_menu"
+        );
+        for (let i = 0; i < allSubMenus.length; i++) {
+          catIdx = allSubMenus[i].items.findIndex((ele) => ele._id === catId);
+          if (catIdx !== -1) {
+            parentIdx = getCatIdx(
+              allSubMenus[i]._id,
+              menuType,
+              allSubMenus[i].category_name
+            ).catIdx;
+            break;
+          }
+        }
+      }
     } else {
       if (menuType === "buffet") {
         catIdx = restaurant.menu[menuType].findIndex(
           (ele) => ele.package_name === name
         );
+        if (catIdx === -1) {
+          let allSubMenus = restaurant.menu[menuType].filter(
+            (ele) => ele.type === "sub_menu"
+          );
+          for (let i = 0; i < allSubMenus.length; i++) {
+            catIdx = allSubMenus[i].items.findIndex(
+              (ele) => ele.package_name === name
+            );
+            if (catIdx !== -1) {
+              parentIdx = getCatIdx(
+                allSubMenus[i]._id,
+                menuType,
+                allSubMenus[i].category_name
+              ).catIdx;
+              break;
+            }
+          }
+        }
       } else {
         catIdx = restaurant.menu[menuType].findIndex(
           (ele) => ele.category_name === name
         );
+        if (catIdx === -1) {
+          let allSubMenus = restaurant.menu[menuType].filter(
+            (ele) => ele.type === "sub_menu"
+          );
+          for (let i = 0; i < allSubMenus.length; i++) {
+            catIdx = allSubMenus[i].items.findIndex(
+              (ele) => ele.category_name === name
+            );
+            if (catIdx !== -1) {
+              parentIdx = getCatIdx(
+                allSubMenus[i]._id,
+                menuType,
+                allSubMenus[i].category_name
+              ).catIdx;
+              break;
+            }
+          }
+        }
       }
     }
-    return catIdx;
+    console.log(catIdx, parentIdx);
+
+    return { catIdx, parentIdx };
   };
 
   // name - category or package name
   const addItem = (item, catId, menuType, name) => {
     let restaurant = clone(state.restaurant);
-    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
-    let catIdx = getCatIdx(catId, menuType, name);
+    let { catIdx, parentIdx } = getCatIdx(catId, menuType, name);
+    let newArr = [];
+    console.log(catIdx, parentIdx);
+    if (parentIdx !== -1) {
+      newArr = [
+        ...restaurant.menu[menuType][parentIdx].items[catIdx].items,
+        item,
+      ];
+      restaurant.menu[menuType][parentIdx].items[catIdx].items = newArr;
+    } else {
+      newArr = [...restaurant.menu[menuType][catIdx].items, item];
+      restaurant.menu[menuType][catIdx].items = newArr;
+    }
 
-    // if (Boolean(catId)) {
-    //   catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
-    // } else {
-    //   if (menuType === "buffet") {
-    //     catIdx = restaurant.menu[menuType].findIndex(
-    //       ele => ele.package_name === name
-    //     );
-    //   } else {
-    //     catIdx = restaurant.menu[menuType].findIndex(
-    //       ele => ele.category_name === name
-    //     );
-    //   }
-    // }
-
-    let newArr = [...restaurant.menu[menuType][catIdx].items, item];
-    restaurant.menu[menuType][catIdx].items = newArr;
     let arr = state.is_edited;
     arr[2] = true;
     setState({
@@ -266,10 +302,11 @@ function Dashboard(props) {
     });
   };
 
-  const addCat = (catName, menuType) => {
+  const addCat = (catName, type, menuType) => {
     let restaurant = clone(state.restaurant);
     let newCat = {
       category_name: catName,
+      type,
       items: [],
     };
     let newArr = [...restaurant.menu[menuType], newCat];
@@ -314,20 +351,37 @@ function Dashboard(props) {
 
   const updateItem = (item, itemId, catId, menuType, itemName, name) => {
     let restaurant = clone(state.restaurant);
-    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
-    let catIdx = getCatIdx(catId, menuType, name);
-    let itemIdx = "";
-    if (Boolean(itemId)) {
-      itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
-        (ele) => ele._id === itemId
-      );
+
+    let { catIdx, parentIdx } = getCatIdx(catId, menuType, name);
+    if (parentIdx !== -1) {
+      let itemIdx = "";
+      if (Boolean(itemId)) {
+        itemIdx = restaurant.menu[menuType][parentIdx].items[
+          catIdx
+        ].items.findIndex((ele) => ele._id === itemId);
+      } else {
+        itemIdx = restaurant.menu[menuType][parentIdx].items[
+          catIdx
+        ].items.findIndex((ele) => ele.item_name === itemName);
+      }
+
+      restaurant.menu[menuType][parentIdx].items[catIdx].items[itemIdx] =
+        clone(item);
     } else {
-      itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
-        (ele) => ele.item_name === itemName
-      );
+      let itemIdx = -1;
+      if (Boolean(itemId)) {
+        itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
+          (ele) => ele._id === itemId
+        );
+      } else {
+        itemIdx = restaurant.menu[menuType][catIdx].items.findIndex(
+          (ele) => ele.item_name === itemName
+        );
+      }
+
+      restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
     }
 
-    restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
     let arr = state.is_edited;
     arr[2] = true;
     setState({
@@ -337,17 +391,24 @@ function Dashboard(props) {
     });
   };
 
-  const updateCat = (catName, id, menuType, oldCatName) => {
+  const updateCat = (catName, type, id, menuType, oldCatName) => {
     let restaurant = clone(state.restaurant);
+    let { catIdx, parentIdx } = getCatIdx(id, menuType, oldCatName);
 
-    if (Boolean(id)) {
+    if (parentIdx !== -1) {
+      restaurant.menu[menuType][parentIdx].items[catIdx].category_name =
+        catName;
+      restaurant.menu[menuType][parentIdx].items[catIdx].type = type;
+    } else if (Boolean(id)) {
       let idx = restaurant.menu[menuType].findIndex((ele) => ele._id === id);
       restaurant.menu[menuType][idx].category_name = catName;
+      restaurant.menu[menuType][idx].type = type;
     } else {
       let idx = restaurant.menu[menuType].findIndex(
         (ele) => ele.category_name === oldCatName
       );
       restaurant.menu[menuType][idx].category_name = catName;
+      restaurant.menu[menuType][idx].type = type;
     }
     let arr = state.is_edited;
     arr[2] = true;
@@ -360,8 +421,6 @@ function Dashboard(props) {
 
   const updatePack = (pack, id, menuType, oldPackName) => {
     let restaurant = clone(state.restaurant);
-    // let idx = restaurant.menu[menuType].findIndex(ele => ele._id === id);
-    // restaurant.menu[menuType][idx] = clone(pack);
 
     if (Boolean(id)) {
       let idx = restaurant.menu[menuType].findIndex((ele) => ele._id === id);
@@ -423,9 +482,29 @@ function Dashboard(props) {
 
   const deleteItem = (itemId, catId, menuType, itemName, name) => {
     let restaurant = clone(state.restaurant);
-    // restaurant.menu = clone(menu);
-    // let catIdx = restaurant.menu[menuType].findIndex(ele => ele._id === catId);
-    let catIdx = getCatIdx(catId, menuType, name);
+    let { catIdx, parentIdx } = getCatIdx(catId, menuType, name);
+
+    if (parentIdx !== -1) {
+      let arr = restaurant.menu[menuType][parentIdx].items[catIdx].items;
+      let newArr = [];
+      if (Boolean(itemId)) {
+        newArr = arr.filter((ele) => ele._id !== itemId);
+      } else {
+        newArr = arr.filter((ele) => ele.item_name !== itemName);
+      }
+
+      restaurant.menu[menuType][parentIdx].items[catIdx].items = clone(newArr);
+    } else {
+      let arr = restaurant.menu[menuType][catIdx].items;
+      let newArr = [];
+      if (Boolean(itemId)) {
+        newArr = arr.filter((ele) => ele._id !== itemId);
+      } else {
+        newArr = arr.filter((ele) => ele.item_name !== itemName);
+      }
+      // restaurant.menu[menuType][catIdx].items[itemIdx] = clone(item);
+      restaurant.menu[menuType][catIdx].items = clone(newArr);
+    }
 
     let arr = restaurant.menu[menuType][catIdx].items;
     let newArr = [];
@@ -674,7 +753,10 @@ function Dashboard(props) {
       {/* <div className={classes.toolbar} /> */}
       <Grid
         className={classes.section}
-        style={{ marginTop: "80px", padding: "15px 10px" }}
+        style={{
+          marginTop: matchesSmDw ? "24px" : "80px",
+          padding: "15px 10px",
+        }}
         container
         // spacing={1}
         direction="row"
@@ -864,36 +946,11 @@ function Dashboard(props) {
             vertical: "bottom",
             horizontal: "right",
           }}
-          // style={{ background: "#4CAF50" }}
           open={state.snack1_open}
           autoHideDuration={4000}
           onClose={(evt, reason) =>
             handleSnackClose(evt, reason, "snack1_open")
           }
-          // message={
-          //   <span style={{ fontWeight: "bold", color: "white" }}>
-          //     <i style={{ margin: "5px" }} className="fas fa-check-circle"></i>
-          //     {`Succesfully Uploaded`}
-          //   </span>
-          // }
-          // action={
-          //   <React.Fragment>
-          //     <IconButton
-          //       size="small"
-          //       aria-label="close"
-          //       color="inherit"
-          //       onClick={(evt, reason) =>
-          //         handleSnackClose(evt, reason, "snack1_open")
-          //       }
-          //     >
-          //       {/* <CloseIcon fontSize="small" /> */}
-          //       <i
-          //         style={{ color: "#F783AC" }}
-          //         className="fas fa-times-circle"
-          //       ></i>
-          //     </IconButton>
-          //   </React.Fragment>
-          // }
         >
           <Alert
             onClose={(evt, reason) =>
@@ -943,27 +1000,30 @@ function Dashboard(props) {
               <RestLogo width="20px" height="20px" />
             </Badge>
 
-            <span
-              style={{
-                marginLeft: "8px",
-                fontWeight: "600",
-                textDecoration: "underline",
-              }}
-              variant="p"
-              noWrap
-            >
-              {props.restaurant.rest_id.length < 10
-                ? props.restaurant.rest_id
-                : props.restaurant.rest_id.slice(0, 8) + " .."}
-            </span>
-            <i style={{ marginLeft: "5px" }} className="fas fa-angle-down"></i>
+            {!matches && (
+              <span
+                style={{
+                  marginLeft: "8px",
+                  fontWeight: "600",
+                  textDecoration: "underline",
+                }}
+                variant="p"
+                noWrap
+              >
+                {props.restaurant.rest_id.length < 10
+                  ? props.restaurant.rest_id
+                  : props.restaurant.rest_id.slice(0, 8) + " .."}
+              </span>
+            )}
+            <i
+              style={{ marginLeft: "5px", verticalAlign: "sub" }}
+              className="fas fa-angle-down"
+            ></i>
           </div>
         </Toolbar>
       </AppBar>
       <nav className={classes.drawer} aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden mdUp implementation="css">
-          {/* <Hidden smUp implementation="css"> */}
           <Drawer
             container={container}
             variant="temporary"
@@ -981,8 +1041,6 @@ function Dashboard(props) {
           </Drawer>
         </Hidden>
         <Hidden smDown implementation="css">
-          {/* <Hidden xsDown implementation="css"> */}
-
           <Drawer
             classes={{
               paper: classes.drawerPaper,

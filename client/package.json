@@ -11,7 +11,7 @@
     "@material-ui/lab": "^4.0.0-alpha.41",
     "@material-ui/pickers": "^3.2.10",
     "@mui-treasury/styles": "^1.6.1",
-    "axios": "^0.21.1",
+    "axios": "^0.32.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^1.1.1",
     "firebase": "^7.19.1",
